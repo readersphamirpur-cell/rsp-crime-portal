@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DISTT. HAMIRPUR - RSP HAMIRPUR | पुलिस मुकदमा ट्रैकिंग पोर्टल</title>
+    <!-- SheetJS CDN for Excel Import/Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background: linear-gradient(135deg, #09121d 0%, #0f233a 50%, #08111e 100%); color: #f8fafc; min-height: 100vh; display: flex; flex-direction: column; }
+        
+        .hidden { display: none !important; }
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        
+        /* Header & Nav */
+        header { background: linear-gradient(90deg, #0b1e36 0%, #102a4c 100%); padding: 0.8rem 1.2rem; color: white; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #d4af37; }
+        .logo-box { display: flex; align-items: center; gap: 0.8rem; }
+        
+        /* Buttons */
+        .btn { padding: 0.45rem 0.9rem; border-radius: 6px; font-weight: bold; cursor: pointer; border: none; font-size: 0.8rem; }
+        .btn-gold { background: #d4af37; color: #0b1e36; }
+        .btn-gold:hover { background: #b89628; }
+        .btn-red { background: #dc2626; color: white; }
+        .btn-blue { background: #2563eb; color: white; }
+        .btn-green { background: #16a34a; color: white; }
+        
+        /* Login Card */
+        .login-wrapper { flex: 1; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+        .login-card { background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(212, 175, 55, 0.4); border-radius: 12px; padding: 2rem; width: 100%; max-width: 380px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .input-group { margin-bottom: 1rem; text-align: left; }
+        .input-group label { display: block; font-size: 0.78rem; margin-bottom: 0.3rem; color: #cbd5e1; font-weight: bold; }
+        .input-control { width: 100%; padding: 0.55rem 0.75rem; background: #0f172a; border: 1px solid #334155; border-radius: 6px; color: white; font-size: 0.85rem; }
+        .input-control:focus { outline: none; border-color: #d4af37; }
+        
+        /* Dashboard Grid Stats */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.6rem; margin-bottom: 0.8rem; }
+        .stat-card { background: white; color: #0f172a; padding: 0.6rem; border-radius: 8px; border-left: 4px solid #0b1e36; text-align: center; }
+        .stat-card h4 { font-size: 0.68rem; color: #64748b; text-transform: uppercase; font-weight: bold; }
+        .stat-card p { font-size: 1.2rem; font-weight: bold; margin-top: 0.2rem; }
+        
+        /* Filter Bar */
+        .filter-bar { background: white; color: #0f172a; padding: 0.8rem; border-radius: 8px; display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.6rem; margin-bottom: 0.8rem; align-items: end; }
+        
+        /* Table Wrapper */
+        .table-container { background: white; color: #0f172a; border-radius: 8px; overflow-x: auto; max-height: 55vh; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.78rem; text-align: left; }
+        th { background: #0b1e36; color: white; padding: 0.55rem; position: sticky; top: 0; white-space: nowrap; z-index: 10; }
+        td { padding: 0.55rem; border-bottom: 1px solid #e2e8f0; white-space: nowrap; }
+        tr:hover { background: #f1f5f9; }
+
+        /* Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); justify-content: center; align-items: center; z-index: 100; }
+        .modal-content { background: #1e293b; padding: 1.5rem; border-radius: 8px; width: 100%; max-width: 550px; border: 1px solid #d4af37; max-height: 80vh; overflow-y: auto; }
+    </style>
+</head>
+<body>
+
+    <!-- LOGIN SECTION -->
+    <div id="loginSection" class="login-wrapper">
+        <div class="login-card">
+            <div style="margin-bottom: 1.2rem;">
+                <div style="width: 60px; height: 60px; background: #0b1e36; border: 2px solid #d4af37; border-radius: 50%; margin: 0 auto 0.6rem; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #d4af37; font-size: 1.1rem;">UPP</div>
+                <h2 style="color: #d4af37; font-size: 1.3rem;">DISTT. HAMIRPUR</h2>
+                <h3 style="color: #e2e8f0; font-size: 0.95rem;">RSP HAMIRPUR</h3>
+                <p style="font-size: 0.72rem; color: #94a3b8; margin-top: 0.2rem;">उत्तर प्रदेश पुलिस • मुकदमा ट्रैकिंग पोर्टल</p>
+            </div>
+
+            <form onsubmit="handleLogin(event)">
+                <div class="input-group">
+                    <label>यूज़र आईडी (USER ID)</label>
+                    <input type="text" id="usernameInput" value="rsphamirpur" class="input-control" required>
+                </div>
+                <div class="input-group">
+                    <label>पासवर्ड (PASSWORD)</label>
+                    <input type="password" id="passwordInput" value="Rsp#3544" class="input-control" required>
+                </div>
+                <button type="submit" class="btn btn-gold" style="width: 100%; padding: 0.7rem; font-size: 0.9rem;">सुरक्षित लॉगिन करें</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- DASHBOARD SECTION -->
+    <div id="dashboardSection" class="hidden flex-col" style="flex: 1; background: #f8fafc; color: #0f172a;">
+        <header>
+            <div class="logo-box">
+                <div>
+                    <h2 style="color: #d4af37; font-size: 1rem; font-weight: bold;">DISTT. HAMIRPUR • RSP HAMIRPUR</h2>
+                    <p style="font-size: 0.7rem; color: #cbd5e1;" id="userBadgeDisplay">लॉगिन: rsphamirpur</p>
+                </div>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+                <button id="userMgmtBtn" onclick="openUserMgmtModal()" class="btn btn-gold" style="font-size: 0.75rem;">यूज़र प्रबंधन (थानावार)</button>
+                <button onclick="handleLogout()" class="btn btn-red" style="font-size: 0.75rem;">लॉगआउट</button>
+            </div>
+        </header>
+
+        <div style="padding: 0.8rem; max-width: 1400px; margin: 0 auto; width: 100%;">
+            <!-- 9 Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card" style="border-left-color: #2563eb;">
+                    <h4>कुल मुकदमे</h4>
+                    <p id="stTotal" style="color: #1e40af;">0</p>
+                </div>
+                <div class="stat-card" style="border-left-color: #b45309;">
+                    <h4>अभियुक्त संख्या</h4>
+                    <p id="stAccused" style="color: #b45309;">0</p>
+                </div>
+                <div class="stat-card" style="border-left-color: #16a34a;">
+                    <h4>गिरफ्तार</h4>
+                    <p id="stArrested" style="color: #16a34a;">0</p>
+                </div>
+                <div class="stat-card" style="border-left-color: #4f46e5;">
+                    <h4>हाजिर</h4>
+                    <p id="stCourt" style="color: #4f46e5;">0</p>
+                </div>
+                <div class="stat-card" style="border-left-color: #0891b2;">
+                    <h4>नोटिस</h4>
+                    <p id="stNotice" style="color: #0891b2;">0</p>
+                </div>
+                <div class="stat-card" style="border-left-color: #dc2626; background: #fef2f2;">
+                    <h4 style="color: #dc2626;">शेष अभियुक्त</h4>
+                    <p id="stPendingAccused" style="color: #dc2626;">0</p>
+                </div>
+                <div class="stat-card" style="border-left-color: #0d9488;">
+                    <h4>आरोप पत्र</h4>
+                    <p id="stChargesheet" style="color: #0d9488;">0</p>
+                </div>
+                <div class="stat-card" style="border-left-color: #9333ea;">
+                    <h4>अंतिम रिपोर्ट</h4>
+                    <p id="stFinalReport" style="color: #9333ea;">0</p>
+                </div>
+                <div class="stat-card" style="border-left-color: #ea580c; background: #fff7ed;">
+                    <h4 style="color: #c2410c;">शेष विवेचना</h4>
+                    <p id="stPendingCases" style="color: #c2410c;">0</p>
+                </div>
+            </div>
+
+            <!-- Filter Bar -->
+            <div class="filter-bar">
+                <div>
+                    <label style="font-size: 0.72rem; font-weight: bold;">सामान्य खोज</label>
+                    <input type="text" id="searchInput" oninput="applyFilters()" placeholder="अपराध सं०, वादी..." class="input-control" style="background: white; color: black; padding: 0.3rem;">
+                </div>
+                <div>
+                    <label style="font-size: 0.72rem; font-weight: bold;">थाना</label>
+                    <select id="thanaFilter" onchange="applyFilters()" class="input-control" style="background: white; color: black; padding: 0.3rem;">
+                        <option value="ALL">सभी 15 थाने</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size: 0.72rem; font-weight: bold;">अपराध शीर्षक</label>
+                    <select id="crimeFilter" onchange="applyFilters()" class="input-control" style="background: white; color: black; padding: 0.3rem;">
+                        <option value="ALL">सभी अपराध शीर्षक</option>
+                        <option value="हत्या">हत्या</option>
+                        <option value="दहेज हत्या">दहेज हत्या</option>
+                        <option value="बलात्कार">बलात्कार</option>
+                        <option value="नकबजनी">नकबजनी</option>
+                        <option value="साधारण मारपीट">साधारण मारपीट</option>
+                        <option value="दहेज प्रताड़ना">दहेज प्रताड़ना</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="font-size: 0.72rem; font-weight: bold;">दिनांक से (From)</label>
+                    <input type="date" id="fromDateFilter" onchange="applyFilters()" class="input-control" style="background: white; color: black; padding: 0.3rem;">
+                </div>
+                <div>
+                    <label style="font-size: 0.72rem; font-weight: bold;">दिनांक तक (To)</label>
+                    <input type="date" id="toDateFilter" onchange="applyFilters()" class="input-control" style="background: white; color: black; padding: 0.3rem;">
+                </div>
+                <div>
+                    <label style="font-size: 0.72rem; font-weight: bold;">FCR का हेड</label>
+                    <select id="fcrFilter" onchange="applyFilters()" class="input-control" style="background: white; color: black; padding: 0.3rem;">
+                        <option value="ALL">सभी</option>
+                        <option value="हाँ">हाँ (Yes)</option>
+                        <option value="नहीं">नहीं (No)</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 0.3rem; flex-wrap: wrap;">
+                    <button onclick="exportToExcel()" class="btn btn-green" style="flex: 1; padding: 0.35rem; font-size: 0.75rem;">एक्सपोर्ट</button>
+                    <label class="btn btn-blue" style="flex: 1; padding: 0.35rem; font-size: 0.75rem; text-align: center; cursor: pointer;">
+                        इम्पोर्ट <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" onchange="importFromExcel(event)" style="display: none;">
+                    </label>
+                    <button id="bulkDeleteBtn" onclick="deleteSelectedCases()" class="btn btn-red hidden" style="flex: 1; padding: 0.35rem; font-size: 0.75rem;">चयनित डिलीट</button>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th id="selectAllHeader" style="display:none; text-align:center;"><input type="checkbox" id="selectAllCheckbox" onclick="toggleSelectAll(this)"></th>
+                            <th>जनपद</th>
+                            <th>क्रम सं०</th>
+                            <th>सर्किल</th>
+                            <th>थाना</th>
+                            <th>अपराध शीर्षक</th>
+                            <th>मुकदमा अपराध संख्या</th>
+                            <th>धारा</th>
+                            <th>दिनांक घटना</th>
+                            <th>दिनांक सूचना</th>
+                            <th>वादी</th>
+                            <th>प्रतिवादी</th>
+                            <th>विवेचक</th>
+                            <th>विवेचना की स्थिति</th>
+                            <th style="background: #1e3a8a; color: white;">आरोप/अंतिम रिपोर्ट संख्या</th>
+                            <th style="background: #1e3a8a; color: white;">दिनांक</th>
+                            <th>नामजद</th>
+                            <th>प्रकाश</th>
+                            <th style="background: #d4af37; color: #0b1e36;">कुल योग</th>
+                            <th>गिरफ्तार</th>
+                            <th>नोटिस</th>
+                            <th>हाजिर</th>
+                            <th>गलत</th>
+                            <th style="background: #dc2626; color: white;">शेष</th>
+                            <th>FCR</th>
+                            <th>रिमार्क्स</th>
+                            <th id="actionHeader" style="text-align: center; background: #0b1e36;">कार्रवाई (Action)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="caseTableBody">
+                        <!-- Dynamic Rows -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Management Modal -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <h3 style="color: #d4af37; margin-bottom: 1rem; font-size: 1.1rem;">सभी 15 थानों के यूज़र प्रबंधन (ID & Password)</h3>
+            <div id="thanaUserList" style="max-height: 50vh; overflow-y: auto; margin-bottom: 1rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                <!-- Dynamic Thana Credentials List -->
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+                <button onclick="saveThanaCredentials()" class="btn btn-gold" style="flex: 1;">बदलाव सहेजें</button>
+                <button onclick="closeUserMgmtModal()" class="btn btn-red" style="flex: 1;">बंद करें</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ALL_THANAS = [
+            'कोतवाली नगर', 'कुरारा', 'ललपुरा', 'सुमेरपुर', 'महिला थाना', 
+            'साइबर थाना', 'मौदहा', 'बिवार', 'सिसोलर', 'राठ', 
+            'मुस्करा', 'मझगवां', 'जरिया', 'चिकासी', 'जलालपुर'
+        ];
+
+        let thanaCredentials = JSON.parse(localStorage.getItem('rsp_thana_creds')) || {};
+        if (Object.keys(thanaCredentials).length === 0) {
+            ALL_THANAS.forEach(t => {
+                thanaCredentials[t] = { username: t.toLowerCase().replace(/\s+/g, ''), password: '123' };
+            });
+            thanaCredentials['admin'] = { username: 'rsphamirpur', password: 'Rsp#3544' };
+        }
+
+        let casesData = JSON.parse(localStorage.getItem('rsp_hamirpur_cases')) || [
+            { id: 1, janpad: "हमीरपुर", circle: "सदर", thana: "कोतवाली नगर", crime_title: "नकबजनी", case_no: "124/2026", section: "305 BNS", evt_date: "2026-10-15", info_date: "2026-10-15", complainant: "राम प्रकाश", defendant: "अज्ञात", io_name: "उ०नि० रमेश चंद्र", status: "विवेचनाधीन", cs_no: "-", cs_date: "-", named: 1, revealed: 1, arrested: 1, notice: 0, court: 0, wrong: 0, fcr_head: "हाँ", remarks: "संपत्ति संबंधी" },
+            { id: 2, janpad: "हमीरपुर", circle: "मौदहा", thana: "मौदहा", crime_title: "साधारण मारपीट", case_no: "88/2026", section: "115(2) BNS", evt_date: "2026-10-18", info_date: "2026-10-18", complainant: "शिवपाल सिंह", defendant: "सुरेश कुमार", io_name: "उ०नि० अजय कुमार", status: "आरोप पत्र प्रेषित", cs_no: "CS-12/2026", cs_date: "2026-10-22", named: 2, revealed: 0, arrested: 0, notice: 2, court: 0, wrong: 0, fcr_head: "नहीं", remarks: "शरीर संबंधी" }
+        ];
+
+        let loggedInThana = 'ALL';
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const u = document.getElementById('usernameInput').value.trim();
+            const p = document.getElementById('passwordInput').value.trim();
+
+            if (u === thanaCredentials['admin'].username && p === thanaCredentials['admin'].password) {
+                loggedInThana = 'ALL';
+                startDashboard('Admin (सभी थाने)');
+                return;
+            }
+
+            let foundThana = null;
+            for (let t of ALL_THANAS) {
+                if (thanaCredentials[t] && thanaCredentials[t].username === u && thanaCredentials[t].password === p) {
+                    foundThana = t;
+                    break;
+                }
+            }
+
+            if (foundThana) {
+                loggedInThana = foundThana;
+                startDashboard(`थाना: ${foundThana}`);
+            } else {
+                alert('गलत यूज़र आईडी या पासवर्ड!');
+            }
+        }
+
+        function startDashboard(badgeText) {
+            document.getElementById('loginSection').classList.add('hidden');
+            document.getElementById('dashboardSection').classList.remove('hidden');
+            document.getElementById('dashboardSection').classList.add('flex');
+            document.getElementById('userBadgeDisplay').innerText = `लॉगिन: ${badgeText}`;
+            
+            const tf = document.getElementById('thanaFilter');
+            const userMgmtBtn = document.getElementById('userMgmtBtn');
+            const actionHeader = document.getElementById('actionHeader');
+            const selectAllHeader = document.getElementById('selectAllHeader');
+            const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+
+            if (loggedInThana === 'ALL') {
+                tf.innerHTML = '<option value="ALL">सभी 15 थाने</option>';
+                ALL_THANAS.forEach(t => { tf.innerHTML += `<option value="${t}">${t}</option>`; });
+                tf.disabled = false;
+                userMgmtBtn.style.display = 'inline-block';
+                actionHeader.style.display = '';
+                selectAllHeader.style.display = '';
+                bulkDeleteBtn.classList.remove('hidden');
+            } else {
+                tf.innerHTML = `<option value="${loggedInThana}">${loggedInThana}</option>`;
+                tf.disabled = true;
+                userMgmtBtn.style.display = 'none';
+                actionHeader.style.display = 'none';
+                selectAllHeader.style.display = 'none';
+                bulkDeleteBtn.classList.add('hidden');
+            }
+            applyFilters();
+        }
+
+        function handleLogout() {
+            document.getElementById('dashboardSection').classList.add('hidden');
+            document.getElementById('loginSection').classList.remove('hidden');
+        }
+
+        function openUserMgmtModal() {
+            const container = document.getElementById('thanaUserList');
+            let htmlContent = '<div style="background: #0f172a; padding: 0.5rem; border-radius: 6px; border: 1px solid #d4af37;">' +
+                '<p style="font-size: 0.75rem; color: #d4af37; font-weight: bold; margin-bottom: 0.2rem;">सुपर एडमिन (District HQ)</p>' +
+                '<div style="display: flex; gap: 0.5rem;">' +
+                '<input type="text" id="adm_user" value="' + thanaCredentials['admin'].username + '" class="input-control" placeholder="ID">' +
+                '<input type="text" id="adm_pass" value="' + thanaCredentials['admin'].password + '" class="input-control" placeholder="Password">' +
+                '</div></div>';
+
+            ALL_THANAS.forEach(function(t) {
+                const cred = thanaCredentials[t] || { username: '', password: '' };
+                htmlContent += '<div style="background: #0f172a; padding: 0.5rem; border-radius: 6px; margin-top: 6px;">' +
+                    '<p style="font-size: 0.75rem; color: #94a3b8; font-weight: bold; margin-bottom: 0.2rem;">' + t + '</p>' +
+                    '<div style="display: flex; gap: 0.5rem;">' +
+                    '<input type="text" id="usr_' + t + '" value="' + cred.username + '" class="input-control" placeholder="User ID">' +
+                    '<input type="text" id="pwd_' + t + '" value="' + cred.password + '" class="input-control" placeholder="Password">' +
+                    '</div></div>';
+            });
+
+            container.innerHTML = htmlContent;
+            document.getElementById('userModal').style.display = 'flex';
+        }
+
+        function closeUserMgmtModal() {
+            document.getElementById('userModal').style.display = 'none';
+        }
+
+        function saveThanaCredentials() {
+            thanaCredentials['admin'].username = document.getElementById('adm_user').value.trim();
+            thanaCredentials['admin'].password = document.getElementById('adm_pass').value.trim();
+
+            ALL_THANAS.forEach(function(t) {
+                const uVal = document.getElementById('usr_' + t).value.trim();
+                const pVal = document.getElementById('pwd_' + t).value.trim();
+                if(!thanaCredentials[t]) thanaCredentials[t] = {};
+                thanaCredentials[t].username = uVal;
+                thanaCredentials[t].password = pVal;
+            });
+
+            localStorage.setItem('rsp_thana_creds', JSON.stringify(thanaCredentials));
+            alert('सभी थानों के यूज़र आईडी और पासवर्ड सफलतापूर्वक अपडेट कर दिए गए हैं!');
+            closeUserMgmtModal();
+        }
+
+        function applyFilters() {
+            const s = document.getElementById('searchInput').value.toLowerCase();
+            const t = document.getElementById('thanaFilter').value;
+            const c = document.getElementById('crimeFilter').value;
+            const f = document.getElementById('fcrFilter').value;
+            const fromD = document.getElementById('fromDateFilter').value;
+            const toD = document.getElementById('toDateFilter').value;
+
+            const filtered = casesData.filter(function(item) {
+                if (loggedInThana !== 'ALL' && item.thana !== loggedInThana) return false;
+
+                const matchSearch = !s || Object.values(item).some(function(val) { return String(val).toLowerCase().includes(s); });
+                const matchThana = (t === 'ALL' || item.thana === t);
+                const matchCrime = (c === 'ALL' || item.crime_title === c);
+                const matchFCR = (f === 'ALL' || item.fcr_head === f);
+                
+                let matchDate = true;
+                if (item.info_date) {
+                    if (fromD && item.info_date < fromD) matchDate = false;
+                    if (toD && item.info_date > toD) matchDate = false;
+                }
+
+                return matchSearch && matchThana && matchCrime && matchFCR && matchDate;
+            });
+
+            renderTable(filtered);
+            updateStats(filtered);
+        }
+
+        function updateStats(data) {
+            let totAcc = 0, totArr = 0, totCrt = 0, totNot = 0, totPendAcc = 0;
+            let totCS = 0, totFR = 0, totPendCases = 0;
+
+            data.forEach(function(x) {
+                const totalAcc = (parseInt(x.named) || 0) + (parseInt(x.revealed) || 0);
+                const disposed = (parseInt(x.arrested) || 0) + (parseInt(x.notice) || 0) + (parseInt(x.court) || 0) + (parseInt(x.wrong) || 0);
+                
+                totAcc += totalAcc;
+                totArr += (parseInt(x.arrested) || 0);
+                totCrt += (parseInt(x.court) || 0);
+                totNot += (parseInt(x.notice) || 0);
+                totPendAcc += (totalAcc - disposed);
+
+                if (x.status === "आरोप पत्र प्रेषित") totCS++;
+                else if (x.status === "अंतिम रिपोर्ट प्रेषित") totFR++;
+                else totPendCases++;
+            });
+
+            document.getElementById('stTotal').innerText = data.length;
+            document.getElementById('stAccused').innerText = totAcc;
+            document.getElementById('stArrested').innerText = totArr;
+            document.getElementById('stCourt').innerText = totCrt;
+            document.getElementById('stNotice').innerText = totNot;
+            document.getElementById('stPendingAccused').innerText = totPendAcc;
+            document.getElementById('stChargesheet').innerText = totCS;
+            document.getElementById('stFinalReport').innerText = totFR;
+            document.getElementById('stPendingCases').innerText = totPendCases;
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('caseTableBody');
+            tbody.innerHTML = '';
+            const isAdmin = (loggedInThana === 'ALL');
+
+            data.forEach(function(item, idx) {
+                const totalAccused = (parseInt(item.named) || 0) + (parseInt(item.revealed) || 0);
+                const disposedAccused = (parseInt(item.arrested) || 0) + (parseInt(item.notice) || 0) + (parseInt(item.court) || 0) + (parseInt(item.wrong) || 0);
+                const pendingBalance = totalAccused - disposedAccused;
+
+                let checkboxTd = isAdmin ? '<td style="text-align: center;"><input type="checkbox" class="rowCheckbox" value="' + item.id + '"></td>' : '';
+                let actionTd = isAdmin ? '<td style="text-align: center;">' +
+                    '<button onclick="editCase(' + item.id + ')" class="btn btn-blue" style="padding: 0.2rem 0.4rem; font-size: 0.72rem;">एडिट</button> ' +
+                    '<button onclick="deleteCase(' + item.id + ')" class="btn btn-red" style="padding: 0.2rem 0.4rem; font-size: 0.72rem;">डिलीट</button>' +
+                    '</td>' : '';
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = checkboxTd +
+                    '<td>' + item.janpad + '</td>' +
+                    '<td style="font-weight: bold; text-align: center;">' + (idx + 1) + '</td>' +
+                    '<td>' + item.circle + '</td>' +
+                    '<td style="font-weight: bold;">' + item.thana + '</td>' +
+                    '<td>' + item.crime_title + '</td>' +
+                    '<td style="color: #2563eb; font-weight: bold;">' + item.case_no + '</td>' +
+                    '<td>' + item.section + '</td>' +
+                    '<td>' + item.evt_date + '</td>' +
+                    '<td>' + item.info_date + '</td>' +
+                    '<td>' + item.complainant + '</td>' +
+                    '<td>' + item.defendant + '</td>' +
+                    '<td>' + item.io_name + '</td>' +
+                    '<td><span style="background: #fef3c7; color: #92400e; padding: 0.15rem 0.35rem; border-radius: 4px; font-weight: bold;">' + item.status + '</span></td>' +
+                    '<td style="font-weight: bold; color: #1e3a8a;">' + (item.cs_no || '-') + '</td>' +
+                    '<td>' + (item.cs_date || '-') + '</td>' +
+                    '<td style="text-align: center;">' + item.named + '</td>' +
+                    '<td style="text-align: center;">' + item.revealed + '</td>' +
+                    '<td style="text-align: center; font-weight: bold; background: #fef3c7;">' + totalAccused + '</td>' +
+                    '<td style="text-align: center;">' + item.arrested + '</td>' +
+                    '<td style="text-align: center;">' + item.notice + '</td>' +
+                    '<td style="text-align: center;">' + item.court + '</td>' +
+                    '<td style="text-align: center;">' + item.wrong + '</td>' +
+                    '<td style="text-align: center; font-weight: bold; background: #fee2e2; color: #dc2626;">' + pendingBalance + '</td>' +
+                    '<td style="text-align: center;">' + item.fcr_head + '</td>' +
+                    '<td>' + item.remarks + '</td>' +
+                    actionTd;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function toggleSelectAll(source) {
+            const checkboxes = document.querySelectorAll('.rowCheckbox');
+            checkboxes.forEach(function(cb) { cb.checked = source.checked; });
+        }
+
+        function deleteSelectedCases() {
+            if (loggedInThana !== 'ALL') return;
+            const checkboxes = document.querySelectorAll('.rowCheckbox:checked');
+            if (checkboxes.length === 0) {
+                alert('कृपया डिलीट करने के लिए कम से कम एक रिकॉर्ड चुनें!');
+                return;
+            }
+            if (confirm('क्या आप चुने गए ' + checkboxes.length + ' रिकॉर्ड्स को डिलीट करना चाहते हैं?')) {
+                const idsToDelete = Array.from(checkboxes).map(function(cb) { return parseInt(cb.value); });
+                casesData = casesData.filter(function(x) { return !idsToDelete.includes(x.id); });
+                localStorage.setItem('rsp_hamirpur_cases', JSON.stringify(casesData));
+                applyFilters();
+                document.getElementById('selectAllCheckbox').checked = false;
+            }
+        }
+
+        function editCase(id) {
+            if (loggedInThana !== 'ALL') return;
+            const item = casesData.find(function(x) { return x.id === id; });
+            if (item) {
+                const newStatus = prompt('विवेचना की स्थिति दर्ज/संशोधित करें (उदा० विवेचनाधीन / आरोप पत्र प्रेषित / अंतिम रिपोर्ट प्रेषित):', item.status);
+                if (newStatus !== null) {
+                    item.status = newStatus;
+                    if (newStatus === "आरोप पत्र प्रेषित" || newStatus === "अंतिम रिपोर्ट प्रेषित") {
+                        item.cs_no = prompt('आरोप/अंतिम रिपोर्ट संख्या दर्ज करें:', item.cs_no !== '-' ? item.cs_no : '') || '-';
+                        item.cs_date = prompt('दिनांक दर्ज करें (YYYY-MM-DD):', item.cs_date !== '-' ? item.cs_date : '') || '-';
+                    } else {
+                        item.cs_no = '-';
+                        item.cs_date = '-';
+                    }
+                    localStorage.setItem('rsp_hamirpur_cases', JSON.stringify(casesData));
+                    applyFilters();
+                }
+            }
+        }
+
+        function deleteCase(id) {
+            if (loggedInThana !== 'ALL') return;
+            if (confirm('क्या आप इस रिकॉर्ड को डिलीट करना चाहते हैं?')) {
+                casesData = casesData.filter(function(x) { return x.id !== id; });
+                localStorage.setItem('rsp_hamirpur_cases', JSON.stringify(casesData));
+                applyFilters();
+            }
+        }
+
+        function exportToExcel() {
+            const ws = XLSX.utils.json_to_sheet(casesData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Hamirpur_Cases");
+            XLSX.writeFile(wb, "RSP_Hamirpur_Crime_Report.xlsx");
+        }
+
+        function importFromExcel(e) {
+            if (loggedInThana !== 'ALL') return;
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    const data = new Uint8Array(evt.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheet = workbook.SheetNames[0];
+                    const rows = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
+                    if (rows.length > 0) {
+                        const newImportedCases = rows.map(function(r, idx) {
+                            return {
+                                id: Date.now() + idx,
+                                janpad: r["जनपद"] || "हमीरपुर",
+                                circle: r["सर्किल"] || "",
+                                thana: r["थाना"] || "",
+                                crime_title: r["अपराध शीर्षक"] || "",
+                                case_no: r["मुकदमा अपराध संख्या"] || "",
+                                section: r["धारा"] || "",
+                                evt_date: r["दिनांक घटना"] || "",
+                                info_date: r["दिनांक सूचना"] || "",
+                                complainant: r["वादी"] || "",
+                                defendant: r["प्रतिवादी"] || "",
+                                io_name: r["विवेचक"] || "",
+                                status: r["विवेचना की स्थिति"] || "विवेचनाधीन",
+                                cs_no: r["आरोप/अंतिम रिपोर्ट संख्या"] || "-",
+                                cs_date: r["दिनांक"] || "-",
+                                named: parseInt(r["नामजद"]) || 0,
+                                revealed: parseInt(r["प्रकाश"]) || 0,
+                                arrested: parseInt(r["गिरफ्तार"]) || 0,
+                                notice: parseInt(r["नोटिस"]) || 0,
+                                court: parseInt(r["हाजिर"]) || 0,
+                                wrong: parseInt(r["गलत"]) || 0,
+                                fcr_head: r["FCR का हेड"] || "नहीं",
+                                remarks: r["रिमार्क्स"] || ""
+                            };
+                        });
+                        
+                        casesData = casesData.concat(newImportedCases);
+                        localStorage.setItem('rsp_hamirpur_cases', JSON.stringify(casesData));
+                        applyFilters();
+                        alert('एक्सेल डेटा सफलतापूर्वक पुराने डेटा के साथ जोड़ (Append) दिया गया है!');
+                    }
+                } catch (err) {
+                    alert('फ़ाइल पढ़ने में त्रुटि हुई। कृपया सही एक्सेल फ़ाइल चुनें।');
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+    </script>
+</body>
+</html>
