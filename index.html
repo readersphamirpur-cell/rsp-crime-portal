@@ -1809,15 +1809,11 @@
   });
 
   // --- 2. Naya Data Save karne ke liye Helper Function ---
-  window.saveDataToFirebase = function() {
-    db.ref('casesData').set(casesData)
-      .then(() => {
-        console.log("Data Firebase par update ho gaya!");
-      })
-      .catch((err) => {
-        console.error("Firebase update error:", err);
-      });
-  };
+ window.saveDataToFirebase = function() {
+    if (Array.isArray(casesData)) {
+        db.ref('casesData').set(casesData);
+    }
+};
   console.log("Firebase Connected Successfully!");
 </script>
 </body>
