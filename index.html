@@ -251,17 +251,19 @@
           word-wrap: break-word !important;
           word-break: break-word !important;
 }
-            /* 1. जनपद, मु0अ0सं0 और धारा की चौड़ाई कम करने के लिए */
+        /* 1. जनपद, मु0अ0सं0 और धारा की चौड़ाई कम करने के लिए */
         .w-janpad { min-width: 65px; max-width: 70px; white-space: nowrap; }
-        .w-caseno { min-width: 90px; max-width: 110px; white-space: normal !important; word-break: break-word !important; }
-        .w-section { min-width: 150px; max-width: 350px; white-space: normal !important; word-break: break-word !important; }
+        .w-caseno, th.w-caseno, td.w-caseno { min-width: 90px; max-width: 110px; white-space: normal !important; word-break: break-word !important; }
+        .w-section, th.w-section, td.w-section { min-width: 150px !important; max-width: 300px !important; white-space: normal !important; word-break: break-word !important; }
         
-        /* 2. वादी, प्रतिवादी, घटनास्थल और विवरण की चौड़ाई बढ़ाने के लिए */
+        /* 2. वादी, प्रतिवादी, घटनास्थल और विवरण */
         .w-place { min-width: 150px !important; max-width: 200px !important; }
         .w-complainant { min-width: 200px !important; max-width: 450px !important; }
         .w-defendant { min-width: 200px !important; max-width: 700px !important; }
-        .w-desc { min-width: 280px !important; max-width: 700px !important; }
-        .w-io { min-width: 100px !important; max-width: 350px !important; white-space: normal !important; }
+        .w-desc { min-width: 280px !important; max-width: 700px !important; white-space: normal !important; }
+
+        /* 3. विवेचक (IO) की चौड़ाई बढ़ाने के लिए */
+        .w-io, th.w-io, td.w-io { min-width: 160px !important; max-width: 280px !important; white-space: normal !important; word-break: break-word !important; }
 
         /* 3. नीचे स्क्रॉल करने पर टेबल का हेडर (Header) फ़िक्स (Sticky) रखने के लिए */
         .table-container {
@@ -480,7 +482,7 @@
                                 <tr>
                                     <th id="selectAllHeader" style="display:none; text-align:center;"><input type="checkbox" id="selectAllCheckbox" onclick="toggleSelectAll(this)"></th>
                                     <th class="w-janpad">जनपद</th>
-                                    <th>क्रम सं०</th>
+                                    <th>क्र0सं0</th>
                                     <th>सर्किल</th>
                                     <th>थाना</th>
                                     <th>अपराध शीर्षक</th>
