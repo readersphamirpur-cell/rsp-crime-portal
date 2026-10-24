@@ -515,6 +515,7 @@
                         </div>
                         
                         <!-- Filter Panel for FCR -->
+                       <!-- Filter Panel for FCR -->
                         <div class="filter-grid" style="margin-bottom: 1rem;">
                             <div class="input-group">
                                 <label>अपराध शीर्षक</label>
@@ -527,6 +528,14 @@
                                     <option value="विवेचनाधीन">विवेचनाधीन</option>
                                     <option value="आरोप पत्र प्रेषित">आरोप पत्र</option>
                                     <option value="अंतिम रिपोर्ट">अंतिम रिपोर्ट</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label>F.C.R. Status</label>
+                                <select id="fcrYesNoFilter" onchange="renderFcrTable()" class="input-control">
+                                    <option value="ALL">सभी</option>
+                                    <option value="हाँ">हाँ (Yes)</option>
+                                    <option value="नहीं">नहीं (No)</option>
                                 </select>
                             </div>
                         </div>
@@ -1353,11 +1362,13 @@
 
             const crimeFilter = document.getElementById('fcrCrimeFilter').value;
             const statusFilter = document.getElementById('fcrStatusFilter').value;
+            const fcrYesNoVal = document.getElementById('fcrYesNoFilter') ? document.getElementById('fcrYesNoFilter').value : 'ALL';
 
             let filteredCases = casesData.filter(item => {
                 if (loggedInThana !== 'ALL' && item.thana !== loggedInThana) return false;
                 if (crimeFilter !== 'ALL' && item.crime_title !== crimeFilter) return false;
                 if (statusFilter !== 'ALL' && item.status !== statusFilter) return false;
+                if (fcrYesNoVal !== 'ALL' && item.fcr_head !== fcrYesNoVal) return false;
                 return true;
             });
 
