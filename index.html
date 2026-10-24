@@ -247,15 +247,31 @@
 
         /* WRAP TEXT SPECIFIC CLASSES */
         .wrap-col {
-            white-space: normal !important;
-            word-wrap: break-word !important;
-            word-break: break-word !important;
+            /* 1. जनपद, मु0अ0सं0 और धारा की चौड़ाई कम करने के लिए */
+        .w-janpad { min-width: 65px; max-width: 80px; white-space: nowrap; }
+        .w-caseno { min-width: 90px; max-width: 110px; white-space: nowrap; }
+        .w-section { min-width: 80px; max-width: 100px; white-space: nowrap; }
+
+        /* 2. वादी, प्रतिवादी, घटनास्थल और विवरण की चौड़ाई बढ़ाने के लिए */
+        .w-place { min-width: 200px !important; max-width: 280px !important; }
+        .w-complainant { min-width: 180px !important; max-width: 240px !important; }
+        .w-defendant { min-width: 180px !important; max-width: 240px !important; }
+        .w-desc { min-width: 280px !important; max-width: 400px !important; }
+
+        /* 3. नीचे स्क्रॉल करने पर टेबल का हेडर (Header) फ़िक्स (Sticky) रखने के लिए */
+        .table-container {
+            max-height: 65vh; /* स्क्रॉल कंटेनर की ऊँचाई */
+            overflow-y: auto;  /* वर्टिकल स्क्रॉल चालू करें */
+            overflow-x: auto;  /* हॉरिजॉन्टल स्क्रॉल चालू करें */
+            position: relative;
         }
-        .w-place { min-width: 130px; max-width: 180px; }
-        .w-complainant { min-width: 120px; max-width: 160px; }
-        .w-defendant { min-width: 120px; max-width: 160px; }
-        .w-desc { min-width: 200px; max-width: 300px; }
-        .w-io { min-width: 110px; max-width: 150px; }
+
+        th {
+            position: sticky;
+            top: 0;
+            z-index: 20; /* हेडर को सबसे ऊपर रखने के लिए */
+            background: #1e293b !important; /* हेडर का बैकग्राउंड */
+        }
 
         .clickable-link { color: #2563eb; font-weight: 700; cursor: pointer; text-decoration: underline; }
         .clickable-link:hover { color: #1d4ed8; }
@@ -443,6 +459,7 @@
                         <div class="stat-card c-green"><h4>गिरफ्तार</h4><p id="stArrested" style="color: #16a34a;">0</p></div>
                         <div class="stat-card c-purple"><h4>हाजिर</h4><p id="stCourt" style="color: #9333ea;">0</p></div>
                         <div class="stat-card c-cyan"><h4>नोटिस</h4><p id="stNotice" style="color: #0891b2;">0</p></div>
+                        <div class="stat-card c-purple"><h4 style="color: #8b5cf6;">नामजदगी गलत</h4><p id="stWrong" style="color: #8b5cf6;">0</p></div>
                         <div class="stat-card c-red"><h4 style="color: #dc2626;">शेष अभियुक्त</h4><p id="stPendingAccused" style="color: #dc2626;">0</p></div>
                         <div class="stat-card c-green"><h4>आरोप पत्र</h4><p id="stChargesheet" style="color: #16a34a;">0</p></div>
                         <div class="stat-card c-orange"><h4>अंतिम रिपोर्ट</h4><p id="stFinalReport" style="color: #ea580c;">0</p></div>
@@ -457,13 +474,13 @@
                             <thead>
                                 <tr>
                                     <th id="selectAllHeader" style="display:none; text-align:center;"><input type="checkbox" id="selectAllCheckbox" onclick="toggleSelectAll(this)"></th>
-                                    <th>जनपद</th>
+                                    <th class="w-janpad">जनपद</th>
                                     <th>क्रम सं०</th>
                                     <th>सर्किल</th>
                                     <th>थाना</th>
                                     <th>अपराध शीर्षक</th>
-                                    <th>मुकदमा अपराध संख्या</th>
-                                    <th>धारा</th>
+                                    <th class="w-caseno">मुकदमा अपराध संख्या</th>
+                                    <th class="w-section">धारा</th>
                                     <th>दिनांक घटना</th>
                                     <th>दिनांक सूचना</th>
                                     <th class="wrap-col w-place">घटनास्थल</th>
@@ -1261,13 +1278,13 @@
 
                 tr.innerHTML = `
                     ${checkboxTD}
-                    <td>${item.janpad || 'हमीरपुर'}</td>
+                    <td class="w-janpad">${item.janpad || 'हमीरपुर'}</td>
                     <td>${index + 1}</td>
                     <td>${item.circle || '-'}</td>
                     <td>${item.thana || '-'}</td>
                     <td>${item.crime_title || '-'}</td>
-                    <td style="font-weight: bold; color: #2563eb;">${item.case_no || '-'}</td>
-                    <td>${item.section || '-'}</td>
+                    <td class="w-caseno" style="font-weight: bold; color: #2563eb;">${item.case_no || '-'}</td>
+                    <td class="w-section">${item.section || '-'}</td>
                     <td>${item.evt_date || '-'}</td>
                     <td>${item.info_date || '-'}</td>
                     <td class="wrap-col w-place">${item.incident_place || '-'}</td>
@@ -1305,9 +1322,9 @@
             });
         }
 
-        function updateStats(data) {
+           function updateStats(data) {
             let totalCases = data.length;
-            let totalAccused = 0, totalArrested = 0, totalCourt = 0, totalNotice = 0, totalPendingAccused = 0;
+            let totalAccused = 0, totalArrested = 0, totalCourt = 0, totalNotice = 0, totalWrong = 0, totalPendingAccused = 0;
             let totalChargesheet = 0, totalFinalReport = 0, totalPendingCases = 0, totalStolenProp = 0, totalRecoveredProp = 0;
 
             data.forEach(item => {
@@ -1324,6 +1341,7 @@
                 totalArrested += arr;
                 totalNotice += not;
                 totalCourt += crt;
+                totalWrong += wrg; // यहाँ गलत नामजदगी का योग हो रहा है
 
                 let disposed = arr + not + crt + wrg;
                 let pendAcc = accCount - disposed;
@@ -1342,6 +1360,7 @@
             document.getElementById('stArrested').innerText = totalArrested;
             document.getElementById('stCourt').innerText = totalCourt;
             document.getElementById('stNotice').innerText = totalNotice;
+            document.getElementById('stWrong').innerText = totalWrong; // यहाँ डैशबोर्ड कार्ड पर वैल्यू सेट होगी
             document.getElementById('stPendingAccused').innerText = totalPendingAccused;
             document.getElementById('stChargesheet').innerText = totalChargesheet;
             document.getElementById('stFinalReport').innerText = totalFinalReport;
