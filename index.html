@@ -1207,6 +1207,7 @@
                 thanaCredentials[t] = { username: document.getElementById('usr_' + t).value.trim(), password: document.getElementById('pwd_' + t).value.trim() };
             });
             localStorage.setItem('rsp_thana_creds', JSON.stringify(thanaCredentials));
+            db.ref('thanaCredentials').set(thanaCredentials);
             alert('क्रेडेंशियल्स सफलतापूर्वक सहेज दिए गए हैं!');
             closeUserMgmtModal();
         }
