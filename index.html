@@ -1119,6 +1119,7 @@
             }
 
             localStorage.setItem('rsp_hamirpur_cases', JSON.stringify(casesData));
+            saveDataToFirebase();
             closeCaseModal();
             applyFilters();
         }
