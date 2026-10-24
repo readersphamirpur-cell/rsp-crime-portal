@@ -1700,6 +1700,7 @@
             if (confirm('क्या आप वाकई इस मुकदमे के रिकॉर्ड को डिलीट करना चाहते हैं?')) {
                 casesData = casesData.filter(c => String(c.id) !== String(id) && Number(c.id) !== Number(id));
                 localStorage.setItem('rsp_hamirpur_cases', JSON.stringify(casesData));
+                saveDataToFirebase();
                 applyFilters();
             }
         }
@@ -1711,6 +1712,7 @@
                 const ids = Array.from(checkboxes).map(cb => String(cb.value));
                 casesData = casesData.filter(c => !ids.includes(String(c.id)) && !ids.includes(Number(c.id)));
                 localStorage.setItem('rsp_hamirpur_cases', JSON.stringify(casesData));
+                saveDataToFirebase();
                 applyFilters();
             }
         }
