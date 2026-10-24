@@ -1762,6 +1762,7 @@
                         }));
                         casesData = casesData.concat(newImp);
                         localStorage.setItem('rsp_hamirpur_cases', JSON.stringify(casesData));
+                        saveDataToFirebase();
                         alert('डेटा सफलतापूर्वक इम्पोर्ट हो गया है!');
                         applyFilters();
                     }
@@ -1794,6 +1795,27 @@
   
   // Database Reference shortcut
   const db = firebase.database();
+    // --- 1. Realtime Database se Data Sync karna ---
+  db.ref('casesData').on('value', (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+      casesData = data;
+      if (typeof applyFilters === 'function') {
+        applyFilters();
+      }
+    }
+  });
+
+  // --- 2. Naya Data Save karne ke liye Helper Function ---
+  window.saveDataToFirebase = function() {
+    db.ref('casesData').set(casesData)
+      .then(() => {
+        console.log("Data Firebase par update ho gaya!");
+      })
+      .catch((err) => {
+        console.error("Firebase update error:", err);
+      });
+  };
   console.log("Firebase Connected Successfully!");
 </script>
 </body>
