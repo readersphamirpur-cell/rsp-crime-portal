@@ -856,14 +856,23 @@
             const pwdInput = document.getElementById('passwordInput');
             pwdInput.type = pwdInput.type === 'password' ? 'text' : 'password';
         }
+let thanaCredentials = JSON.parse(localStorage.getItem('rsp_thana_creds')) || {};
 
-        let thanaCredentials = JSON.parse(localStorage.getItem('rsp_thana_creds')) || {};
-        if (Object.keys(thanaCredentials).length === 0) {
+// Firebase se credentials live sync karne ke liye
+db.ref('thanaCredentials').on('value', (snapshot) => {
+    const dbCreds = snapshot.val();
+    if (dbCreds && Object.keys(dbCreds).length > 0) {
+        thanaCredentials = dbCreds;
+        localStorage.setItem('rsp_thana_creds', JSON.stringify(thanaCredentials));
+    } else if (Object.keys(thanaCredentials).length === 0) {
         ALL_THANAS.forEach(t => {
-        thanaCredentials[t] = { username: t.toLowerCase().replace(/\s+/g, ''), password: '123' };
-    });
+            thanaCredentials[t] = { username: t.toLowerCase().replace(/\s+/g, ''), password: '123' };
+        });
         thanaCredentials['admin'] = { username: 'rsphamirpur', password: 'Rsp#3544' };
         localStorage.setItem('rsp_thana_creds', JSON.stringify(thanaCredentials));
+        db.ref('thanaCredentials').set(thanaCredentials);
+    }
+});
 }
 
         let casesData = JSON.parse(localStorage.getItem('rsp_hamirpur_cases')) || [
