@@ -1799,13 +1799,12 @@
   // Database Reference shortcut
   const db = firebase.database();
     // --- 1. Realtime Database se Data Sync karna ---
-  db.ref('casesData').on('value', (snapshot) => {
+ db.ref('casesData').on('value', (snapshot) => {
     const data = snapshot.val();
-    if (data) {
-      casesData = data;
-      if (typeof applyFilters === 'function') {
-        applyFilters();
-      }
+    casesData = data ? data : [];
+    localStorage.setItem('rsp_hamirpur_cases', JSON.stringify(casesData));
+    if (typeof applyFilters === 'function') {
+      applyFilters();
     }
   });
 
