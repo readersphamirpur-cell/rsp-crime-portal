@@ -1770,6 +1770,31 @@
             };
             reader.readAsArrayBuffer(file);
         }
-    </script>
+    </script> 
+        <!-- Firebase App (Core SDK) -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<!-- Firebase Realtime Database SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+<script>
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyBoYzbycJHwedQRsyNhs_Z6KKhMFtXkvo",
+    authDomain: "rsp-crime-portal.firebaseapp.com",
+    databaseURL: "https://rsp-crime-portal-default-rtdb.firebaseio.com",
+    projectId: "rsp-crime-portal",
+    storageBucket: "rsp-crime-portal.firebasestorage.app",
+    messagingSenderId: "648430992933",
+    appId: "1:648430992933:web:9ead45c80204fe007289cc",
+    measurementId: "G-PQ8FP0V6N3"
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  
+  // Database Reference shortcut
+  const db = firebase.database();
+  console.log("Firebase Connected Successfully!");
+</script>
 </body>
 </html>
