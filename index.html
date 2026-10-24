@@ -858,21 +858,13 @@
         }
         
 let thanaCredentials = JSON.parse(localStorage.getItem('rsp_thana_creds')) || {};
-
-// Firebase se credentials live sync karne ke liye
-db.ref('thanaCredentials').on('value', (snapshot) => {
-    const dbCreds = snapshot.val();
-    if (dbCreds && Object.keys(dbCreds).length > 0) {
-        thanaCredentials = dbCreds;
-        localStorage.setItem('rsp_thana_creds', JSON.stringify(thanaCredentials));
-    } else if (Object.keys(thanaCredentials).length === 0) {
-        ALL_THANAS.forEach(t => {
-            thanaCredentials[t] = { username: t.toLowerCase().replace(/\s+/g, ''), password: '123' };
-        });
-        thanaCredentials['admin'] = { username: 'rsphamirpur', password: 'Rsp#3544' };
-        localStorage.setItem('rsp_thana_creds', JSON.stringify(thanaCredentials));
-        db.ref('thanaCredentials').set(thanaCredentials);
-    }
+if (Object.keys(thanaCredentials).length === 0) {
+    ALL_THANAS.forEach(t => {
+        thanaCredentials[t] = { username: t.toLowerCase().replace(/\s+/g, ''), password: '123' };
+    });
+    thanaCredentials['admin'] = { username: 'rsphamirpur', password: 'Rsp#3544' };
+    localStorage.setItem('rsp_thana_creds', JSON.stringify(thanaCredentials));
+}
 
         let casesData = JSON.parse(localStorage.getItem('rsp_hamirpur_cases')) || [
             { id: 1, janpad: "हमीरपुर", circle: "सदर", thana: "कोतवाली नगर", crime_title: "हत्या", case_no: "124/2026", section: "103(1) BNS", evt_date: "2026-01-10", info_date: "2026-01-10", incident_place: "मुख्य बाजार", complainant: "राम", defendant: "अज्ञात", brief_desc: "हत्या की घटना", io_name: "उ०नि० अजय", status: "विवेचनाधीन", cs_no: "-", cs_date: "", named: 1, revealed: 0, arrested: 1, notice: 0, court: 0, wrong: 0, fcr_head: "हाँ", remarks: "जारी", category: "शरीर संबंधी", sentence: "7 वर्ष से अधिक", victim_name: "श्याम", victim_age: "30", stolen_property: 0, recovered_property: 0, injured_detail: "-", death_detail: "-", recovery_detail: "-" }
