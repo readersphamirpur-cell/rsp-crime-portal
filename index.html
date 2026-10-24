@@ -857,11 +857,11 @@
             pwdInput.type = pwdInput.type === 'password' ? 'text' : 'password';
         }
         
-let thanaCredentials = JSON.parse(localStorage.getItem('rsp_thana_creds')) || {};
-if (Object.keys(thanaCredentials).length === 0) {
+    let thanaCredentials = JSON.parse(localStorage.getItem('rsp_thana_creds')) || {};
+    if (Object.keys(thanaCredentials).length === 0) {
     ALL_THANAS.forEach(t => {
-        thanaCredentials[t] = { username: t.toLowerCase().replace(/\s+/g, ''), password: '123' };
-    });
+    thanaCredentials[t] = { username: t.toLowerCase().replace(/\s+/g, ''), password: '123' };
+});
     thanaCredentials['admin'] = { username: 'rsphamirpur', password: 'Rsp#3544' };
     localStorage.setItem('rsp_thana_creds', JSON.stringify(thanaCredentials));
 }
