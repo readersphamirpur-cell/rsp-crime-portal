@@ -1182,7 +1182,7 @@
     let secUpper = sectionStr.toUpperCase().trim();
     
     // यदि धारा में BNS, IPC, CrPC या 'बीएनएस' जैसी सामान्य धाराएं नहीं हैं, तो अवधि 0 होगी
-    let hasGeneral = secUpper.includes('BNS') || secUpper.includes('IPC') || secUpper.includes('CRPC') || secUpper.includes('बीएनएस/बी0एन0एस0') || secUpper.includes('आईपीसी');
+    let hasGeneral = secUpper.includes('BNS') || secUpper.includes('B.N.S.') || secUpper.includes('IPC') || secUpper.includes('बीएनएस') || secUpper.includes('बी0एन0एस0');
     
     if (!hasGeneral) {
         return 0;
