@@ -1252,28 +1252,44 @@
             const fcrVal = document.getElementById('fcrFilter').value;
 
             currentlyFilteredCases = casesData.filter(item => {
-                if (loggedInThana !== 'ALL' && item.thana !== loggedInThana) return false;
-                if (loggedInThana === 'ALL' && thanaVal !== 'ALL' && item.thana !== thanaVal) return false;
-                if (crimeVal !== 'ALL' && item.crime_title !== crimeVal) return false;
-                if (catVal !== 'ALL' && item.category !== catVal) return false;
-                if (sentVal !== 'ALL' && item.sentence !== sentVal) return false;
-                if (statusVal !== 'ALL' && item.status !== statusVal) return false;
-                if (fcrVal !== 'ALL' && item.fcr_head !== fcrVal) return false;
-
-                if (limitVal && limitVal !== 'ALL' && String(getPrescribedLimit(item.section)) !== limitVal) return false;
-
-                if (fromDate && item.info_date < fromDate) return false;
-                if (toDate && item.info_date > toDate) return false;
-
-                if (search) {
-                    let match = (item.case_no && item.case_no.toLowerCase().includes(search)) ||
-                                (item.complainant && item.complainant.toLowerCase().includes(search)) ||
-                                (item.defendant && item.defendant.toLowerCase().includes(search)) ||
-                                (item.incident_place && item.incident_place.toLowerCase().includes(search));
-                    if (!match) return false;
-                }
-                return true;
-            });
+        // 1. Thana Filter Safety
+        if (loggedInThana !== 'ALL' && item.thana !== loggedInThana) return false;
+        if (loggedInThana === 'ALL' && thanaVal && thanaVal !== 'ALL' && item.thana !== thanaVal) return false;
+        
+        // 2. Crime Title Filter
+        if (crimeVal && crimeVal !== 'ALL' && item.crime_title !== crimeVal) return false;
+        
+        // 3. Category Filter
+        if (catVal && catVal !== 'ALL' && item.category !== catVal) return false;
+        
+        // 4. Sentence Filter
+        if (sentVal && sentVal !== 'ALL' && item.sentence !== sentVal) return false;
+        
+        // 5. Status Filter
+        if (statusVal && statusVal !== 'ALL' && item.status !== statusVal) return false;
+        
+        // 6. F.C.R. Filter
+        if (fcrVal && fcrVal !== 'ALL' && item.fcr_head !== fcrVal) return false;
+        
+        // 7. Days Limit Filter (60 / 90 / 0 Days) - Safe check
+        if (limitVal && limitVal !== 'ALL' && limitVal !== '' && String(getPrescribedLimit(item.section)) !== String(limitVal)) {
+            return false;
+        }
+        
+        // 8. Date Range Filters
+        if (fromDate && item.info_date < fromDate) return false;
+        if (toDate && item.info_date > toDate) return false;
+        
+        // 9. Search Box Filter
+        if (search) {
+            let match = (item.case_no && item.case_no.toLowerCase().includes(search)) || 
+                        (item.complainant && item.complainant.toLowerCase().includes(search)) ||
+                        (item.section && item.section.toLowerCase().includes(search));
+            if (!match) return false;
+        }
+        
+        return true;
+    });
 
             renderTable(currentlyFilteredCases);
             updateStats(currentlyFilteredCases);
