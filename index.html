@@ -541,29 +541,35 @@
                         
                         <!-- Filter Panel for FCR -->
                        <!-- Filter Panel for FCR -->
-                        <div class="filter-grid" style="margin-bottom: 1rem;">
-                            <div class="input-group">
-                                <label>अपराध शीर्षक</label>
-                                <select id="fcrCrimeFilter" onchange="renderFcrTable()" class="input-control"></select>
-                            </div>
-                            <div class="input-group">
-                                <label>विवेचना की स्थिति</label>
-                                <select id="fcrStatusFilter" onchange="renderFcrTable()" class="input-control">
-                                    <option value="ALL">सभी</option>
-                                    <option value="विवेचनाधीन">विवेचनाधीन</option>
-                                    <option value="आरोप पत्र प्रेषित">आरोप पत्र</option>
-                                    <option value="अंतिम रिपोर्ट">अंतिम रिपोर्ट</option>
-                                </select>
-                            </div>
-                            <div class="input-group">
-                                <label>F.C.R. Status</label>
-                                <select id="fcrYesNoFilter" onchange="renderFcrTable()" class="input-control">
-                                    <option value="ALL">सभी</option>
-                                    <option value="हाँ">हाँ (Yes)</option>
-                                    <option value="नहीं">नहीं (No)</option>
-                                </select>
-                            </div>
-                        </div>
+<div class="filter-grid" style="margin-bottom: 1rem;">
+    <div class="input-group">
+        <label>थाना</label>
+        <select id="fcrThanaFilter" onchange="renderFcrTable()" class="input-control">
+            <option value="ALL">सभी थाने</option>
+        </select>
+    </div>
+    <div class="input-group">
+        <label>अपराध शीर्षक</label>
+        <select id="fcrCrimeFilter" onchange="renderFcrTable()" class="input-control"></select>
+    </div>
+    <div class="input-group">
+        <label>विवेचना की स्थिति</label>
+        <select id="fcrStatusFilter" onchange="renderFcrTable()" class="input-control">
+            <option value="ALL">सभी</option>
+            <option value="विवेचनाधीन">विवेचनाधीन</option>
+            <option value="आरोप पत्र प्रेषित">आरोप पत्र</option>
+            <option value="अंतिम रिपोर्ट">अंतिम रिपोर्ट</option>
+        </select>
+    </div>
+    <div class="input-group">
+        <label>F.C.R. Status</label>
+        <select id="fcrYesNoFilter" onchange="renderFcrTable()" class="input-control">
+            <option value="ALL">सभी</option>
+            <option value="हाँ">हाँ (Yes)</option>
+            <option value="नहीं">नहीं (No)</option>
+        </select>
+    </div>
+</div>
 
                         <!-- Numerical Summary Table -->
                         <div class="table-container" style="margin-bottom: 1.5rem;">
