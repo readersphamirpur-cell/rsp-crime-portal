@@ -1181,7 +1181,6 @@
     if (!sectionStr) return 60;
     let secUpper = sectionStr.toUpperCase().trim();
     
-    // BNS, IPC, CrPC या हिंदी के सभी संभावित रूपों की जाँच
     let hasGeneral = secUpper.includes('BNS') || 
                      secUpper.includes('IPC') || 
                      secUpper.includes('CRPC') || 
@@ -1192,12 +1191,10 @@
                      secUpper.includes('भारतीय न्याय संहिता') ||
                      secUpper.includes('भा0न्या0सं0');
     
-    // अगर जनरल एक्ट (BNS/IPC आदि) नहीं है, तभी अवधि 0 होगी (जैसे आबकारी, गैंगेस्टर आदि)
     if (!hasGeneral) {
         return 0;
     }
     
-    // 90 दिन वाली धाराओं की सटीक जाँच (ताकि 189 के अंदर 89 match न हो)
     let found90 = DAYS.some(sec => {
         let escapedSec = sec.toUpperCase().replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
         let regex = new RegExp('(?:^|[^0-9])' + escapedSec + '(?:[^0-9]|$)', 'i');
@@ -1206,7 +1203,6 @@
     
     return found90 ? 90 : 60;
 }
-
         function openUserMgmtModal() {
             const container = document.getElementById('thanaUserList');
             let htmlContent = `<div style="background: #f1f5f9; padding: 0.6rem; border-radius: 6px; border: 1px solid #cbd5e1; margin-bottom: 0.5rem;">` +
