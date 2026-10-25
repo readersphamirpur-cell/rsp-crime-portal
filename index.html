@@ -906,8 +906,16 @@
     const snThanaSelect = document.getElementById('snThanaFilter');
     snThanaSelect.innerHTML = '<option value="ALL">सभी थाने</option>';
     ALL_THANAS.forEach(t => snThanaSelect.appendChild(new Option(t, t)));
-}
 
+    // यहाँ नया कोड पेस्ट करें
+    const fcrThanaSelect = document.getElementById('fcrThanaFilter');
+    if (fcrThanaSelect) {
+        fcrThanaSelect.innerHTML = '<option value="ALL">सभी थाने</option>';
+        ALL_THANAS.forEach(t => {
+            fcrThanaSelect.appendChild(new Option(t, t));
+        });
+    }
+}
         window.onload = function() {
             initCrimeDropdowns();
             generateCaptcha();
