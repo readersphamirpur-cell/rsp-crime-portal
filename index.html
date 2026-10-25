@@ -889,24 +889,24 @@
         let loggedInThana = 'ALL';
 
         function initCrimeDropdowns() {
-            const filterSelect = document.getElementById('crimeFilter');
-            const fcrFilterSelect = document.getElementById('fcrCrimeFilter');
-            const formSelect = document.getElementById('f_crime_title');
+    const filterSelect = document.getElementById('crimeFilter');
+    const fcrFilterSelect = document.getElementById('fcrCrimeFilter');
+    const formSelect = document.getElementById('f_crime_title');
 
-            filterSelect.innerHTML = '<option value="ALL">सभी अपराध शीर्षक</option>';
-            fcrFilterSelect.innerHTML = '<option value="ALL">सभी अपराध शीर्षक</option>';
-            formSelect.innerHTML = '';
+    filterSelect.innerHTML = '<option value="ALL">सभी अपराध शीर्षक</option>';
+    fcrFilterSelect.innerHTML = '<option value="ALL">सभी अपराध शीर्षक</option>';
+    formSelect.innerHTML = '';
 
-            EXACT_CRIME_LIST.forEach(crime => {
-                filterSelect.appendChild(new Option(crime, crime));
-                fcrFilterSelect.appendChild(new Option(crime, crime));
-                formSelect.appendChild(new Option(crime, crime));
-            });
+    EXACT_CRIME_LIST.forEach(crime => {
+        filterSelect.appendChild(new Option(crime, crime));
+        fcrFilterSelect.appendChild(new Option(crime, crime));
+        formSelect.appendChild(new Option(crime, crime));
+    });
 
-            const snThanaSelect = document.getElementById('snThanaFilter');
-            snThanaSelect.innerHTML = '<option value="ALL">सभी थाने</option>';
-            ALL_THANAS.forEach(t => snThanaSelect.appendChild(new Option(t, t)));
-        }
+    const snThanaSelect = document.getElementById('snThanaFilter');
+    snThanaSelect.innerHTML = '<option value="ALL">सभी थाने</option>';
+    ALL_THANAS.forEach(t => snThanaSelect.appendChild(new Option(t, t)));
+}
 
         window.onload = function() {
             initCrimeDropdowns();
