@@ -750,8 +750,7 @@
                     <div><label style="font-size: 0.78rem; color: #64748b; font-weight: 700;">थाना</label><select id="f_thana" class="input-control" required></select></div>
                     <div><label style="font-size: 0.78rem; color: #64748b; font-weight: 700;">अपराध शीर्षक</label><select id="f_crime_title" onchange="toggleSpecialFields()" class="input-control" required></select></div>
                     <div><label style="font-size: 0.78rem; color: #64748b; font-weight: 700;">मुकदमा अपराध संख्या</label><input type="text" id="f_case_no" class="input-control" placeholder="जैसे: 124/2026" required></div>
-                    <div><label style="font-size: 0.78rem; color: #64748b; font-weight: 700;">धारा (Section)</label><input type="text" id="f_section" class="input-control" placeholder="जैसे: 103(1), 331(4) BNS" required></div>
-                    <input type="text" id="f_section" oninput="document.getElementById('f_period').value = getPrescribedLimit(this.value);" class="..."
+                    <div><label style="font-size: 0.78rem; color: #64748b; font-weight: 700;">धारा (Section)</label><input type="text" id="f_section" oninput="document.getElementById('f_period').value = getPrescribedLimit(this.value);" class="input-control" placeholder="जैसे: 103(1), 331(4) BNS"></div>
                     <div><label style="font-size: 0.78rem; color: #64748b; font-weight: 700;">दिनांक घटना</label><input type="date" id="f_evt_date" class="input-control" required></div>
                     <div><label style="font-size: 0.78rem; color: #64748b; font-weight: 700;">दिनांक सूचना</label><input type="date" id="f_info_date" class="input-control" required></div>
                     <div><label style="font-size: 0.78rem; color: #64748b; font-weight: 700;">घटनास्थल</label><input type="text" id="f_incident_place" class="input-control" placeholder="घटनास्थल" required></div>
