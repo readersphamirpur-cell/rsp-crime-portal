@@ -1260,7 +1260,7 @@
                 if (statusVal !== 'ALL' && item.status !== statusVal) return false;
                 if (fcrVal !== 'ALL' && item.fcr_head !== fcrVal) return false;
 
-                if (limitVal !== 'ALL' && String(getPrescribedLimit(item.section)) !== limitVal) return false;
+                if (limitVal && limitVal !== 'ALL' && String(getPrescribedLimit(item.section)) !== limitVal) return false;
 
                 if (fromDate && item.info_date < fromDate) return false;
                 if (toDate && item.info_date > toDate) return false;
