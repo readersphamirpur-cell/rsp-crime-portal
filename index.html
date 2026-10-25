@@ -631,102 +631,64 @@
                 </div>
 
                 <!-- TAB 3: CRIME CATEGORY VIEW -->
-<div id="tabTracking" class="hidden">
-    <div class="scope-card">
-        <div class="scope-title">
-            <span>🔎 अपराध श्रेणी</span>
-            <div style="display:flex; gap:0.5rem;">
-                <button onclick="exportCategoryToExcel()" class="btn btn-green">📊 EXPORT</button>
-                <button onclick="window.print()" class="btn btn-purple">🖨️ PDF</button>
-            </div>
-        </div>
+                <div id="tabTracking" class="hidden">
+                    <div class="scope-card">
+                        <div class="scope-title">
+                            <span>🔎 अपराध श्रेणी</span>
+                            <div style="display:flex; gap:0.5rem;">
+                                <button onclick="exportCategoryToExcel()" class="btn btn-green">📊 EXPORT</button>
+                                <button onclick="window.print()" class="btn btn-purple">🖨️ PDF</button>
+                            </div>
+                        </div>
 
-        <!-- Filter Panel for Category -->
-        <div class="filter-grid" style="margin-bottom: 1rem;">
-            <div class="input-group">
-                <label>थाना</label>
-                <select id="catThanaFilter" onchange="renderCategoryTable()" class="input-control">
-                    <option value="ALL">सभी थाने</option>
-                </select>
-            </div>
-            <div class="input-group">
-                <label>अपराध श्रेणी</label>
-                <select id="catTabFilter" onchange="renderCategoryTable()" class="input-control">
-                    <option value="ALL">सभी</option>
-                    <option value="शरीर संबंधी">शरीर संबंधी</option>
-                    <option value="संपत्ति संबंधी">संपत्ति संबंधी</option>
-                    <option value="अन्य">अन्य</option>
-                </select>
-            </div>
-            <div class="input-group">
-                <label>विवेचना की स्थिति</label>
-                <select id="catStatusFilter" onchange="renderCategoryTable()" class="input-control">
-                    <option value="ALL">सभी</option>
-                    <option value="विवेचनाधीन">विवेचनाधीन</option>
-                    <option value="आरोप पत्र प्रेषित">आरोप पत्र</option>
-                    <option value="अंतिम रिपोर्ट">अंतिम रिपोर्ट</option>
-                </select>
-            </div>
-            <div class="input-group">
-                <label>FROM (सूचना)</label>
-                <input type="date" id="catFromDate" onchange="renderCategoryTable()" class="input-control">
-            </div>
-            <div class="input-group">
-                <label>TO (सूचना)</label>
-                <input type="date" id="catToDate" onchange="renderCategoryTable()" class="input-control">
-            </div>
-        </div>
+                        <!-- Filter Panel for Category -->
+                        <div class="filter-grid" style="margin-bottom: 1rem;">
+                            <div class="input-group">
+                                <label>अपराध श्रेणी</label>
+                                <select id="catTabFilter" onchange="renderCategoryTable()" class="input-control">
+                                    <option value="ALL">सभी</option>
+                                    <option value="शरीर संबंधी">शरीर संबंधी</option>
+                                    <option value="संपत्ति संबंधी">संपत्ति संबंधी</option>
+                                    <option value="अन्य">अन्य</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label>विवेचना की स्थिति</label>
+                                <select id="catStatusFilter" onchange="renderCategoryTable()" class="input-control">
+                                    <option value="ALL">सभी</option>
+                                    <option value="विवेचनाधीन">विवेचनाधीन</option>
+                                    <option value="आरोप पत्र प्रेषित">आरोप पत्र</option>
+                                    <option value="अंतिम रिपोर्ट">अंतिम रिपोर्ट</option>
+                                </select>
+                            </div>
+                        </div>
 
-        <!-- Numerical Summary Table -->
-        <div class="table-container" style="margin-bottom: 1.5rem;">
-            <table>
-                <thead>
-                    <tr>
-                        <th>क्र0सं0</th>
-                        <th>अपराध श्रेणी</th>
-                        <th>कुल मुकदमा</th>
-                        <th>आरोप पत्र</th>
-                        <th>अंतिम रिपोर्ट</th>
-                        <th>विवेचनाधीन</th>
-                        <th>नामजद</th>
-                        <th>प्रकाश</th>
-                        <th>योग</th>
-                        <th>गिरफ्तार</th>
-                        <th>हा0अ0</th>
-                        <th>नोटिस तामीला</th>
-                        <th>नामजदगी गलत</th>
-                        <th>शेष</th>
-                    </tr>
-                </thead>
-                <tbody id="categoryTableBody"></tbody>
-            </table>
-        </div>
-
-        <!-- Automatic Add: Detailed Cases List Underneath -->
-        <div class="section-subheading">📑 अपराध श्रेणी - मुकदमों का विस्तृत विवरण</div>
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>क्र0सं0</th>
-                        <th>अपराध श्रेणी</th>
-                        <th>थाना</th>
-                        <th>मु0अ0सं0</th>
-                        <th>धारा</th>
-                        <th>दिनांक घटना</th>
-                        <th>दिनांक सूचना</th>
-                        <th class="wrap-col w-place">घटनास्थल</th>
-                        <th class="wrap-col w-complainant">वादी</th>
-                        <th class="wrap-col w-defendant">प्रतिवादी</th>
-                        <th class="wrap-col w-desc">घटना का संक्षिप्त विवरण</th>
-                        <th>विवेचना की स्थिति</th>
-                    </tr>
-                </thead>
-                <tbody id="catDetailTableBody"></tbody>
-            </table>
-        </div>
-    </div>
-</div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>क्र0सं0</th>
+                                        <th>अपराध श्रेणी</th>
+                                        <th>थाना (थानावार)</th>
+                                        <th>कुल मुकदमा</th>
+                                        <th>आरोप पत्र</th>
+                                        <th>अंतिम रिपोर्ट</th>
+                                        <th>विवेचनाधीन</th>
+                                        <th>नामजद</th>
+                                        <th>प्रकाश</th>
+                                        <th>योग</th>
+                                        <th>गिरफ्तार</th>
+                                        <th>हा0अ0</th>
+                                        <th>नोटिस तामीला</th>
+                                        <th>नामजदगी गलत</th>
+                                        <th>शेष</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="categoryTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- TAB 4: 60/90 DAYS PENDING VIEW -->
                 <div id="tabHistory" class="hidden">
@@ -1675,183 +1637,108 @@
         // CATEGORY TABLE WITH FILTERS & EXPORT
         let currentCategorySummaryList = [];
 
-        let currentCategorySummaryList = [];
-let currentCategoryDetailList = [];
+        function renderCategoryTable() {
+            const tbody = document.getElementById('categoryTableBody');
+            tbody.innerHTML = '';
 
-function renderCategoryTable() {
-    const tbody = document.getElementById('categoryTableBody');
-    const dBody = document.getElementById('catDetailTableBody');
-    tbody.innerHTML = '';
-    if (dBody) dBody.innerHTML = '';
+            const catFilter = document.getElementById('catTabFilter').value;
+            const statusFilter = document.getElementById('catStatusFilter').value;
 
-    const thanaFilterVal = document.getElementById('catThanaFilter') ? document.getElementById('catThanaFilter').value : 'ALL';
-    const catFilter = document.getElementById('catTabFilter').value;
-    const statusFilter = document.getElementById('catStatusFilter').value;
-    const catFrom = document.getElementById('catFromDate') ? document.getElementById('catFromDate').value : '';
-    const catTo = document.getElementById('catToDate') ? document.getElementById('catToDate').value : '';
-
-    let filteredCases = casesData.filter(item => {
-        if (loggedInThana !== 'ALL' && item.thana !== loggedInThana) return false;
-        if (loggedInThana === 'ALL' && thanaFilterVal !== 'ALL' && item.thana !== thanaFilterVal) return false;
-        if (catFilter !== 'ALL' && item.category !== catFilter) return false;
-        if (statusFilter !== 'ALL' && item.status !== statusFilter) return false;
-        if (catFrom && item.info_date < catFrom) return false;
-        if (catTo && item.info_date > catTo) return false;
-        return true;
-    });
-
-    currentCategoryDetailList = filteredCases;
-
-    let catGroups = {};
-    let categories = ["शरीर संबंधी", "संपत्ति संबंधी", "अन्य"];
-    categories.forEach(cat => {
-        if (catFilter === 'ALL' || catFilter === cat) {
-            catGroups[cat] = { total: 0, cs: 0, fr: 0, pending: 0, named: 0, revealed: 0, yoga: 0, arrested: 0, court: 0, notice: 0, wrong: 0, rem: 0 };
-        }
-    });
-
-    filteredCases.forEach(item => {
-        let cat = item.category || "अन्य";
-        if (!catGroups[cat]) {
-            catGroups[cat] = { total: 0, cs: 0, fr: 0, pending: 0, named: 0, revealed: 0, yoga: 0, arrested: 0, court: 0, notice: 0, wrong: 0, rem: 0 };
-        }
-        let g = catGroups[cat];
-        g.total++;
-
-        if (item.status === 'आरोप पत्र प्रेषित') g.cs++;
-        else if (item.status === 'अंतिम रिपोर्ट') g.fr++;
-        else g.pending++;
-
-        g.named += Number(item.named) || 0;
-        g.revealed += Number(item.revealed) || 0;
-        let yog = (Number(item.named) || 0) + (Number(item.revealed) || 0);
-        g.yoga += yog;
-
-        g.arrested += Number(item.arrested) || 0;
-        g.court += Number(item.court) || 0;
-        g.notice += Number(item.notice) || 0;
-        g.wrong += Number(item.wrong) || 0;
-
-        let disp = (Number(item.arrested) || 0) + (Number(item.notice) || 0) + (Number(item.court) || 0) + (Number(item.wrong) || 0);
-        g.rem += Math.max(0, yog - disp);
-    });
-
-    currentCategorySummaryList = [];
-    let idx = 1;
-
-    let gTotal = 0, gCs = 0, gFr = 0, gPending = 0;
-    let gNamed = 0, gRevealed = 0, gYoga = 0;
-    let gArrested = 0, gCourt = 0, gNotice = 0, gWrong = 0, gRem = 0;
-
-    Object.keys(catGroups).forEach(cat => {
-        let g = catGroups[cat];
-        if (g.total > 0 || catFilter === cat) {
-            currentCategorySummaryList.push({
-                "क्र०सं०": idx,
-                "अपराध श्रेणी": cat,
-                "कुल मुकदमा": g.total,
-                "आरोप पत्र की संख्या": g.cs,
-                "अंतिम रिपोर्ट की संख्या": g.fr,
-                "विवेचनाधीन": g.pending,
-                "नामजद": g.named,
-                "प्रकाश": g.revealed,
-                "योग": g.yoga,
-                "गिरफ्तार": g.arrested,
-                "हा0अ0": g.court,
-                "नोटिस तामीला": g.notice,
-                "नामजदगी गलत": g.wrong,
-                "शेष": g.rem
+            let filteredCases = casesData.filter(item => {
+                if (loggedInThana !== 'ALL' && item.thana !== loggedInThana) return false;
+                if (catFilter !== 'ALL' && item.category !== catFilter) return false;
+                if (statusFilter !== 'ALL' && item.status !== statusFilter) return false;
+                return true;
             });
 
-            gTotal += g.total;
-            gCs += g.cs;
-            gFr += g.fr;
-            gPending += g.pending;
-            gNamed += g.named;
-            gRevealed += g.revealed;
-            gYoga += g.yoga;
-            gArrested += g.arrested;
-            gCourt += g.court;
-            gNotice += g.notice;
-            gWrong += g.wrong;
-            gRem += g.rem;
+            let catGroups = {};
+            let categories = ["शरीर संबंधी", "संपत्ति संबंधी", "अन्य"];
+            categories.forEach(cat => {
+                if (catFilter === 'ALL' || catFilter === cat) {
+                    catGroups[cat] = { total: 0, cs: 0, fr: 0, pending: 0, named: 0, revealed: 0, yoga: 0, arrested: 0, court: 0, notice: 0, wrong: 0, rem: 0, thanas: new Set() };
+                }
+            });
 
-            let tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${idx++}</td>
-                <td style="font-weight: 700; color: #2563eb;">${cat}</td>
-                <td><span class="clickable-link" onclick="filterDashboardByCategory('${cat}', 'ALL')">${g.total}</span></td>
-                <td>${g.cs}</td>
-                <td>${g.fr}</td>
-                <td><span class="clickable-link" onclick="filterDashboardByCategory('${cat}', 'विवेचनाधीन')">${g.pending}</span></td>
-                <td>${g.named}</td>
-                <td>${g.revealed}</td>
-                <td style="font-weight: bold;">${g.yoga}</td>
-                <td>${g.arrested}</td>
-                <td>${g.court}</td>
-                <td>${g.notice}</td>
-                <td><span class="clickable-link" onclick="filterDashboardByCategory('${cat}', 'ALL')">${g.wrong}</span></td>
-                <td><span class="clickable-link" onclick="filterDashboardByCategory('${cat}', 'विवेचनाधीन')" style="font-weight: bold; color: #dc2626;">${g.rem}</span></td>
-            `;
-            tbody.appendChild(tr);
-        }
-    });
+            filteredCases.forEach(item => {
+                let cat = item.category || "अन्य";
+                if (!catGroups[cat]) {
+                    catGroups[cat] = { total: 0, cs: 0, fr: 0, pending: 0, named: 0, revealed: 0, yoga: 0, arrested: 0, court: 0, notice: 0, wrong: 0, rem: 0, thanas: new Set() };
+                }
+                let g = catGroups[cat];
+                g.total++;
+                if (item.thana) g.thanas.add(item.thana);
 
-    // सम्पूर्ण योग (Total Row)
-    if (tbody && currentCategorySummaryList.length > 0) {
-        let totalTr = document.createElement('tr');
-        totalTr.style.cssText = "font-weight: bold; background-color: #edf2f7; text-align: center;";
-        totalTr.innerHTML = `
-            <td colspan="2" style="text-align: right; padding-right: 1rem;">कुल योग (Total):</td>
-            <td>${gTotal}</td>
-            <td>${gCs}</td>
-            <td>${gFr}</td>
-            <td>${gPending}</td>
-            <td>${gNamed}</td>
-            <td>${gRevealed}</td>
-            <td>${gYoga}</td>
-            <td>${gArrested}</td>
-            <td>${gCourt}</td>
-            <td>${gNotice}</td>
-            <td>${gWrong}</td>
-            <td style="color: #dc2626;">${gRem}</td>
-        `;
-        tbody.appendChild(totalTr);
-    }
+                if (item.status === 'आरोप पत्र प्रेषित') g.cs++;
+                else if (item.status === 'अंतिम रिपोर्ट') g.fr++;
+                else g.pending++;
 
-    // विस्तृत मुकदमों की टेबल नीचे रेंडर करना
-    if (dBody) {
-        if (filteredCases.length === 0) {
-            dBody.innerHTML = '<tr><td colspan="12" style="text-align: center; padding: 1rem; color: #64748b;">कोई विस्तृत मुकदमा उपलब्ध नहीं है।</td></tr>';
-        } else {
-            filteredCases.forEach((item, index) => {
-                let tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td style="font-weight: 700;">${item.category || '-'}</td>
-                    <td>${item.thana || '-'}</td>
-                    <td style="font-weight: bold; color: #2563eb;">${item.case_no || '-'}</td>
-                    <td>${item.section || '-'}</td>
-                    <td>${item.evt_date || '-'}</td>
-                    <td>${item.info_date || '-'}</td>
-                    <td class="wrap-col w-place">${item.incident_place || '-'}</td>
-                    <td class="wrap-col w-complainant">${item.complainant || '-'}</td>
-                    <td class="wrap-col w-defendant">${item.defendant || '-'}</td>
-                    <td class="wrap-col w-desc">${item.brief_desc || '-'}</td>
-                    <td><span style="font-weight:bold; color:${item.status==='विवेचनाधीन'?'#d97706':'#16a34a'}">${item.status || '-'}</span></td>
-                `;
-                dBody.appendChild(tr);
+                g.named += Number(item.named) || 0;
+                g.revealed += Number(item.revealed) || 0;
+                let yog = (Number(item.named) || 0) + (Number(item.revealed) || 0);
+                g.yoga += yog;
+
+                g.arrested += Number(item.arrested) || 0;
+                g.court += Number(item.court) || 0;
+                g.notice += Number(item.notice) || 0;
+                g.wrong += Number(item.wrong) || 0;
+
+                let disp = (Number(item.arrested) || 0) + (Number(item.notice) || 0) + (Number(item.court) || 0) + (Number(item.wrong) || 0);
+                g.rem += Math.max(0, yog - disp);
+            });
+
+            currentCategorySummaryList = [];
+            let idx = 1;
+            Object.keys(catGroups).forEach(cat => {
+                let g = catGroups[cat];
+                if (g.total > 0 || catFilter === cat) {
+                    let thanaListStr = Array.from(g.thanas).join(', ') || '-';
+                    currentCategorySummaryList.push({
+                        "क्र०सं०": idx,
+                        "अपराध श्रेणी": cat,
+                        "थाना (थानावार)": thanaListStr,
+                        "कुल मुकदमा": g.total,
+                        "आरोप पत्र की संख्या": g.cs,
+                        "अंतिम रिपोर्ट की संख्या": g.fr,
+                        "विवेचनाधीन": g.pending,
+                        "नामजद": g.named,
+                        "प्रकाश": g.revealed,
+                        "योग": g.yoga,
+                        "गिरफ्तार": g.arrested,
+                        "हा0अ0": g.court,
+                        "नोटिस तामीला": g.notice,
+                        "नामजदगी गलत": g.wrong,
+                        "शेष": g.rem
+                    });
+
+                    let tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${idx++}</td>
+                        <td style="font-weight: 700; color: #2563eb;">${cat}</td>
+                        <td style="font-size: 0.78rem; color: #475569;">${thanaListStr}</td>
+                        <td><span class="clickable-link" onclick="filterDashboardByCategory('${cat}', 'ALL')">${g.total}</span></td>
+                        <td>${g.cs}</td>
+                        <td>${g.fr}</td>
+                        <td><span class="clickable-link" onclick="filterDashboardByCategory('${cat}', 'विवेचनाधीन')">${g.pending}</span></td>
+                        <td>${g.named}</td>
+                        <td>${g.revealed}</td>
+                        <td style="font-weight: bold;">${g.yoga}</td>
+                        <td>${g.arrested}</td>
+                        <td>${g.court}</td>
+                        <td>${g.notice}</td>
+                        <td>${g.wrong}</td>
+                        <td style="font-weight: bold; color: #dc2626;">${g.rem}</td>
+                    `;
+                    tbody.appendChild(tr);
+                }
             });
         }
-    }
-}
 
-function filterDashboardByCategory(catName, statusType) {
-    switchTab('dash', document.querySelector('.sidebar-menu li:first-child a'));
-    document.getElementById('categoryFilter').value = catName;
-    document.getElementById('statusFilter').value = statusType;
-    applyFilters();
-}
+        function filterDashboardByCategory(catName, statusType) {
+            switchTab('dash', document.querySelector('.sidebar-menu li:first-child a'));
+            document.getElementById('categoryFilter').value = catName;
+            document.getElementById('statusFilter').value = statusType;
+            applyFilters();
+        }
 
         function exportCategoryToExcel() {
             if (currentCategorySummaryList.length === 0) { 
