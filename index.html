@@ -442,12 +442,6 @@
                                 <input type="date" id="toDateFilter" onchange="applyFilters()" class="input-control">
                             </div>
                             <div class="input-group">
-                             <label>F.C.R. थाना</label>
-                            <select id="fcrThanaFilter" onchange="renderFcrTable()" class="input-control">
-                                <option value="ALL">सभी थाना</option>
-                            </select>
-                        </div>
-                            <div class="input-group">
                                 <label>F.C.R.</label>
                                 <select id="fcrFilter" onchange="applyFilters()" class="input-control">
                                     <option value="ALL">सभी</option>
@@ -1428,150 +1422,98 @@
         let currentFcrDetailList = [];
 
         function renderFcrTable() {
-    const tbody = document.getElementById('fcrTableBody');
-    const dBody = document.getElementById('fcrDetailTableBody');
-    if (tbody) tbody.innerHTML = '';
-    if (dBody) dBody.innerHTML = '';
+            const tbody = document.getElementById('fcrTableBody');
+            const dBody = document.getElementById('fcrDetailTableBody');
+            tbody.innerHTML = '';
+            dBody.innerHTML = '';
 
-    const crimeFilter = document.getElementById('fcrCrimeFilter').value;
-    const statusFilter = document.getElementById('fcrStatusFilter').value;
-    const fcrYesNoVal = document.getElementById('fcrYesNoFilter') ? document.getElementById('fcrYesNoFilter').value : 'ALL';
-    const thanaFilterVal = document.getElementById('fcrThanaFilter') ? document.getElementById('fcrThanaFilter').value : 'ALL';
+            const crimeFilter = document.getElementById('fcrCrimeFilter').value;
+            const statusFilter = document.getElementById('fcrStatusFilter').value;
+            const fcrYesNoVal = document.getElementById('fcrYesNoFilter') ? document.getElementById('fcrYesNoFilter').value : 'ALL';
 
-    let filteredCases = casesData.filter(item => {
-        if (loggedInThana !== 'ALL' && item.thana !== loggedInThana) return false;
-        if (loggedInThana === 'ALL' && thanaFilterVal !== 'ALL' && item.thana !== thanaFilterVal) return false;
-        if (crimeFilter !== 'ALL' && item.crime_title !== crimeFilter) return false;
-        if (statusFilter !== 'ALL' && item.status !== statusFilter) return false;
-        if (fcrYesNoVal !== 'ALL' && item.fcr_head !== fcrYesNoVal) return false;
-        return true;
-    });
-
-    currentFcrDetailList = filteredCases;
-
-    let crimeGroups = {};
-    if (typeof EXACT_CRIME_LIST !== 'undefined') {
-        EXACT_CRIME_LIST.forEach(crime => {
-            if (crimeFilter === 'ALL' || crimeFilter === crime) {
-                crimeGroups[crime] = { total: 0, cs: 0, fr: 0, pending: 0, named: 0, revealed: 0, yoga: 0, arrested: 0, court: 0, notice: 0, wrong: 0, rem: 0 };
-            }
-        });
-    }
-
-    filteredCases.forEach(item => {
-        let crime = item.crime_title;
-        if (!crime) return;
-        if (!crimeGroups[crime]) {
-            crimeGroups[crime] = { total: 0, cs: 0, fr: 0, pending: 0, named: 0, revealed: 0, yoga: 0, arrested: 0, court: 0, notice: 0, wrong: 0, rem: 0 };
-        }
-        let g = crimeGroups[crime];
-        g.total++;
-        if (item.status === 'आरोप पत्र प्रेषित') g.cs++;
-        else if (item.status === 'अंतिम रिपोर्ट') g.fr++;
-        else g.pending++;
-
-        g.named += Number(item.named) || 0;
-        g.revealed += Number(item.revealed) || 0;
-        let yog = (Number(item.named) || 0) + (Number(item.revealed) || 0);
-        g.yoga += yog;
-
-        g.arrested += Number(item.arrested) || 0;
-        g.court += Number(item.court) || 0;
-        g.notice += Number(item.notice) || 0;
-        g.wrong += Number(item.wrong) || 0;
-
-        let disp = (Number(item.arrested) || 0) + (Number(item.notice) || 0) + (Number(item.court) || 0) + (Number(item.wrong) || 0);
-        g.rem += Math.max(0, yog - disp);
-    });
-
-    currentFcrSummaryList = [];
-    let idx = 1;
-
-    // Grand Totals for summary row
-    let gTotal = 0, gCs = 0, gFr = 0, gPending = 0;
-    let gNamed = 0, gRevealed = 0, gYoga = 0;
-    let gArrested = 0, gCourt = 0, gNotice = 0, gWrong = 0, gRem = 0;
-
-    Object.keys(crimeGroups).forEach(crime => {
-        let g = crimeGroups[crime];
-        if (g.total > 0 || crimeFilter === crime) {
-            currentFcrSummaryList.push({
-                "क्रंसं": idx,
-                "अपराध शीर्षक": crime,
-                "total": g.total,
-                "cs": g.cs,
-                "fr": g.fr,
-                "pending": g.pending,
-                "named": g.named,
-                "revealed": g.revealed,
-                "yoga": g.yoga,
-                "arrested": g.arrested,
-                "court": g.court,
-                "notice": g.notice,
-                "wrong": g.wrong,
-                "rem": g.rem
+            let filteredCases = casesData.filter(item => {
+                if (loggedInThana !== 'ALL' && item.thana !== loggedInThana) return false;
+                if (crimeFilter !== 'ALL' && item.crime_title !== crimeFilter) return false;
+                if (statusFilter !== 'ALL' && item.status !== statusFilter) return false;
+                if (fcrYesNoVal !== 'ALL' && item.fcr_head !== fcrYesNoVal) return false;
+                return true;
             });
 
-            gTotal += g.total;
-            gCs += g.cs;
-            gFr += g.fr;
-            gPending += g.pending;
-            gNamed += g.named;
-            gRevealed += g.revealed;
-            gYoga += g.yoga;
-            gArrested += g.arrested;
-            gCourt += g.court;
-            gNotice += g.notice;
-            gWrong += g.wrong;
-            gRem += g.rem;
+            currentFcrDetailList = filteredCases;
 
-            if (tbody) {
-                let tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${idx}</td>
-                    <td style="font-weight: 700;">${crime}</td>
-                    <td><span class="clickable-link" onclick="openFcrDetailModal('${crime}', 'total')">${g.total}</span></td>
-                    <td><span class="clickable-link" onclick="openFcrDetailModal('${crime}', 'cs')">${g.cs}</span></td>
-                    <td><span class="clickable-link" onclick="openFcrDetailModal('${crime}', 'fr')">${g.fr}</span></td>
-                    <td><span class="clickable-link" onclick="openFcrDetailModal('${crime}', 'pending')">${g.pending}</span></td>
-                    <td>${g.named}</td>
-                    <td>${g.revealed}</td>
-                    <td>${g.yoga}</td>
-                    <td><span class="clickable-link" onclick="openFcrDetailModal('${crime}', 'arrested')">${g.arrested}</span></td>
-                    <td><span class="clickable-link" onclick="openFcrDetailModal('${crime}', 'court')">${g.court}</span></td>
-                    <td><span class="clickable-link" onclick="openFcrDetailModal('${crime}', 'notice')">${g.notice}</span></td>
-                    <td><span class="clickable-link" onclick="openFcrDetailModal('${crime}', 'wrong')">${g.wrong}</span></td>
-                    <td>${g.rem}</td>
-                `;
-                tbody.appendChild(tr);
-            }
-            idx++;
-        }
-   
-        `;
-    }
-}
+            let crimeGroups = {};
+            EXACT_CRIME_LIST.forEach(crime => {
+                if (crimeFilter === 'ALL' || crimeFilter === crime) {
+                    crimeGroups[crime] = { total: 0, cs: 0, fr: 0, pending: 0, named: 0, revealed: 0, yoga: 0, arrested: 0, court: 0, notice: 0, wrong: 0, rem: 0 };
                 }
-                 });
+            });
 
-    // लूप पूरी तरह खत्म होने के बाद, सबसे नीचे "कुल योग" (Total Row) जोड़ने का सही कोड
-    if (tbody && currentFcrSummaryList.length > 0) {
-        tbody.innerHTML += `
-            <tr style="font-weight: bold; background-color: #edf2f7; text-align: center;">
-                <td colspan="2" style="text-align: right; padding-right: 1rem;">कुल योग (Total):</td>
-                <td>${gTotal}</td>
-                <td>${gCs}</td>
-                <td>${gFr}</td>
-                <td>${gPending}</td>
-                <td>${gNamed}</td>
-                <td>${gRevealed}</td>
-                <td>${gYoga}</td>
-                <td>${gArrested}</td>
-                <td>${gCourt}</td>
-                <td>${gNotice}</td>
-                <td>${gWrong}</td>
-                <td>${gRem}</td>
-            </tr>
+            filteredCases.forEach(item => {
+                let crime = item.crime_title;
+                if (!crimeGroups[crime]) {
+                    crimeGroups[crime] = { total: 0, cs: 0, fr: 0, pending: 0, named: 0, revealed: 0, yoga: 0, arrested: 0, court: 0, notice: 0, wrong: 0, rem: 0 };
+                }
+                let g = crimeGroups[crime];
+                g.total++;
+                if (item.status === 'आरोप पत्र प्रेषित') g.cs++;
+                else if (item.status === 'अंतिम रिपोर्ट') g.fr++;
+                else g.pending++;
+
+                g.named += Number(item.named) || 0;
+                g.revealed += Number(item.revealed) || 0;
+                let yog = (Number(item.named) || 0) + (Number(item.revealed) || 0);
+                g.yoga += yog;
+
+                g.arrested += Number(item.arrested) || 0;
+                g.court += Number(item.court) || 0;
+                g.notice += Number(item.notice) || 0;
+                g.wrong += Number(item.wrong) || 0;
+
+                let disp = (Number(item.arrested) || 0) + (Number(item.notice) || 0) + (Number(item.court) || 0) + (Number(item.wrong) || 0);
+                g.rem += Math.max(0, yog - disp);
+            });
+
+            currentFcrSummaryList = [];
+            let idx = 1;
+            Object.keys(crimeGroups).forEach(crime => {
+                let g = crimeGroups[crime];
+                if (g.total > 0 || crimeFilter === crime) {
+                    currentFcrSummaryList.push({
+                        "क्र०सं०": idx,
+                        "अपराध शीर्षक": crime,
+                        "कुल मुकदमा": g.total,
+                        "आरोप पत्र की संख्या": g.cs,
+                        "अंतिम रिपोर्ट की संख्या": g.fr,
+                        "विवेचनाधीन": g.pending,
+                        "नामजद": g.named,
+                        "प्रकाश": g.revealed,
+                        "योग": g.yoga,
+                        "गिरफ्तार": g.arrested,
+                        "हा0अ0": g.court,
+                        "नोटिस तामीला": g.notice,
+                        "नामजदगी गलत": g.wrong,
+                        "शेष": g.rem
+                    });
+
+                    let tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${idx++}</td>
+                        <td style="font-weight: 700;">${crime}</td>
+                        <td><span class="clickable-link" onclick="filterDashboardByCrime('${crime}', 'ALL')">${g.total}</span></td>
+                        <td>${g.cs}</td>
+                        <td>${g.fr}</td>
+                        <td><span class="clickable-link" onclick="filterDashboardByCrime('${crime}', 'विवेचनाधीन')">${g.pending}</span></td>
+                        <td>${g.named}</td>
+                        <td>${g.revealed}</td>
+                        <td style="font-weight: bold;">${g.yoga}</td>
+                        <td>${g.arrested}</td>
+                        <td>${g.court}</td>
+                        <td>${g.notice}</td>
+                        <td>${g.wrong}</td>
+                        <td style="font-weight: bold; color: #dc2626;">${g.rem}</td>
+                    `;
+                    tbody.appendChild(tr);
+                }
             });
 
             if (filteredCases.length === 0) {
