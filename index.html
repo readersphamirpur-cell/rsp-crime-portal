@@ -1177,13 +1177,20 @@
             return diffDays >= 0 ? diffDays : 0;
         }
 
-       function getPrescribedLimit(sectionStr) {
+      function getPrescribedLimit(sectionStr) {
     if (!sectionStr) return 60;
     let secUpper = sectionStr.toUpperCase().trim();
     
-    // यदि धारा में BNS, IPC, CrPC या 'बीएनएस' जैसी सामान्य धाराएं नहीं हैं, तो अवधि 0 होगी
-    let hasGeneral = secUpper.includes('BNS') || secUpper.includes('B.N.S.') || secUpper.includes('IPC') || secUpper.includes('बीएनएस') || secUpper.includes('बी0एन0एस0');
+    // BNS, IPC या CrPC लिखने के सभी संभव तरीकों को चेक करें (अंग्रेजी और हिंदी दोनों)
+    let hasGeneral = secUpper.includes('BNS') || 
+                     secUpper.includes('IPC') || 
+                     secUpper.includes('CRPC') || 
+                     secUpper.includes('बीएनएस') || 
+                     secUpper.includes('बी.एन.एस') || 
+                     secUpper.includes('बी0एन0एस0') || 
+                     secUpper.includes('आईपीसी');
     
+    // अगर इनमें से कुछ भी नहीं है (यानी केवल आबकारी, आर्म्स, गैंगेस्टर आदि विशेष एक्ट हैं), तभी अवधि 0 होगी
     if (!hasGeneral) {
         return 0;
     }
