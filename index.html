@@ -540,7 +540,7 @@
                         </div>
                         
                         <!-- Filter Panel for FCR -->
-                       <!-- Filter Panel for FCR -->
+           <!-- Filter Panel for FCR -->
 <div class="filter-grid" style="margin-bottom: 1rem;">
     <div class="input-group">
         <label>थाना</label>
@@ -568,6 +568,14 @@
             <option value="हाँ">हाँ (Yes)</option>
             <option value="नहीं">नहीं (No)</option>
         </select>
+    </div>
+    <div class="input-group">
+        <label>FROM (सूचना)</label>
+        <input type="date" id="fcrFromDate" onchange="renderFcrTable()" class="input-control">
+    </div>
+    <div class="input-group">
+        <label>TO (सूचना)</label>
+        <input type="date" id="fcrToDate" onchange="renderFcrTable()" class="input-control">
     </div>
 </div>
 
@@ -1427,7 +1435,7 @@
         let currentFcrSummaryList = [];
         let currentFcrDetailList = [];
 
-        function renderFcrTable() {
+      function renderFcrTable() {
     const tbody = document.getElementById('fcrTableBody');
     const dBody = document.getElementById('fcrDetailTableBody');
     tbody.innerHTML = '';
@@ -1437,6 +1445,8 @@
     const crimeFilter = document.getElementById('fcrCrimeFilter').value;
     const statusFilter = document.getElementById('fcrStatusFilter').value;
     const fcrYesNoVal = document.getElementById('fcrYesNoFilter') ? document.getElementById('fcrYesNoFilter').value : 'ALL';
+    const fcrFrom = document.getElementById('fcrFromDate') ? document.getElementById('fcrFromDate').value : '';
+    const fcrTo = document.getElementById('fcrToDate') ? document.getElementById('fcrToDate').value : '';
 
     let filteredCases = casesData.filter(item => {
         if (loggedInThana !== 'ALL' && item.thana !== loggedInThana) return false;
@@ -1444,6 +1454,8 @@
         if (crimeFilter !== 'ALL' && item.crime_title !== crimeFilter) return false;
         if (statusFilter !== 'ALL' && item.status !== statusFilter) return false;
         if (fcrYesNoVal !== 'ALL' && item.fcr_head !== fcrYesNoVal) return false;
+        if (fcrFrom && item.info_date < fcrFrom) return false;
+        if (fcrTo && item.info_date > fcrTo) return false;
         return true;
     });
 
@@ -1542,7 +1554,6 @@
         }
     });
 
-    // टेबल के सबसे नीचे कुल योग (Total Row) जोड़ने का कोड
     if (tbody && currentFcrSummaryList.length > 0) {
         let totalTr = document.createElement('tr');
         totalTr.style.cssText = "font-weight: bold; background-color: #edf2f7; text-align: center;";
