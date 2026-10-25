@@ -889,38 +889,25 @@
         let loggedInThana = 'ALL';
 
         function initCrimeDropdowns() {
-    const filterSelect = document.getElementById('crimeFilter');
-    const fcrFilterSelect = document.getElementById('fcrCrimeFilter');
-    const formSelect = document.getElementById('f_crime_title');
+            const filterSelect = document.getElementById('crimeFilter');
+            const fcrFilterSelect = document.getElementById('fcrCrimeFilter');
+            const formSelect = document.getElementById('f_crime_title');
 
-    filterSelect.innerHTML = '<option value="ALL">सभी अपराध शीर्षक</option>';
-    fcrFilterSelect.innerHTML = '<option value="ALL">सभी अपराध शीर्षक</option>';
-    formSelect.innerHTML = '';
+            filterSelect.innerHTML = '<option value="ALL">सभी अपराध शीर्षक</option>';
+            fcrFilterSelect.innerHTML = '<option value="ALL">सभी अपराध शीर्षक</option>';
+            formSelect.innerHTML = '';
 
-    EXACT_CRIME_LIST.forEach(crime => {
-        filterSelect.appendChild(new Option(crime, crime));
-        fcrFilterSelect.appendChild(new Option(crime, crime));
-        formSelect.appendChild(new Option(crime, crime));
-    });
-
-    const snThanaSelect = document.getElementById('snThanaFilter');
-    snThanaSelect.innerHTML = '<option value="ALL">सभी थाने</option>';
-    ALL_THANAS.forEach(t => snThanaSelect.appendChild(new Option(t, t)));
-
-    // यहाँ नया कोड पेस्ट करें
-    const fcrThanaSelect = document.getElementById('fcrThanaFilter');
-    if (fcrThanaSelect) {
-        if (loggedInThana === 'ALL') {
-            fcrThanaSelect.innerHTML = '<option value="ALL">सभी 15 थाने</option>';
-            ALL_THANAS.forEach(t => {
-                fcrThanaSelect.appendChild(new Option(t, t));
+            EXACT_CRIME_LIST.forEach(crime => {
+                filterSelect.appendChild(new Option(crime, crime));
+                fcrFilterSelect.appendChild(new Option(crime, crime));
+                formSelect.appendChild(new Option(crime, crime));
             });
-            fcrThanaSelect.disabled = false;
-        } else {
-            fcrThanaSelect.innerHTML = `<option value="${loggedInThana}">${loggedInThana}</option>`;
-            fcrThanaSelect.disabled = true;
+
+            const snThanaSelect = document.getElementById('snThanaFilter');
+            snThanaSelect.innerHTML = '<option value="ALL">सभी थाने</option>';
+            ALL_THANAS.forEach(t => snThanaSelect.appendChild(new Option(t, t)));
         }
-    }
+
         window.onload = function() {
             initCrimeDropdowns();
             generateCaptcha();
@@ -977,54 +964,36 @@
         }
 
         function startDashboard(badgeText) {
-    document.getElementById('loginSection').classList.add('hidden');
-    document.getElementById('dashboardSection').classList.remove('hidden');
-    document.getElementById('dashboardSection').classList.add('flex');
-    document.getElementById('userBadgeDisplay').innerText = `लॉगिन: ${badgeText}`;
-    
-    const tf = document.getElementById('thanaFilter');
-    const fcrTf = document.getElementById('fcrThanaFilter'); // FCR थाना फ़िल्टर
-    const userMgmtBtn = document.getElementById('userMgmtBtn');
-    const actionHeader = document.getElementById('actionHeader');
-    const selectAllHeader = document.getElementById('selectAllHeader');
-    const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+            document.getElementById('loginSection').classList.add('hidden');
+            document.getElementById('dashboardSection').classList.remove('hidden');
+            document.getElementById('dashboardSection').classList.add('flex');
+            document.getElementById('userBadgeDisplay').innerText = `लॉगिन: ${badgeText}`;
+            
+            const tf = document.getElementById('thanaFilter');
+            const userMgmtBtn = document.getElementById('userMgmtBtn');
+            const actionHeader = document.getElementById('actionHeader');
+            const selectAllHeader = document.getElementById('selectAllHeader');
+            const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
 
-    if (loggedInThana === 'ALL') {
-        tf.innerHTML = '<option value="ALL">सभी 15 थाने</option>';
-        ALL_THANAS.forEach(t => { tf.innerHTML += `<option value="${t}">${t}</option>`; });
-        tf.disabled = false;
-
-        // FCR थाना फ़िल्टर (एडमिन के लिए सभी 15 थाने)
-        if (fcrTf) {
-            fcrTf.innerHTML = '<option value="ALL">सभी थाने</option>';
-            ALL_THANAS.forEach(t => {
-                fcrTf.appendChild(new Option(t, t));
-            });
-            fcrTf.disabled = false;
+            if (loggedInThana === 'ALL') {
+                tf.innerHTML = '<option value="ALL">सभी 15 थाने</option>';
+                ALL_THANAS.forEach(t => { tf.innerHTML += `<option value="${t}">${t}</option>`; });
+                tf.disabled = false;
+                userMgmtBtn.style.display = 'inline-flex';
+                actionHeader.style.display = '';
+                selectAllHeader.style.display = '';
+                bulkDeleteBtn.classList.remove('hidden');
+            } else {
+                tf.innerHTML = `<option value="${loggedInThana}">${loggedInThana}</option>`;
+                tf.disabled = true;
+                userMgmtBtn.style.display = 'none';
+                actionHeader.style.display = '';
+                selectAllHeader.style.display = 'none';
+                bulkDeleteBtn.classList.add('hidden');
+            }
+            applyFilters();
         }
 
-        userMgmtBtn.style.display = 'inline-flex';
-        actionHeader.style.display = '';
-        selectAllHeader.style.display = '';
-        bulkDeleteBtn.classList.remove('hidden');
-    } else {
-        tf.innerHTML = `<option value="${loggedInThana}">${loggedInThana}</option>`;
-        tf.disabled = true;
-
-        // FCR थाना फ़िल्टर (सिंगल थाने के लिए)
-        if (fcrTf) {
-            fcrTf.innerHTML = `<option value="${loggedInThana}">${loggedInThana}</option>`;
-            fcrTf.disabled = true;
-        }
-
-        userMgmtBtn.style.display = 'none';
-        actionHeader.style.display = '';
-        selectAllHeader.style.display = 'none';
-        bulkDeleteBtn.classList.add('hidden');
-    }
-    applyFilters();
-    if (typeof renderFcrTable === 'function') renderFcrTable();
-}
         function switchTab(tabName, element) {
             document.querySelectorAll('.sidebar-link').forEach(link => link.classList.remove('active'));
             element.classList.add('active');
