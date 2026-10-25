@@ -1181,6 +1181,11 @@
     if (!sectionStr) return 60;
     let secUpper = sectionStr.toUpperCase().trim();
     
+    // 1. यदि धारा में 189(2) या 189 शामिल है, तो यहाँ सीधे अपनी तयशुदा दिन की सीमा (जैसे 60 दिन या जो आप चाहें) रिटर्न करा दें
+    if (secUpper.includes('189(2)') || secUpper.includes('189')) {
+        return 60; // यहाँ आप अपने हिसाब से दिन बदल सकते हैं
+    }
+    
     // BNS, IPC, CrPC या हिंदी के सभी संभावित रूपों की जाँच
     let hasGeneral = secUpper.includes('BNS') || 
                      secUpper.includes('IPC') || 
@@ -1192,7 +1197,7 @@
                      secUpper.includes('भारतीय न्याय संहिता') ||
                      secUpper.includes('भा0न्या0सं0');
     
-    // अगर इनमें से कुछ भी नहीं है (यानी केवल आबकारी, आर्म्स, गैंगेस्टर आदि विशेष एक्ट हैं), तभी अवधि 0 होगी
+    // अगर इनमें से कुछ भी नहीं है, तभी अवधि 0 होगी
     if (!hasGeneral) {
         return 0;
     }
