@@ -1177,16 +1177,21 @@
             return diffDays >= 0 ? diffDays : 0;
         }
 
-        function getPrescribedLimit(sectionStr) {
-            if (!sectionStr) return 60;
-            let secUpper = sectionStr.toUpperCase().trim();
-            
-            if (secUpper.includes('ACT') && !secUpper.includes('BNS') && !secUpper.includes('IPC')) {
-                return 0;
-            }
-            let found90 = SECTIONS_90_DAYS.some(sec => sectionStr.includes(sec));
-            return found90 ? 90 : 60;
-        }
+       function getPrescribedLimit(sectionStr) {
+    if (!sectionStr) return 60;
+    let secUpper = sectionStr.toUpperCase().trim();
+    
+    // यदि धारा में BNS, IPC, CrPC या 'बीएनएस' जैसी सामान्य धाराएं नहीं हैं, तो अवधि 0 होगी
+    let hasGeneral = secUpper.includes('BNS') || secUpper.includes('IPC') || secUpper.includes('CRPC') || secUpper.includes('बीएनएस/बी0एन0एस0') || secUpper.includes('आईपीसी');
+    
+    if (!hasGeneral) {
+        return 0;
+    }
+    
+    // 90 दिन वाली धाराओं की जाँच
+    let found90 = SECTIONS_90_DAYS.some(sec => sectionStr.includes(sec));
+    return found90 ? 90 : 60;
+}
 
         function openUserMgmtModal() {
             const container = document.getElementById('thanaUserList');
