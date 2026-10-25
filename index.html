@@ -2367,7 +2367,6 @@
             const fromDate = document.getElementById(fromId) ? document.getElementById(fromId).value : '';
             const toDate = document.getElementById(toId) ? document.getElementById(toId).value : '';
 
-            // Filter specific Act cases matching the tab rules
             let matchingCases = casesData.filter(item => {
                 if (loggedInThana !== 'ALL' && item.thana !== loggedInThana) return false;
                 if (loggedInThana === 'ALL' && thanaVal !== 'ALL' && item.thana !== thanaVal) return false;
@@ -2384,7 +2383,6 @@
                 return true;
             });
 
-            // Switch to dashboard tab and render the precisely filtered rows
             switchTab('dash', document.getElementById('menuDash'));
             document.getElementById('thanaFilter').value = thanaVal;
             document.getElementById('crimeFilter').value = crimeName;
