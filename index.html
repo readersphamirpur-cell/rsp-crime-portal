@@ -1552,6 +1552,7 @@
             const editId = document.getElementById('editCaseId').value;
             const selectedCrime = document.getElementById('f_crime_title').value;
 
+            // Save using current auto-classified category and sentence fields
             const caseObj = {
                 id: editId ? (isNaN(editId) ? editId : Number(editId)) : Date.now(),
                 janpad: document.getElementById('f_janpad').value.trim(),
@@ -1710,6 +1711,30 @@
                 return;
             }
             data.forEach((item, index) => {
+                // Ensure legacy items also get auto-classified category & sentence dynamically if missing
+                let evaluatedCategory = item.category;
+                let evaluatedSentence = item.sentence;
+                if (!evaluatedCategory || !evaluatedSentence) {
+                    let extractedNums = extractSectionNumbers(item.section || '');
+                    let matchedBody = false;
+                    let matchedProperty = false;
+                    for (let num of extractedNums) {
+                        if (num >= 100 && num <= 146) { matchedBody = true; break; }
+                    }
+                    if (!matchedBody) {
+                        for (let num of extractedNums) {
+                            if (num >= 303 && num <= 330) { matchedProperty = true; break; }
+                        }
+                    }
+                    evaluatedCategory = matchedBody ? "शरीर संबंधी" : (matchedProperty ? "संपत्ति संबंधी" : "अन्य");
+                    
+                    let is7Plus = false;
+                    for (let num of extractedNums) {
+                        if (SECTIONS_7_YEARS_PLUS.includes(num.toString())) { is7Plus = true; break; }
+                    }
+                    evaluatedSentence = is7Plus ? "7 वर्ष से अधिक" : "07 वर्ष से कम";
+                }
+
                 let totalAccused = (Number(item.named) || 0) + (Number(item.revealed) || 0);
                 let disposedAccused = (Number(item.arrested) || 0) + (Number(item.notice) || 0) + (Number(item.court) || 0) + (Number(item.wrong) || 0);
                 let pendingAccused = Math.max(0, totalAccused - disposedAccused);
@@ -1761,8 +1786,8 @@
                     <td style="font-weight: bold; color: #dc2626; background: #fee2e2;">${pendingAccused}</td>
                     <td>${item.fcr_head || '-'}</td>
                     <td>${item.remarks || '-'}</td>
-                    <td>${item.category || 'अन्य'}</td>
-                    <td>${item.sentence || '07 वर्ष से कम'}</td>
+                    <td style="font-weight: bold; color: #0284c7;">${evaluatedCategory}</td>
+                    <td style="font-weight: bold; color: ${evaluatedSentence === '7 वर्ष से अधिक' ? '#dc2626' : '#16a34a'};">${evaluatedSentence}</td>
                     <td>${isVictim ? (item.victim_name || '-') : 'N/A'}</td>
                     <td>${isVictim ? (item.victim_age || '-') : 'N/A'}</td>
                     <td>${isProperty ? (item.stolen_property || '0') : 'N/A'}</td>
@@ -2421,7 +2446,6 @@
             document.querySelectorAll('.rowCheckbox').forEach(cb => cb.checked = source.checked);
         }
 
-        /* ------------------ UPDATED DELETE FUNCTIONS FOR REALTIME SYNC ------------------ */
         function deleteCase(id) {
             if (confirm('क्या आप वाकई इस मुकदमे के रिकॉर्ड को डिलीट करना चाहते हैं?')) {
                 casesData = casesData.filter(c => String(c.id) !== String(id) && Number(c.id) !== Number(id));
@@ -2519,13 +2543,12 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
         
-        /* ------------------ REALTIME SYNC LISTENER ------------------ */
         db.ref('casesData').on('value', (snapshot) => {
             const data = snapshot.val();
             if (data !== null) {
                 casesData = data;
             } else {
-                casesData = []; // यदि सारा डेटा डिलीट हो जाए तो एम्प्टी एरे सेट करें
+                casesData = [];
             }
             localStorage.setItem('rsp_hamirpur_cases', JSON.stringify(casesData));
             if (typeof applyFilters === 'function') { applyFilters(); }
