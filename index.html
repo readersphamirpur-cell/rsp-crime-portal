@@ -1181,7 +1181,7 @@
     if (!sectionStr) return 60;
     let secUpper = sectionStr.toUpperCase().trim();
     
-    // BNS, IPC, CrPC ya hindi ke sabhi roopo ki jaanch
+    // BNS, IPC, CrPC या हिंदी के सभी संभावित रूपों की जाँच
     let hasGeneral = secUpper.includes('BNS') || 
                      secUpper.includes('IPC') || 
                      secUpper.includes('CRPC') || 
@@ -1192,22 +1192,13 @@
                      secUpper.includes('भारतीय न्याय संहिता') ||
                      secUpper.includes('भा0न्या0सं0');
     
-    // Vishesh adhiniyam (Excise, Gangster aadi) ke liye 0 days
-    // Lekin agar koi purana data bina act ke hai, toh use safe rakhne ke liye yahan condition check ki ja sakti hai
+    // अगर इनमें से कुछ भी नहीं है (यानी केवल आबकारी, आर्म्स, गैंगेस्टर आदि विशेष एक्ट हैं), तभी अवधि 0 होगी
     if (!hasGeneral) {
-        // Agar yeh sach mein vishesh adhiniyam hai tabhi 0, warna safety ke liye 60
-        if (secUpper.includes('ACT') || secUpper.includes('अधिनियम') || secUpper.includes('आबकारी') || secUpper.includes('गैंगेस्टर') || secUpper.includes('NDPS') || secUpper.includes('आर्म्स')) {
-            return 0;
-        }
+        return 0;
     }
     
-    // 90 din wali धाराओं ki sateek jaanch
-    let found90 = DAYS.some(sec => {
-        let escapedSec = sec.toUpperCase().replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-        let regex = new RegExp('(?:^|[^0-9])' + escapedSec + '(?:[^0-9]|$)', 'i');
-        return regex.test(secUpper);
-    });
-    
+    // 90 दिन वाली धाराओं की जाँच
+    let found90 = SECTIONS_90_DAYS.some(sec => sectionStr.includes(sec));
     return found90 ? 90 : 60;
 }
         function openUserMgmtModal() {
