@@ -1177,11 +1177,11 @@
             return diffDays >= 0 ? diffDays : 0;
         }
 
-    function getPrescribedLimit(sectionStr) {
+   function getPrescribedLimit(sectionStr) {
     if (!sectionStr) return 60;
     let secUpper = sectionStr.toUpperCase().trim();
     
-    // BNS, IPC, CrPC ya hindi ke sabhi roopo ki jaanch
+    // BNS, IPC, CrPC या हिंदी के सभी संभावित रूपों की जाँच
     let hasGeneral = secUpper.includes('BNS') || 
                      secUpper.includes('IPC') || 
                      secUpper.includes('CRPC') || 
@@ -1192,15 +1192,16 @@
                      secUpper.includes('भारतीय न्याय संहिता') ||
                      secUpper.includes('भा0न्या0सं0');
     
+    // अगर जनरल एक्ट (BNS/IPC आदि) नहीं है, तभी अवधि 0 होगी (जैसे आबकारी, गैंगेस्टर आदि)
     if (!hasGeneral) {
         return 0;
     }
     
-    // 90 din wali धाराओं ki sateek jaanch (taaki 189 ke andar 89 match na ho)
+    // 90 दिन वाली धाराओं की सटीक जाँच (ताकि 189 के अंदर 89 match न हो)
     let found90 = DAYS.some(sec => {
-        let escapedSec = sec.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+        let escapedSec = sec.toUpperCase().replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
         let regex = new RegExp('(?:^|[^0-9])' + escapedSec + '(?:[^0-9]|$)', 'i');
-        return regex.test(sectionStr);
+        return regex.test(secUpper);
     });
     
     return found90 ? 90 : 60;
