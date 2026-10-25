@@ -9,7 +9,6 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
 
-        
         body { 
             background: #b2cfec; 
             min-height: 100vh; 
@@ -107,20 +106,20 @@
             text-align: center;
         }
 
-        .sidebar-brand-text h3 { color: #9610f0; font-size: 2rem; font-weight: 900; line-height: 2; }
-        .sidebar-brand-text p { color: #f52105; font-size: 1rem; font-weight: 800; margin-top: 2px; }
+        .sidebar-brand-text h3 { color: #9610f0; font-size: 1.8rem; font-weight: 900; line-height: 1.2; }
+        .sidebar-brand-text p { color: #f52105; font-size: 0.95rem; font-weight: 800; margin-top: 2px; }
 
-        .sidebar-menu { list-style: none; padding: 1rem 0; flex: 1; }
-        .sidebar-menu li { margin-bottom: 0.2rem; }
+        .sidebar-menu { list-style: none; padding: 0.5rem 0; flex: 1; overflow-y: auto; max-height: calc(100vh - 120px); }
+        .sidebar-menu li { margin-bottom: 0.15rem; }
         
         .sidebar-link {
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            padding: 0.75rem 1.2rem;
+            padding: 0.65rem 1rem;
             color: #eb0707;
             text-decoration: none;
-            font-size: 1.2rem;
+            font-size: 1.05rem;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.2s;
@@ -133,7 +132,7 @@
             border-left-color: #2af510;
         }
 
-        .sidebar-footer { padding: 1rem; border-top: 1px solid #0641f1; font-size: 1rem; text-align: center; color: #2704ee; }
+        .sidebar-footer { padding: 0.8rem; border-top: 1px solid #0641f1; font-size: 0.85rem; text-align: center; color: #2704ee; }
 
         /* MAIN WRAPPER */
         .main-wrapper { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow-y: auto; }
@@ -179,7 +178,7 @@
         }
 
         .scope-title {
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             font-weight: 800;
             color: #2804f5;
             margin-bottom: 1rem;
@@ -218,19 +217,10 @@
             box-shadow: 0 1px 2px rgba(0,0,0,0.03);
         }
 
-        .stat-card.c-blue { background: #f0f7ff; border-color: #c7d2fe; }
-        .stat-card.c-green { background: #f0fdf4; border-color: #bbf7d0; }
-        .stat-card.c-purple { background: #faf5ff; border-color: #e9d5ff; }
-        .stat-card.c-cyan { background: #ecfeff; border-color: #a5f3fc; }
-        .stat-card.c-red { background: #fef2f2; border-color: #fecaca; }
-        .stat-card.c-orange { background: #fff7ed; border-color: #ffedd5; }
-        .stat-card.c-rose { background: #fff1f2; border-color: #fecdd3; }
-        .stat-card.c-emerald { background: #ecfdf5; border-color: #a7f3d0; }
-
         .stat-card h4 { font-size: 1.06rem; color: #0407eb; font-weight: 700; white-space: nowrap; }
         .stat-card p { font-size: 1.25rem; font-weight: 800; margin-top: 0.2rem; color: #0f172a; }
 
-        /* TABLE STYLES & WRAP TEXT CLASSES */
+        /* TABLE STYLES */
         .table-container {
             background: white;
             border-radius: 8px;
@@ -238,6 +228,7 @@
             max-height: 55vh;
             border: 1px solid #e2e8f0;
             box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+            position: relative;
         }
 
         table { width: 100%; border-collapse: collapse; font-size: 1.02rem; text-align: center; }
@@ -246,40 +237,16 @@
         tr:nth-child(even) { background: #f8fafc; }
         tr:hover { background: #f1f5f9; }
 
-        /* WRAP TEXT SPECIFIC CLASSES */
-        .wrap-col {
-            white-space: normal !important;
-          word-wrap: break-word !important;
-          word-break: break-word !important;
-}
-        /* 1. जनपद, मु0अ0सं0 और धारा की चौड़ाई कम करने के लिए */
+        .wrap-col { white-space: normal !important; word-wrap: break-word !important; word-break: break-word !important; }
         .w-janpad { min-width: 65px; max-width: 70px; white-space: nowrap; }
         .w-caseno, th.w-caseno, td.w-caseno { min-width: 90px; max-width: 110px; white-space: normal !important; word-break: break-word !important; }
         .w-section, th.w-section, td.w-section { min-width: 150px !important; max-width: 300px !important; white-space: normal !important; word-break: break-word !important; }
         
-        /* 2. वादी, प्रतिवादी, घटनास्थल और विवरण */
         .w-place { min-width: 150px !important; max-width: 200px !important; }
         .w-complainant { min-width: 200px !important; max-width: 450px !important; }
         .w-defendant { min-width: 200px !important; max-width: 700px !important; }
         .w-desc { min-width: 280px !important; max-width: 700px !important; white-space: normal !important; }
-
-        /* 3. विवेचक (IO) की चौड़ाई बढ़ाने के लिए */
         .w-io, th.w-io, td.w-io { min-width: 160px !important; max-width: 280px !important; white-space: normal !important; word-break: break-word !important; }
-
-        /* 3. नीचे स्क्रॉल करने पर टेबल का हेडर (Header) फ़िक्स (Sticky) रखने के लिए */
-        .table-container {
-            max-height: 65vh; /* स्क्रॉल कंटेनर की ऊँचाई */
-            overflow-y: auto;  /* वर्टिकल स्क्रॉल चालू करें */
-            overflow-x: auto;  /* हॉरिजॉन्टल स्क्रॉल चालू करें */
-            position: relative;
-        }
-
-        th {
-            position: sticky;
-            top: 0;
-            z-index: 20; /* हेडर को सबसे ऊपर रखने के लिए */
-            background: #1e293b !important; /* हेडर का बैकग्राउंड */
-        }
 
         .clickable-link { color: #2563eb; font-weight: 700; cursor: pointer; text-decoration: underline; }
         .clickable-link:hover { color: #1d4ed8; }
@@ -287,7 +254,7 @@
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 100; }
         .modal-content { background: white; padding: 1.8rem; border-radius: 10px; width: 100%; max-width: 800px; max-height: 88vh; overflow-y: auto; color: #1e293b; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
         
-        .section-subheading { font-size: 0.88rem; font-weight: 800; color: #1e293b; margin: 1.2rem 0 0.6rem 0; display: flex; align-items: center; gap: 0.4rem; }
+        .section-subheading { font-size: 0.95rem; font-weight: 800; color: #1e293b; margin: 1.2rem 0 0.6rem 0; display: flex; align-items: center; gap: 0.4rem; }
 
         /* PRINT STYLES */
         @media print {
@@ -301,7 +268,6 @@
             table { width: 100% !important; border: 1px solid #000; }
             th, td { border: 1px solid #000 !important; padding: 4px !important; font-size: 8pt !important; color: #000 !important; }
             th { background: #eee !important; color: #000 !important; }
-            .wrap-col { white-space: normal !important; }
         }
     </style>
 </head>
@@ -352,10 +318,14 @@
                 </div>
             </div>
             <ul class="sidebar-menu">
-                <li><a class="sidebar-link active" onclick="switchTab('dash', this)"><span>📊</span> DASHBOARD</a></li>
-                <li><a class="sidebar-link" onclick="switchTab('reports', this)"><span>📋</span> F.C.R. DATA</a></li>
-                <li><a class="sidebar-link" onclick="switchTab('tracking', this)"><span>🔎</span> अपराध श्रेणी</a></li>
-                <li><a class="sidebar-link" onclick="switchTab('history', this)"><span>📜</span> 60/90 लम्बित विवेचना</a></li>
+                <li><a id="menuDash" class="sidebar-link active" onclick="switchTab('dash', this)"><span>📊</span> DASHBOARD</a></li>
+                <li><a id="menuReports" class="sidebar-link" onclick="switchTab('reports', this)"><span>📋</span> F.C.R. DATA</a></li>
+                <li><a id="menuTracking" class="sidebar-link" onclick="switchTab('tracking', this)"><span>🔎</span> अपराध श्रेणी</a></li>
+                <li><a id="menuPocso" class="sidebar-link" onclick="switchTab('pocso', this)"><span>🛡️</span> Pocso Act</a></li>
+                <li><a id="menuScst" class="sidebar-link" onclick="switchTab('scst', this)"><span>⚖️</span> SC/ST Act</a></li>
+                <li><a id="menuIt" class="sidebar-link" onclick="switchTab('it', this)"><span>💻</span> IT Act</a></li>
+                <li><a id="menuWomen" class="sidebar-link" onclick="switchTab('women', this)"><span>👩‍🦰</span> महिला अपराध</a></li>
+                <li><a id="menuHistory" class="sidebar-link" onclick="switchTab('history', this)"><span>📜</span> 60/90 लम्बित विवेचना</a></li>
             </ul>
             <div class="sidebar-footer">DISTT. HAMIRPUR <br>RSP Portal v2.0</div>
         </aside>
@@ -434,11 +404,11 @@
                                 </select>
                             </div>
                             <div class="input-group">
-                                <label>FROM</label>
+                                <label>FROM (सूचना)</label>
                                 <input type="date" id="fromDateFilter" onchange="applyFilters()" class="input-control">
                             </div>
                             <div class="input-group">
-                                <label>To</label>
+                                <label>To (सूचना)</label>
                                 <input type="date" id="toDateFilter" onchange="applyFilters()" class="input-control">
                             </div>
                             <div class="input-group">
@@ -460,7 +430,7 @@
                         </div>
                     </div>
 
-                    <!-- 11 STATS CARDS -->
+                    <!-- STATS CARDS -->
                     <div class="stats-grid">
                         <div class="stat-card c-blue"><h4>कुल मुकदमे</h4><p id="stTotal">0</p></div>
                         <div class="stat-card c-blue"><h4>अभियुक्त संख्या</h4><p id="stAccused">0</p></div>
@@ -539,47 +509,42 @@
                             </div>
                         </div>
                         
-                        <!-- Filter Panel for FCR -->
-           <!-- Filter Panel for FCR -->
-<div class="filter-grid" style="margin-bottom: 1rem;">
-    <div class="input-group">
-        <label>थाना</label>
-        <select id="fcrThanaFilter" onchange="renderFcrTable()" class="input-control">
-            <option value="ALL">सभी थाने</option>
-        </select>
-    </div>
-    <div class="input-group">
-        <label>अपराध शीर्षक</label>
-        <select id="fcrCrimeFilter" onchange="renderFcrTable()" class="input-control"></select>
-    </div>
-    <div class="input-group">
-        <label>विवेचना की स्थिति</label>
-        <select id="fcrStatusFilter" onchange="renderFcrTable()" class="input-control">
-            <option value="ALL">सभी</option>
-            <option value="विवेचनाधीन">विवेचनाधीन</option>
-            <option value="आरोप पत्र प्रेषित">आरोप पत्र</option>
-            <option value="अंतिम रिपोर्ट">अंतिम रिपोर्ट</option>
-        </select>
-    </div>
-    <div class="input-group">
-        <label>F.C.R. Status</label>
-        <select id="fcrYesNoFilter" onchange="renderFcrTable()" class="input-control">
-            <option value="ALL">सभी</option>
-            <option value="हाँ">हाँ (Yes)</option>
-            <option value="नहीं">नहीं (No)</option>
-        </select>
-    </div>
-    <div class="input-group">
-        <label>FROM (सूचना)</label>
-        <input type="date" id="fcrFromDate" onchange="renderFcrTable()" class="input-control">
-    </div>
-    <div class="input-group">
-        <label>TO (सूचना)</label>
-        <input type="date" id="fcrToDate" onchange="renderFcrTable()" class="input-control">
-    </div>
-</div>
+                        <div class="filter-grid" style="margin-bottom: 1rem;">
+                            <div class="input-group">
+                                <label>थाना</label>
+                                <select id="fcrThanaFilter" onchange="renderFcrTable()" class="input-control"><option value="ALL">सभी थाने</option></select>
+                            </div>
+                            <div class="input-group">
+                                <label>अपराध शीर्षक</label>
+                                <select id="fcrCrimeFilter" onchange="renderFcrTable()" class="input-control"></select>
+                            </div>
+                            <div class="input-group">
+                                <label>विवेचना की स्थिति</label>
+                                <select id="fcrStatusFilter" onchange="renderFcrTable()" class="input-control">
+                                    <option value="ALL">सभी</option>
+                                    <option value="विवेचनाधीन">विवेचनाधीन</option>
+                                    <option value="आरोप पत्र प्रेषित">आरोप पत्र</option>
+                                    <option value="अंतिम रिपोर्ट">अंतिम रिपोर्ट</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label>F.C.R. Status</label>
+                                <select id="fcrYesNoFilter" onchange="renderFcrTable()" class="input-control">
+                                    <option value="ALL">सभी</option>
+                                    <option value="हाँ">हाँ (Yes)</option>
+                                    <option value="नहीं">नहीं (No)</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label>FROM (सूचना)</label>
+                                <input type="date" id="fcrFromDate" onchange="renderFcrTable()" class="input-control">
+                            </div>
+                            <div class="input-group">
+                                <label>TO (सूचना)</label>
+                                <input type="date" id="fcrToDate" onchange="renderFcrTable()" class="input-control">
+                            </div>
+                        </div>
 
-                        <!-- Numerical Summary Table -->
                         <div class="table-container" style="margin-bottom: 1.5rem;">
                             <table>
                                 <thead>
@@ -604,14 +569,12 @@
                             </table>
                         </div>
 
-                        <!-- Automatic Add: Detailed Cases List Underneath -->
                         <div class="section-subheading">📑 F.C.R.-मुकदमों का विस्तृत विवरण</div>
                         <div class="table-container">
                             <table>
                                 <thead>
                                     <tr>
                                         <th>क्र0सं0</th>
-                                        <th>अपराध शीर्षक</th>
                                         <th>थाना</th>
                                         <th>मु0अ0सं0</th>
                                         <th>धारा</th>
@@ -641,8 +604,11 @@
                             </div>
                         </div>
 
-                        <!-- Filter Panel for Category -->
                         <div class="filter-grid" style="margin-bottom: 1rem;">
+                            <div class="input-group">
+                                <label>थाना</label>
+                                <select id="catThanaFilter" onchange="renderCategoryTable()" class="input-control"><option value="ALL">सभी थाने</option></select>
+                            </div>
                             <div class="input-group">
                                 <label>अपराध श्रेणी</label>
                                 <select id="catTabFilter" onchange="renderCategoryTable()" class="input-control">
@@ -661,30 +627,301 @@
                                     <option value="अंतिम रिपोर्ट">अंतिम रिपोर्ट</option>
                                 </select>
                             </div>
+                            <div class="input-group">
+                                <label>FROM (सूचना)</label>
+                                <input type="date" id="catFromDate" onchange="renderCategoryTable()" class="input-control">
+                            </div>
+                            <div class="input-group">
+                                <label>TO (सूचना)</label>
+                                <input type="date" id="catToDate" onchange="renderCategoryTable()" class="input-control">
+                            </div>
                         </div>
 
-                        <div class="table-container">
+                        <div class="table-container" style="margin-bottom: 1.5rem;">
                             <table>
                                 <thead>
                                     <tr>
                                         <th>क्र0सं0</th>
                                         <th>अपराध श्रेणी</th>
-                                        <th>थाना (थानावार)</th>
-                                        <th>कुल मुकदमा</th>
+                                        <th>कुल मुकदमा(लिंक)</th>
                                         <th>आरोप पत्र</th>
                                         <th>अंतिम रिपोर्ट</th>
-                                        <th>विवेचनाधीन</th>
+                                        <th>विवेचनाधीन(लिंक)</th>
                                         <th>नामजद</th>
                                         <th>प्रकाश</th>
                                         <th>योग</th>
                                         <th>गिरफ्तार</th>
                                         <th>हा0अ0</th>
                                         <th>नोटिस तामीला</th>
-                                        <th>नामजदगी गलत</th>
-                                        <th>शेष</th>
+                                        <th>नामजदगी गलत(लिंक)</th>
+                                        <th>शेष(लिंक)</th>
                                     </tr>
                                 </thead>
                                 <tbody id="categoryTableBody"></tbody>
+                                <tbody id="categoryTableFoot"></tbody>
+                            </table>
+                        </div>
+
+                        <div class="section-subheading">📑 अपराध श्रेणी - मुकदमों का विस्तृत विवरण</div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>क्र0सं0</th>
+                                        <th>थाना</th>
+                                        <th>अपराध श्रेणी</th>
+                                        <th>मु0अ0सं0</th>
+                                        <th>धारा</th>
+                                        <th>दिनांक घटना</th>
+                                        <th>दिनांक सूचना</th>
+                                        <th class="wrap-col w-place">घटनास्थल</th>
+                                        <th class="wrap-col w-complainant">वादी</th>
+                                        <th class="wrap-col w-defendant">प्रतिवादी</th>
+                                        <th class="wrap-col w-desc">घटना का संक्षिप्त विवरण</th>
+                                        <th>विवेचना की स्थिति</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="categoryDetailTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GENERIC DEDICATED TEMPLATE TABS (POCSO, SC/ST, IT, WOMEN) -->
+                <!-- POCSO TAB -->
+                <div id="tabPocso" class="hidden">
+                    <div class="scope-card">
+                        <div class="scope-title"><span>🛡️ POCSO Act डेटा</span></div>
+                        <div class="filter-grid" style="margin-bottom: 1rem;">
+                            <div class="input-group"><label>थाना</label><select id="pocsoThana" onchange="renderGenericTab('pocso')" class="input-control"><option value="ALL">सभी</option></select></div>
+                            <div class="input-group"><label>अपराध शीर्षक</label><select id="pocsoCrime" onchange="renderGenericTab('pocso')" class="input-control"></select></div>
+                            <div class="input-group"><label>F.C.R.</label><select id="pocsoFcr" onchange="renderGenericTab('pocso')" class="input-control"><option value="ALL">सभी</option><option value="हाँ">हाँ</option><option value="नहीं">नहीं</option></select></div>
+                            <div class="input-group"><label>विवेचना की स्थिति</label><select id="pocsoStatus" onchange="renderGenericTab('pocso')" class="input-control"><option value="ALL">सभी</option><option value="विवेचनाधीन">विवेचनाधीन</option><option value="आरोप पत्र प्रेषित">आरोप पत्र</option><option value="अंतिम रिपोर्ट">अंतिम रिपोर्ट</option></select></div>
+                            <div class="input-group"><label>FROM</label><input type="date" id="pocsoFrom" onchange="renderGenericTab('pocso')" class="input-control"></div>
+                            <div class="input-group"><label>TO</label><input type="date" id="pocsoTo" onchange="renderGenericTab('pocso')" class="input-control"></div>
+                        </div>
+                        <div class="table-container" style="margin-bottom: 1.5rem;">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>क्र0सं0</th>
+                                        <th>अपराध श्रेणी</th>
+                                        <th>कुल मुकदमा(लिंक)</th>
+                                        <th>आरोप पत्र</th>
+                                        <th>अंतिम रिपोर्ट</th>
+                                        <th>विवेचनाधीन(लिंक)</th>
+                                        <th>नामजद</th>
+                                        <th>प्रकाश</th>
+                                        <th>योग</th>
+                                        <th>गिरफ्तार</th>
+                                        <th>हा0अ0</th>
+                                        <th>नोटिस तामीला</th>
+                                        <th>नामजदगी गलत(लिंक)</th>
+                                        <th>शेष(लिंक)</th>
+                                        <th>FCR</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pocsoTableBody"></tbody>
+                                <tbody id="pocsoTableFoot"></tbody>
+                            </table>
+                        </div>
+                        <div class="section-subheading">📑 POCSO Act - मुकदमों का विस्तृत विवरण</div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>क्र0सं0</th>
+                                        <th>मु0अ0सं0</th>
+                                        <th>धारा</th>
+                                        <th>दिनांक घटना</th>
+                                        <th>दिनांक सूचना</th>
+                                        <th class="wrap-col w-place">घटना स्थल</th>
+                                        <th class="wrap-col w-complainant">वादी</th>
+                                        <th class="wrap-col w-defendant">प्रतिवादी</th>
+                                        <th class="wrap-col w-desc">घटना का संक्षिप्त विवरण</th>
+                                        <th>विवेचना की स्थिति</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pocsoDetailBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SC/ST ACT TAB -->
+                <div id="tabScst" class="hidden">
+                    <div class="scope-card">
+                        <div class="scope-title"><span>⚖️ SC/ST Act डेटा</span></div>
+                        <div class="filter-grid" style="margin-bottom: 1rem;">
+                            <div class="input-group"><label>थाना</label><select id="scstThana" onchange="renderGenericTab('scst')" class="input-control"><option value="ALL">सभी</option></select></div>
+                            <div class="input-group"><label>अपराध शीर्षक</label><select id="scstCrime" onchange="renderGenericTab('scst')" class="input-control"></select></div>
+                            <div class="input-group"><label>F.C.R.</label><select id="scstFcr" onchange="renderGenericTab('scst')" class="input-control"><option value="ALL">सभी</option><option value="हाँ">हाँ</option><option value="नहीं">नहीं</option></select></div>
+                            <div class="input-group"><label>विवेचना की स्थिति</label><select id="scstStatus" onchange="renderGenericTab('scst')" class="input-control"><option value="ALL">सभी</option><option value="विवेचनाधीन">विवेचनाधीन</option><option value="आरोप पत्र प्रेषित">आरोप पत्र</option><option value="अंतिम रिपोर्ट">अंतिम रिपोर्ट</option></select></div>
+                            <div class="input-group"><label>FROM</label><input type="date" id="scstFrom" onchange="renderGenericTab('scst')" class="input-control"></div>
+                            <div class="input-group"><label>TO</label><input type="date" id="scstTo" onchange="renderGenericTab('scst')" class="input-control"></div>
+                        </div>
+                        <div class="table-container" style="margin-bottom: 1.5rem;">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>क्र0सं0</th>
+                                        <th>अपराध श्रेणी</th>
+                                        <th>कुल मुकदमा(लिंक)</th>
+                                        <th>आरोप पत्र</th>
+                                        <th>अंतिम रिपोर्ट</th>
+                                        <th>विवेचनाधीन(लिंक)</th>
+                                        <th>नामजद</th>
+                                        <th>प्रकाश</th>
+                                        <th>योग</th>
+                                        <th>गिरफ्तार</th>
+                                        <th>हा0अ0</th>
+                                        <th>नोटिस तामीला</th>
+                                        <th>नामजदगी गलत(लिंक)</th>
+                                        <th>शेष(लिंक)</th>
+                                        <th>FCR</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="scstTableBody"></tbody>
+                                <tbody id="scstTableFoot"></tbody>
+                            </table>
+                        </div>
+                        <div class="section-subheading">📑 SC/ST Act - मुकदमों का विस्तृत विवरण</div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>क्र0सं0</th>
+                                        <th>मु0अ0सं0</th>
+                                        <th>धारा</th>
+                                        <th>दिनांक घटना</th>
+                                        <th>दिनांक सूचना</th>
+                                        <th class="wrap-col w-place">घटना स्थल</th>
+                                        <th class="wrap-col w-complainant">वादी</th>
+                                        <th class="wrap-col w-defendant">प्रतिवादी</th>
+                                        <th class="wrap-col w-desc">घटना का संक्षिप्त विवरण</th>
+                                        <th>विवेचना की स्थिति</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="scstDetailBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- IT ACT TAB -->
+                <div id="tabIt" class="hidden">
+                    <div class="scope-card">
+                        <div class="scope-title"><span>💻 IT Act डेटा</span></div>
+                        <div class="filter-grid" style="margin-bottom: 1rem;">
+                            <div class="input-group"><label>थाना</label><select id="itThana" onchange="renderGenericTab('it')" class="input-control"><option value="ALL">सभी</option></select></div>
+                            <div class="input-group"><label>F.C.R.</label><select id="itFcr" onchange="renderGenericTab('it')" class="input-control"><option value="ALL">सभी</option><option value="हाँ">हाँ</option><option value="नहीं">नहीं</option></select></div>
+                            <div class="input-group"><label>विवेचना की स्थिति</label><select id="itStatus" onchange="renderGenericTab('it')" class="input-control"><option value="ALL">सभी</option><option value="विवेचनाधीन">विवेचनाधीन</option><option value="आरोप पत्र प्रेषित">आरोप पत्र</option><option value="अंतिम रिपोर्ट">अंतिम रिपोर्ट</option></select></div>
+                            <div class="input-group"><label>FROM</label><input type="date" id="itFrom" onchange="renderGenericTab('it')" class="input-control"></div>
+                            <div class="input-group"><label>TO</label><input type="date" id="itTo" onchange="renderGenericTab('it')" class="input-control"></div>
+                        </div>
+                        <div class="table-container" style="margin-bottom: 1.5rem;">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>क्र0सं0</th>
+                                        <th>अपराध श्रेणी</th>
+                                        <th>कुल मुकदमा(लिंक)</th>
+                                        <th>आरोप पत्र</th>
+                                        <th>अंतिम रिपोर्ट</th>
+                                        <th>विवेचनाधीन(लिंक)</th>
+                                        <th>नामजद</th>
+                                        <th>प्रकाश</th>
+                                        <th>योग</th>
+                                        <th>गिरफ्तार</th>
+                                        <th>हा0अ0</th>
+                                        <th>नोटिस तामीला</th>
+                                        <th>नामजदगी गलत(लिंक)</th>
+                                        <th>शेष(लिंक)</th>
+                                        <th>FCR</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="itTableBody"></tbody>
+                                <tbody id="itTableFoot"></tbody>
+                            </table>
+                        </div>
+                        <div class="section-subheading">📑 IT Act - मुकदमों का विस्तृत विवरण</div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>क्र0सं0</th>
+                                        <th>मु0अ0सं0</th>
+                                        <th>धारा</th>
+                                        <th>दिनांक घटना</th>
+                                        <th>दिनांक सूचना</th>
+                                        <th class="wrap-col w-place">घटना स्थल</th>
+                                        <th class="wrap-col w-complainant">वादी</th>
+                                        <th class="wrap-col w-defendant">प्रतिवादी</th>
+                                        <th class="wrap-col w-desc">घटना का संक्षिप्त विवरण</th>
+                                        <th>विवेचना की स्थिति</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="itDetailBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- WOMEN CRIME TAB -->
+                <div id="tabWomen" class="hidden">
+                    <div class="scope-card">
+                        <div class="scope-title"><span>👩‍🦰 महिला अपराध डेटा</span></div>
+                        <div class="filter-grid" style="margin-bottom: 1rem;">
+                            <div class="input-group"><label>थाना</label><select id="womenThana" onchange="renderGenericTab('women')" class="input-control"><option value="ALL">सभी</option></select></div>
+                            <div class="input-group"><label>अपराध शीर्षक</label><select id="womenCrime" onchange="renderGenericTab('women')" class="input-control"></select></div>
+                            <div class="input-group"><label>F.C.R.</label><select id="womenFcr" onchange="renderGenericTab('women')" class="input-control"><option value="ALL">सभी</option><option value="हाँ">हाँ</option><option value="नहीं">नहीं</option></select></div>
+                            <div class="input-group"><label>विवेचना की स्थिति</label><select id="womenStatus" onchange="renderGenericTab('women')" class="input-control"><option value="ALL">सभी</option><option value="विवेचनाधीन">विवेचनाधीन</option><option value="आरोप पत्र प्रेषित">आरोप पत्र</option><option value="अंतिम रिपोर्ट">अंतिम रिपोर्ट</option></select></div>
+                            <div class="input-group"><label>FROM</label><input type="date" id="womenFrom" onchange="renderGenericTab('women')" class="input-control"></div>
+                            <div class="input-group"><label>TO</label><input type="date" id="womenTo" onchange="renderGenericTab('women')" class="input-control"></div>
+                        </div>
+                        <div class="table-container" style="margin-bottom: 1.5rem;">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>क्र0सं0</th>
+                                        <th>अपराध श्रेणी</th>
+                                        <th>कुल मुकदमा(लिंक)</th>
+                                        <th>आरोप पत्र</th>
+                                        <th>अंतिम रिपोर्ट</th>
+                                        <th>विवेचनाधीन(लिंक)</th>
+                                        <th>नामजद</th>
+                                        <th>प्रकाश</th>
+                                        <th>योग</th>
+                                        <th>गिरफ्तार</th>
+                                        <th>हा0अ0</th>
+                                        <th>नोटिस तामीला</th>
+                                        <th>नामजदगी गलत(लिंक)</th>
+                                        <th>शेष(लिंक)</th>
+                                        <th>FCR</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="womenTableBody"></tbody>
+                                <tbody id="womenTableFoot"></tbody>
+                            </table>
+                        </div>
+                        <div class="section-subheading">📑 महिला अपराध - मुकदमों का विस्तृत विवरण</div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>क्र0सं0</th>
+                                        <th>मु0अ0सं0</th>
+                                        <th>धारा</th>
+                                        <th>दिनांक घटना</th>
+                                        <th>दिनांक सूचना</th>
+                                        <th class="wrap-col w-place">घटना स्थल</th>
+                                        <th class="wrap-col w-complainant">वादी</th>
+                                        <th class="wrap-col w-defendant">प्रतिवादी</th>
+                                        <th class="wrap-col w-desc">घटना का संक्षिप्त विवरण</th>
+                                        <th>विवेचना की स्थिति</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="womenDetailBody"></tbody>
                             </table>
                         </div>
                     </div>
@@ -701,7 +938,6 @@
                             </div>
                         </div>
 
-                        <!-- Filter Panel for 60/90 days -->
                         <div class="filter-grid" style="margin-bottom: 1rem;">
                             <div class="input-group">
                                 <label>थाना</label>
@@ -762,9 +998,9 @@
                     <div><label style="font-size: 0.78rem; color: #64748b; font-weight: 700;">जनपद</label><input type="text" id="f_janpad" value="हमीरपुर" class="input-control" required></div>
                     <div><label style="font-size: 0.78rem; color: #64748b; font-weight: 700;">सर्किल</label><input type="text" id="f_circle" class="input-control" placeholder="सर्किल" required></div>
                     <div><label style="font-size: 0.78rem; color: #64748b; font-weight: 700;">थाना</label><select id="f_thana" class="input-control" required></select></div>
-                    <div><label style="font-size: 0.78rem; color: #64748b; font-weight: 700;">अपराध शीर्षक</label><select id="f_crime_title" onchange="toggleSpecialFields()" class="input-control" required></select></div>
+                    <div><label style="font-size: 0.78rem; color: #64748b; font-weight: 700;">अपराध शीर्षक</label><select id="f_crime_title" onchange="toggleSpecialFields(); autoClassifyFormFields();" class="input-control" required></select></div>
                     <div><label style="font-size: 0.78rem; color: #64748b; font-weight: 700;">मुकदमा अपराध संख्या</label><input type="text" id="f_case_no" class="input-control" placeholder="जैसे: 124/2026" required></div>
-                    <div><label style="font-size: 0.78rem; color: #64748b; font-weight: 700;">धारा (Section)</label><input type="text" id="f_section" oninput="document.getElementById('f_period').value = getPrescribedLimit(this.value);" class="input-control" placeholder="जैसे: 103(1), 331(4) BNS"></div>
+                    <div><label style="font-size: 0.78rem; color: #64748b; font-weight: 700;">धारा (Section)</label><input type="text" id="f_section" oninput="autoClassifyFormFields()" class="input-control" placeholder="जैसे: 103(1), 331(4) BNS"></div>
                     <div><label style="font-size: 0.78rem; color: #64748b; font-weight: 700;">दिनांक घटना</label><input type="date" id="f_evt_date" class="input-control" required></div>
                     <div><label style="font-size: 0.78rem; color: #64748b; font-weight: 700;">दिनांक सूचना</label><input type="date" id="f_info_date" class="input-control" required></div>
                     <div><label style="font-size: 0.78rem; color: #64748b; font-weight: 700;">घटनास्थल</label><input type="text" id="f_incident_place" class="input-control" placeholder="घटनास्थल" required></div>
@@ -792,10 +1028,9 @@
                     <div><label style="font-size: 0.78rem; color: #64748b; font-weight: 700;">नोटिस</label><input type="number" id="f_notice" value="0" min="0" class="input-control" required></div>
                     <div><label style="font-size: 0.78rem; color: #64748b; font-weight: 700;">हाजिर</label><input type="number" id="f_court" value="0" min="0" class="input-control" required></div>
                     <div><label style="font-size: 0.78rem; color: #64748b; font-weight: 700;">गलत</label><input type="number" id="f_wrong" value="0" min="0" class="input-control" required></div>
-                    <div><label style="font-size: 0.78rem; color: #64748b; font-weight: 700;">शेष</label><input type="number" id="f_wrong_or_pending_extra" value="0" min="0" class="input-control hidden" style="display:none;"></div>
                     <div><label style="font-size: 0.78rem; color: #64748b; font-weight: 700;">FCR हेड</label><select id="f_fcr_head" class="input-control" required><option value="हाँ">हाँ</option><option value="नहीं">नहीं</option></select></div>
-                    <div><label style="font-size: 0.78rem; color: #64748b; font-weight: 700;">अपराध श्रेणी</label><select id="f_category" class="input-control" required><option value="शरीर संबंधी">शरीर संबंधी</option><option value="संपत्ति संबंधी">संपत्ति संबंधी</option><option value="अन्य">अन्य</option></select></div>
-                    <div><label style="font-size: 0.78rem; color: #64748b; font-weight: 700;">सजा</label><select id="f_sentence" class="input-control" required><option value="07 वर्ष से कम">07 वर्ष से कम</option><option value="7 वर्ष से अधिक">7 वर्ष से अधिक</option></select></div>
+                    <div><label style="font-size: 0.78rem; color: #64748b; font-weight: 700;">अपराध श्रेणी (ऑटो)</label><select id="f_category" class="input-control" required><option value="शरीर संबंधी">शरीर संबंधी</option><option value="संपत्ति संबंधी">संपत्ति संबंधी</option><option value="अन्य">अन्य</option></select></div>
+                    <div><label style="font-size: 0.78rem; color: #64748b; font-weight: 700;">सजा (ऑटो)</label><select id="f_sentence" class="input-control" required><option value="07 वर्ष से कम">07 वर्ष से कम</option><option value="7 वर्ष से अधिक">7 वर्ष से अधिक</option></select></div>
                     <div style="grid-column: span 3;"><label style="font-size: 0.78rem; color: #64748b; font-weight: 700;">रिमार्क्स</label><input type="text" id="f_remarks" class="input-control" placeholder="Remarks"></div>
 
                     <div id="victimFields" class="hidden" style="grid-column: span 3; display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; background: #fdf2f8; padding: 0.8rem; border-radius: 6px; border: 1px solid #fbcfe8;">
@@ -857,8 +1092,16 @@
         const PROPERTY_CRIMES = ["लूट", "डकैती", "वाहन चोरी", "अन्य चोरी", "नकबजनी", "पशु चोरी"];
         const ACCIDENT_CRIMES = ["281/106(1) BNS", "125A/125B/281 BNS"];
         const RECOVERY_CRIMES = ["60 आबकारी", "3/25 आर्म्स एक्ट", "NDPS ACT", "जुआ अधिनियम", "विस्फोटक अधिनियम"];
-
         const SECTIONS_90_DAYS = ['109(1)', '103(1)', '89', '310(2)', '140(1)', '331(4)', '331(6)', '80(2)', '309(4)', '105', '338', '118(2)'];
+
+        // 7 Years or More Sections List
+        const SECTIONS_7_YEARS_PLUS = [
+            "64(1)", "64(2)", "65(1)", "65(2)", "66", "67", "68", "69", "70(1)", "70(2)", "71", "72", "80(2)",
+            "101", "103(1)", "103(2)", "104", "105", "117(3)", "117(4)", "118(2)", "119(2)", "124(1)", "124(2)", "139", "140(1)", "140(2)", "140(3)", "141", "142", "143(2)", "143(3)", "143(5)", "143(6)", "144(1)", "144(2)",
+            "147", "148", "150", "152", "157", "158",
+            "307", "309(4)", "310(2)", "311", "312", "313", "318(4)",
+            "331(4)", "336(3)", "338", "340", "342"
+        ];
 
         let currentCaptcha = "";
         let currentlyFilteredCases = [];
@@ -873,14 +1116,14 @@
             pwdInput.type = pwdInput.type === 'password' ? 'text' : 'password';
         }
         
-    let thanaCredentials = JSON.parse(localStorage.getItem('rsp_thana_creds')) || {};
-    if (Object.keys(thanaCredentials).length === 0) {
-    ALL_THANAS.forEach(t => {
-    thanaCredentials[t] = { username: t.toLowerCase().replace(/\s+/g, ''), password: '123' };
-});
-    thanaCredentials['admin'] = { username: 'rsphamirpur', password: 'Rsp#3544' };
-    localStorage.setItem('rsp_thana_creds', JSON.stringify(thanaCredentials));
-}
+        let thanaCredentials = JSON.parse(localStorage.getItem('rsp_thana_creds')) || {};
+        if (Object.keys(thanaCredentials).length === 0) {
+            ALL_THANAS.forEach(t => {
+                thanaCredentials[t] = { username: t.toLowerCase().replace(/\s+/g, ''), password: '123' };
+            });
+            thanaCredentials['admin'] = { username: 'rsphamirpur', password: 'Rsp#3544' };
+            localStorage.setItem('rsp_thana_creds', JSON.stringify(thanaCredentials));
+        }
 
         let casesData = JSON.parse(localStorage.getItem('rsp_hamirpur_cases')) || [
             { id: 1, janpad: "हमीरपुर", circle: "सदर", thana: "कोतवाली नगर", crime_title: "हत्या", case_no: "124/2026", section: "103(1) BNS", evt_date: "2026-01-10", info_date: "2026-01-10", incident_place: "मुख्य बाजार", complainant: "राम", defendant: "अज्ञात", brief_desc: "हत्या की घटना", io_name: "उ०नि० अजय", status: "विवेचनाधीन", cs_no: "-", cs_date: "", named: 1, revealed: 0, arrested: 1, notice: 0, court: 0, wrong: 0, fcr_head: "हाँ", remarks: "जारी", category: "शरीर संबंधी", sentence: "7 वर्ष से अधिक", victim_name: "श्याम", victim_age: "30", stolen_property: 0, recovered_property: 0, injured_detail: "-", death_detail: "-", recovery_detail: "-" }
@@ -903,9 +1146,21 @@
                 formSelect.appendChild(new Option(crime, crime));
             });
 
-            const snThanaSelect = document.getElementById('snThanaFilter');
-            snThanaSelect.innerHTML = '<option value="ALL">सभी थाने</option>';
-            ALL_THANAS.forEach(t => snThanaSelect.appendChild(new Option(t, t)));
+            ['snThanaFilter', 'catThanaFilter', 'pocsoThana', 'scstThana', 'itThana', 'womenThana'].forEach(id => {
+                const el = document.getElementById(id);
+                if(el) {
+                    el.innerHTML = '<option value="ALL">सभी थाने</option>';
+                    ALL_THANAS.forEach(t => el.appendChild(new Option(t, t)));
+                }
+            });
+
+            ['pocsoCrime', 'scstCrime', 'womenCrime'].forEach(id => {
+                const el = document.getElementById(id);
+                if(el) {
+                    el.innerHTML = '<option value="ALL">सभी अपराध शीर्षक</option>';
+                    EXACT_CRIME_LIST.forEach(crime => el.appendChild(new Option(crime, crime)));
+                }
+            });
         }
 
         window.onload = function() {
@@ -921,11 +1176,86 @@
             document.getElementById('recoveryFields').classList.toggle('hidden', !RECOVERY_CRIMES.includes(selectedCrime));
         }
 
+        // Automatic Classification for Category & Sentence based on section number and BNS presence
+        function autoClassifyFormFields() {
+            const secVal = document.getElementById('f_section').value.trim();
+            const secUpper = secVal.toUpperCase();
+            document.getElementById('f_period').value = getPrescribedLimit(secVal);
+
+            // Check if BNS / Bharatiya Nyaya Sanhita is mentioned in any form
+            let hasBnsMention = secUpper.includes('BNS') || secUpper.includes('B.N.S') || 
+                                secUpper.includes('बीएनएस') || secUpper.includes('बी0एन0एस0') || 
+                                secUpper.includes('भारतीय न्याय संहिता') || secUpper.includes('भा0न्या0सं0');
+
+            // Extract numeric section values (e.g. 103(1) -> 103)
+            let matchSecs = secVal.match(/\d+/g);
+            let firstNum = matchSecs ? parseInt(matchSecs[0]) : 0;
+
+            let cat = "अन्य";
+            if (hasBnsMention && firstNum >= 100 && firstNum <= 146) {
+                cat = "शरीर संबंधी";
+            } else if (hasBnsMention && firstNum >= 303 && firstNum <= 330) {
+                cat = "संपत्ति संबंधी";
+            }
+            document.getElementById('f_category').value = cat;
+
+            // Sentence classification (7 Years or More vs Less than 7 Years)
+            let is7Plus = false;
+            if (hasBnsMention) {
+                // Check specific subsection matches
+                for (let s of SECTIONS_7_YEARS_PLUS) {
+                    if (secUpper.includes(s.toUpperCase())) {
+                        is7Plus = true;
+                        break;
+                    }
+                }
+            }
+            document.getElementById('f_sentence').value = is7Plus ? "7 वर्ष से अधिक" : "07 वर्ष से कम";
+        }
+
+        // Helper match functions for Pocso, SC/ST, IT, Women tabs
+        function checkPocsoMatch(secStr, crimeTitle) {
+            let s = (secStr || '').toUpperCase();
+            let c = (crimeTitle || '').toUpperCase();
+            return (s.includes('POCSO') || s.includes('पॉक्सो') || s.includes('पाक्सो') || c.includes('पॉक्सो') || c.includes('POCSO')) &&
+                   (s.includes('BNS') || s.includes('B.N.S') || s.includes('बीएनएस') || s.includes('बी0एन0एस0') || s.includes('भारतीय न्याय संहिता') || s.includes('भा0न्या0सं0'));
+        }
+
+        function checkScstMatch(secStr, crimeTitle) {
+            let s = (secStr || '').toUpperCase();
+            let c = (crimeTitle || '').toUpperCase();
+            return (s.includes('SC/ST') || s.includes('एससी') || s.includes('एसटी') || c.includes('SC/ST')) &&
+                   (s.includes('BNS') || s.includes('B.N.S') || s.includes('बीएनएस') || s.includes('बी0एन0एस0') || s.includes('भारतीय न्याय संहिता') || s.includes('भा0न्या0सं0'));
+        }
+
+        function checkItMatch(secStr, crimeTitle) {
+            let s = (secStr || '').toUpperCase();
+            let c = (crimeTitle || '').toUpperCase();
+            return (s.includes('IT ACT') || s.includes('I.T.') || s.includes('आईटी') || s.includes('आई0टी0') || c.includes('IT ACT')) &&
+                   (s.includes('BNS') || s.includes('B.N.S') || s.includes('बीएनएस') || s.includes('बी0एन0एस0') || s.includes('भारतीय न्याय संहिता') || s.includes('भा0न्या0सं0'));
+        }
+
+        function checkWomenMatch(secStr) {
+            let s = (secStr || '').toUpperCase();
+            let hasBns = s.includes('BNS') || s.includes('B.N.S') || s.includes('बीएनएस') || s.includes('बी0एन0एस0') || s.includes('भारतीय न्याय संहिता') || s.includes('भा0न्या0सं0');
+            if (!hasBns) return false;
+            
+            // Check subsections between 63 and 99 or 137(2), 140(1)
+            let matchSecs = s.match(/\d+/g);
+            if (!matchSecs) return false;
+            for (let numStr of matchSecs) {
+                let n = parseInt(numStr);
+                if ((n >= 63 && n <= 99) || n === 137 || n === 140) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         function calculateTotalAccused() {
             let named = Number(document.getElementById('f_named').value) || 0;
             let revealed = Number(document.getElementById('f_revealed').value) || 0;
-            let total = named + revealed;
-            document.getElementById('f_total_accused_display.value' in document.getElementById('f_total_accused_display') ? 'f_total_accused_display' : 'f_total_accused_display').value = total;
+            document.getElementById('f_total_accused_display').value = named + revealed;
         }
 
         function handleLogin(e) {
@@ -979,6 +1309,12 @@
                 tf.innerHTML = '<option value="ALL">सभी 15 थाने</option>';
                 ALL_THANAS.forEach(t => { tf.innerHTML += `<option value="${t}">${t}</option>`; });
                 tf.disabled = false;
+
+                ['fcrThanaFilter', 'catThanaFilter', 'pocsoThana', 'scstThana', 'itThana', 'womenThana'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if(el) { el.innerHTML = '<option value="ALL">सभी थाने</option>'; ALL_THANAS.forEach(t => el.appendChild(new Option(t, t))); el.disabled = false; }
+                });
+
                 userMgmtBtn.style.display = 'inline-flex';
                 actionHeader.style.display = '';
                 selectAllHeader.style.display = '';
@@ -986,6 +1322,10 @@
             } else {
                 tf.innerHTML = `<option value="${loggedInThana}">${loggedInThana}</option>`;
                 tf.disabled = true;
+                ['fcrThanaFilter', 'catThanaFilter', 'pocsoThana', 'scstThana', 'itThana', 'womenThana'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if(el) { el.innerHTML = `<option value="${loggedInThana}">${loggedInThana}</option>`; el.disabled = true; }
+                });
                 userMgmtBtn.style.display = 'none';
                 actionHeader.style.display = '';
                 selectAllHeader.style.display = 'none';
@@ -998,10 +1338,9 @@
             document.querySelectorAll('.sidebar-link').forEach(link => link.classList.remove('active'));
             element.classList.add('active');
 
-            document.getElementById('tabDashboard').classList.add('hidden');
-            document.getElementById('tabReports').classList.add('hidden');
-            document.getElementById('tabTracking').classList.add('hidden');
-            document.getElementById('tabHistory').classList.add('hidden');
+            ['tabDashboard', 'tabReports', 'tabTracking', 'tabPocso', 'tabScst', 'tabIt', 'tabWomen', 'tabHistory'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
 
             if (tabName === 'dash') {
                 document.getElementById('tabDashboard').classList.remove('hidden');
@@ -1012,6 +1351,18 @@
             } else if (tabName === 'tracking') {
                 document.getElementById('tabTracking').classList.remove('hidden');
                 renderCategoryTable();
+            } else if (tabName === 'pocso') {
+                document.getElementById('tabPocso').classList.remove('hidden');
+                renderGenericTab('pocso');
+            } else if (tabName === 'scst') {
+                document.getElementById('tabScst').classList.remove('hidden');
+                renderGenericTab('scst');
+            } else if (tabName === 'it') {
+                document.getElementById('tabIt').classList.remove('hidden');
+                renderGenericTab('it');
+            } else if (tabName === 'women') {
+                document.getElementById('tabWomen').classList.remove('hidden');
+                renderGenericTab('women');
             } else if (tabName === 'history') {
                 document.getElementById('tabHistory').classList.remove('hidden');
                 renderSixtyNinetyTable();
@@ -1046,6 +1397,7 @@
             document.getElementById('f_period').value = '0';
             populateThanaDropdown(loggedInThana !== 'ALL' ? loggedInThana : ALL_THANAS[0]);
             toggleSpecialFields();
+            autoClassifyFormFields();
             calculateTotalAccused();
             document.getElementById('caseModal').style.display = 'flex';
         }
@@ -1103,7 +1455,6 @@
 
         function saveCaseData(e) {
             e.preventDefault();
-            
             let named = Number(document.getElementById('f_named').value) || 0;
             let revealed = Number(document.getElementById('f_revealed').value) || 0;
             let totalAccused = named + revealed;
@@ -1112,12 +1463,10 @@
             let notice = Number(document.getElementById('f_notice').value) || 0;
             let court = Number(document.getElementById('f_court').value) || 0;
             let wrong = Number(document.getElementById('f_wrong').value) || 0;
-            let pendingExtra = Number(document.getElementById('f_wrong_or_pending_extra').value) || 0;
 
-            let disposalSum = arrested + notice + court + wrong + pendingExtra;
-
+            let disposalSum = arrested + notice + court + wrong;
             if (disposalSum > totalAccused) {
-                alert(`त्रुटि: डिस्पोज़ल (गिरफ्तार + नोटिस + हाजिर + गलत + शेष = ${disposalSum}) की कुल संख्या कुल अभियुक्तों (नामजद + प्रकाश = ${totalAccused}) से अधिक नहीं हो सकती!`);
+                alert(`त्रुटि: डिस्पोज़ल की संख्या कुल अभियुक्तों से अधिक नहीं हो सकती!`);
                 return;
             }
 
@@ -1181,45 +1530,28 @@
             if (!infoDateStr) return 0;
             let startDate = new Date(infoDateStr);
             let endDate = new Date();
-            
             if ((status === 'आरोप पत्र प्रेषित' || status === 'अंतिम रिपोर्ट') && csDateStr) {
                 endDate = new Date(csDateStr);
             }
-            
             let diffTime = endDate - startDate;
             let diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
             return diffDays >= 0 ? diffDays : 0;
         }
 
-   function getPrescribedLimit(sectionStr) {
-    if (!sectionStr) return 60;
-    let secUpper = sectionStr.toUpperCase().trim();
-    
-    // 1. यदि धारा में 189(2) या 189 शामिल है, तो यहाँ सीधे अपनी तयशुदा दिन की सीमा (जैसे 60 दिन या जो आप चाहें) रिटर्न करा दें
-    if (secUpper.includes('189(2)') || secUpper.includes('189')) {
-        return 60; // यहाँ आप अपने हिसाब से दिन बदल सकते हैं
-    }
-    
-    // BNS, IPC, CrPC या हिंदी के सभी संभावित रूपों की जाँच
-    let hasGeneral = secUpper.includes('BNS') || 
-                     secUpper.includes('IPC') || 
-                     secUpper.includes('CRPC') || 
-                     secUpper.includes('बीएनएस') || 
-                     secUpper.includes('बी.एन.एस') || 
-                     secUpper.includes('बी0एन0एस0') || 
-                     secUpper.includes('आईपीसी') ||
-                     secUpper.includes('भारतीय न्याय संहिता') ||
-                     secUpper.includes('भा0न्या0सं0');
-    
-    // अगर इनमें से कुछ भी नहीं है, तभी अवधि 0 होगी
-    if (!hasGeneral) {
-        return 0;
-    }
-    
-    // 90 दिन वाली धाराओं की जाँच
-    let found90 = SECTIONS_90_DAYS.some(sec => sectionStr.includes(sec));
-    return found90 ? 90 : 60;
-}
+        function getPrescribedLimit(sectionStr) {
+            if (!sectionStr) return 60;
+            let secUpper = sectionStr.toUpperCase().trim();
+            if (secUpper.includes('189(2)') || secUpper.includes('189')) return 60;
+            
+            let hasGeneral = secUpper.includes('BNS') || secUpper.includes('IPC') || secUpper.includes('CRPC') || 
+                             secUpper.includes('बीएनएस') || secUpper.includes('बी.एन.एस') || secUpper.includes('बी0एन0एस0') || 
+                             secUpper.includes('आईपीसी') || secUpper.includes('भारतीय न्याय संहिता') || secUpper.includes('भा0न्या0सं0');
+            if (!hasGeneral) return 0;
+            
+            let found90 = SECTIONS_90_DAYS.some(sec => sectionStr.includes(sec));
+            return found90 ? 90 : 60;
+        }
+
         function openUserMgmtModal() {
             const container = document.getElementById('thanaUserList');
             let htmlContent = `<div style="background: #f1f5f9; padding: 0.6rem; border-radius: 6px; border: 1px solid #cbd5e1; margin-bottom: 0.5rem;">` +
@@ -1262,44 +1594,24 @@
             const fcrVal = document.getElementById('fcrFilter').value;
 
             currentlyFilteredCases = casesData.filter(item => {
-        // 1. Thana Filter Safety
-        if (loggedInThana !== 'ALL' && item.thana !== loggedInThana) return false;
-        if (loggedInThana === 'ALL' && thanaVal && thanaVal !== 'ALL' && item.thana !== thanaVal) return false;
-        
-        // 2. Crime Title Filter
-        if (crimeVal && crimeVal !== 'ALL' && item.crime_title !== crimeVal) return false;
-        
-        // 3. Category Filter
-        if (catVal && catVal !== 'ALL' && item.category !== catVal) return false;
-        
-        // 4. Sentence Filter
-        if (sentVal && sentVal !== 'ALL' && item.sentence !== sentVal) return false;
-        
-        // 5. Status Filter
-        if (statusVal && statusVal !== 'ALL' && item.status !== statusVal) return false;
-        
-        // 6. F.C.R. Filter
-        if (fcrVal && fcrVal !== 'ALL' && item.fcr_head !== fcrVal) return false;
-        
-        // 7. Days Limit Filter (60 / 90 / 0 Days) - Safe check
-        if (limitVal && limitVal !== 'ALL' && limitVal !== '' && String(getPrescribedLimit(item.section)) !== String(limitVal)) {
-            return false;
-        }
-        
-        // 8. Date Range Filters
-        if (fromDate && item.info_date < fromDate) return false;
-        if (toDate && item.info_date > toDate) return false;
-        
-        // 9. Search Box Filter
-        if (search) {
-            let match = (item.case_no && item.case_no.toLowerCase().includes(search)) || 
-                        (item.complainant && item.complainant.toLowerCase().includes(search)) ||
-                        (item.section && item.section.toLowerCase().includes(search));
-            if (!match) return false;
-        }
-        
-        return true;
-    });
+                if (loggedInThana !== 'ALL' && item.thana !== loggedInThana) return false;
+                if (loggedInThana === 'ALL' && thanaVal && thanaVal !== 'ALL' && item.thana !== thanaVal) return false;
+                if (crimeVal && crimeVal !== 'ALL' && item.crime_title !== crimeVal) return false;
+                if (catVal && catVal !== 'ALL' && item.category !== catVal) return false;
+                if (sentVal && sentVal !== 'ALL' && item.sentence !== sentVal) return false;
+                if (statusVal && statusVal !== 'ALL' && item.status !== statusVal) return false;
+                if (fcrVal && fcrVal !== 'ALL' && item.fcr_head !== fcrVal) return false;
+                if (limitVal && limitVal !== 'ALL' && limitVal !== '' && String(getPrescribedLimit(item.section)) !== String(limitVal)) return false;
+                if (fromDate && item.info_date < fromDate) return false;
+                if (toDate && item.info_date > toDate) return false;
+                if (search) {
+                    let match = (item.case_no && item.case_no.toLowerCase().includes(search)) || 
+                                (item.complainant && item.complainant.toLowerCase().includes(search)) ||
+                                (item.section && item.section.toLowerCase().includes(search));
+                    if (!match) return false;
+                }
+                return true;
+            });
 
             renderTable(currentlyFilteredCases);
             updateStats(currentlyFilteredCases);
@@ -1308,12 +1620,10 @@
         function renderTable(data) {
             const tbody = document.getElementById('caseTableBody');
             tbody.innerHTML = '';
-
             if (data.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="40" style="text-align: center; padding: 1.8rem; color: #64748b;">कोई रिकॉर्ड उपलब्ध नहीं है।</td></tr>';
                 return;
             }
-
             data.forEach((item, index) => {
                 let totalAccused = (Number(item.named) || 0) + (Number(item.revealed) || 0);
                 let disposedAccused = (Number(item.arrested) || 0) + (Number(item.notice) || 0) + (Number(item.court) || 0) + (Number(item.wrong) || 0);
@@ -1330,7 +1640,6 @@
 
                 let tr = document.createElement('tr');
                 let checkboxTD = loggedInThana === 'ALL' ? `<td style="text-align:center;"><input type="checkbox" class="rowCheckbox" value="${item.id}"></td>` : '';
-                
                 let actionTD = `<td style="text-align: center; display: flex; gap: 4px; justify-content: center;">` +
                     `<button onclick="editCase('${item.id}')" class="btn btn-blue" style="padding: 0.2rem 0.45rem; font-size: 0.72rem;">Edit</button>`;
                 if (loggedInThana === 'ALL') {
@@ -1384,7 +1693,7 @@
             });
         }
 
-           function updateStats(data) {
+        function updateStats(data) {
             let totalCases = data.length;
             let totalAccused = 0, totalArrested = 0, totalCourt = 0, totalNotice = 0, totalWrong = 0, totalPendingAccused = 0;
             let totalChargesheet = 0, totalFinalReport = 0, totalPendingCases = 0, totalStolenProp = 0, totalRecoveredProp = 0;
@@ -1403,7 +1712,7 @@
                 totalArrested += arr;
                 totalNotice += not;
                 totalCourt += crt;
-                totalWrong += wrg; // यहाँ गलत नामजदगी का योग हो रहा है
+                totalWrong += wrg;
 
                 let disposed = arr + not + crt + wrg;
                 let pendAcc = accCount - disposed;
@@ -1422,7 +1731,7 @@
             document.getElementById('stArrested').innerText = totalArrested;
             document.getElementById('stCourt').innerText = totalCourt;
             document.getElementById('stNotice').innerText = totalNotice;
-            document.getElementById('stWrong').innerText = totalWrong; // यहाँ डैशबोर्ड कार्ड पर वैल्यू सेट होगी
+            document.getElementById('stWrong').innerText = totalWrong;
             document.getElementById('stPendingAccused').innerText = totalPendingAccused;
             document.getElementById('stChargesheet').innerText = totalChargesheet;
             document.getElementById('stFinalReport').innerText = totalFinalReport;
@@ -1433,221 +1742,215 @@
 
         // FCR DATA TABLE & AUTOMATIC DETAILS
         let currentFcrSummaryList = [];
-        let currentFcrDetailList = [];
 
-      function renderFcrTable() {
-    const tbody = document.getElementById('fcrTableBody');
-    const dBody = document.getElementById('fcrDetailTableBody');
-    tbody.innerHTML = '';
-    dBody.innerHTML = '';
+        function renderFcrTable(filterCrime = 'ALL', filterStatus = 'ALL') {
+            const tbody = document.getElementById('fcrTableBody');
+            const dBody = document.getElementById('fcrDetailTableBody');
+            tbody.innerHTML = '';
+            dBody.innerHTML = '';
 
-    const thanaFilterVal = document.getElementById('fcrThanaFilter') ? document.getElementById('fcrThanaFilter').value : 'ALL';
-    const crimeFilter = document.getElementById('fcrCrimeFilter').value;
-    const statusFilter = document.getElementById('fcrStatusFilter').value;
-    const fcrYesNoVal = document.getElementById('fcrYesNoFilter') ? document.getElementById('fcrYesNoFilter').value : 'ALL';
-    const fcrFrom = document.getElementById('fcrFromDate') ? document.getElementById('fcrFromDate').value : '';
-    const fcrTo = document.getElementById('fcrToDate') ? document.getElementById('fcrToDate').value : '';
+            const thanaFilterVal = document.getElementById('fcrThanaFilter') ? document.getElementById('fcrThanaFilter').value : 'ALL';
+            const crimeFilter = filterCrime !== 'ALL' ? filterCrime : document.getElementById('fcrCrimeFilter').value;
+            const statusFilter = filterStatus !== 'ALL' ? filterStatus : document.getElementById('fcrStatusFilter').value;
+            const fcrYesNoVal = document.getElementById('fcrYesNoFilter') ? document.getElementById('fcrYesNoFilter').value : 'ALL';
+            const fcrFrom = document.getElementById('fcrFromDate') ? document.getElementById('fcrFromDate').value : '';
+            const fcrTo = document.getElementById('fcrToDate') ? document.getElementById('fcrToDate').value : '';
 
-    let filteredCases = casesData.filter(item => {
-        if (loggedInThana !== 'ALL' && item.thana !== loggedInThana) return false;
-        if (loggedInThana === 'ALL' && thanaFilterVal !== 'ALL' && item.thana !== thanaFilterVal) return false;
-        if (crimeFilter !== 'ALL' && item.crime_title !== crimeFilter) return false;
-        if (statusFilter !== 'ALL' && item.status !== statusFilter) return false;
-        if (fcrYesNoVal !== 'ALL' && item.fcr_head !== fcrYesNoVal) return false;
-        if (fcrFrom && item.info_date < fcrFrom) return false;
-        if (fcrTo && item.info_date > fcrTo) return false;
-        return true;
-    });
-
-    currentFcrDetailList = filteredCases;
-
-    let crimeGroups = {};
-    EXACT_CRIME_LIST.forEach(crime => {
-        if (crimeFilter === 'ALL' || crimeFilter === crime) {
-            crimeGroups[crime] = { total: 0, cs: 0, fr: 0, pending: 0, named: 0, revealed: 0, yoga: 0, arrested: 0, court: 0, notice: 0, wrong: 0, rem: 0 };
-        }
-    });
-
-    filteredCases.forEach(item => {
-        let crime = item.crime_title;
-        if (!crimeGroups[crime]) {
-            crimeGroups[crime] = { total: 0, cs: 0, fr: 0, pending: 0, named: 0, revealed: 0, yoga: 0, arrested: 0, court: 0, notice: 0, wrong: 0, rem: 0 };
-        }
-        let g = crimeGroups[crime];
-        g.total++;
-        if (item.status === 'आरोप पत्र प्रेषित') g.cs++;
-        else if (item.status === 'अंतिम रिपोर्ट') g.fr++;
-        else g.pending++;
-
-        g.named += Number(item.named) || 0;
-        g.revealed += Number(item.revealed) || 0;
-        let yog = (Number(item.named) || 0) + (Number(item.revealed) || 0);
-        g.yoga += yog;
-
-        g.arrested += Number(item.arrested) || 0;
-        g.court += Number(item.court) || 0;
-        g.notice += Number(item.notice) || 0;
-        g.wrong += Number(item.wrong) || 0;
-
-        let disp = (Number(item.arrested) || 0) + (Number(item.notice) || 0) + (Number(item.court) || 0) + (Number(item.wrong) || 0);
-        g.rem += Math.max(0, yog - disp);
-    });
-
-    currentFcrSummaryList = [];
-    let idx = 1;
-
-    let gTotal = 0, gCs = 0, gFr = 0, gPending = 0;
-    let gNamed = 0, gRevealed = 0, gYoga = 0;
-    let gArrested = 0, gCourt = 0, gNotice = 0, gWrong = 0, gRem = 0;
-
-    Object.keys(crimeGroups).forEach(crime => {
-        let g = crimeGroups[crime];
-        if (g.total > 0 || crimeFilter === crime) {
-            currentFcrSummaryList.push({
-                "क्र०सं०": idx,
-                "अपराध शीर्षक": crime,
-                "कुल मुकदमा": g.total,
-                "आरोप पत्र की संख्या": g.cs,
-                "अंतिम रिपोर्ट की संख्या": g.fr,
-                "विवेचनाधीन": g.pending,
-                "नामजद": g.named,
-                "प्रकाश": g.revealed,
-                "योग": g.yoga,
-                "गिरफ्तार": g.arrested,
-                "हा0अ0": g.court,
-                "नोटिस तामीला": g.notice,
-                "नामजदगी गलत": g.wrong,
-                "शेष": g.rem
+            let filteredCases = casesData.filter(item => {
+                if (loggedInThana !== 'ALL' && item.thana !== loggedInThana) return false;
+                if (loggedInThana === 'ALL' && thanaFilterVal !== 'ALL' && item.thana !== thanaFilterVal) return false;
+                if (crimeFilter !== 'ALL' && item.crime_title !== crimeFilter) return false;
+                if (statusFilter !== 'ALL' && item.status !== statusFilter) return false;
+                if (fcrYesNoVal !== 'ALL' && item.fcr_head !== fcrYesNoVal) return false;
+                if (fcrFrom && item.info_date < fcrFrom) return false;
+                if (fcrTo && item.info_date > fcrTo) return false;
+                return true;
             });
 
-            gTotal += g.total;
-            gCs += g.cs;
-            gFr += g.fr;
-            gPending += g.pending;
-            gNamed += g.named;
-            gRevealed += g.revealed;
-            gYoga += g.yoga;
-            gArrested += g.arrested;
-            gCourt += g.court;
-            gNotice += g.notice;
-            gWrong += g.wrong;
-            gRem += g.rem;
+            let crimeGroups = {};
+            EXACT_CRIME_LIST.forEach(crime => {
+                if (crimeFilter === 'ALL' || crimeFilter === crime) {
+                    crimeGroups[crime] = { total: 0, cs: 0, fr: 0, pending: 0, named: 0, revealed: 0, yoga: 0, arrested: 0, court: 0, notice: 0, wrong: 0, rem: 0 };
+                }
+            });
 
-            let tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${idx++}</td>
-                <td style="font-weight: 700;">${crime}</td>
-                <td><span class="clickable-link" onclick="filterDashboardByCrime('${crime}', 'ALL')">${g.total}</span></td>
-                <td>${g.cs}</td>
-                <td>${g.fr}</td>
-                <td><span class="clickable-link" onclick="filterDashboardByCrime('${crime}', 'विवेचनाधीन')">${g.pending}</span></td>
-                <td>${g.named}</td>
-                <td>${g.revealed}</td>
-                <td style="font-weight: bold;">${g.yoga}</td>
-                <td>${g.arrested}</td>
-                <td>${g.court}</td>
-                <td>${g.notice}</td>
-                <td>${g.wrong}</td>
-                <td style="font-weight: bold; color: #dc2626;">${g.rem}</td>
-            `;
-            tbody.appendChild(tr);
+            filteredCases.forEach(item => {
+                let crime = item.crime_title;
+                if (!crimeGroups[crime]) {
+                    crimeGroups[crime] = { total: 0, cs: 0, fr: 0, pending: 0, named: 0, revealed: 0, yoga: 0, arrested: 0, court: 0, notice: 0, wrong: 0, rem: 0 };
+                }
+                let g = crimeGroups[crime];
+                g.total++;
+                if (item.status === 'आरोप पत्र प्रेषित') g.cs++;
+                else if (item.status === 'अंतिम रिपोर्ट') g.fr++;
+                else g.pending++;
+
+                g.named += Number(item.named) || 0;
+                g.revealed += Number(item.revealed) || 0;
+                let yog = (Number(item.named) || 0) + (Number(item.revealed) || 0);
+                g.yoga += yog;
+
+                g.arrested += Number(item.arrested) || 0;
+                g.court += Number(item.court) || 0;
+                g.notice += Number(item.notice) || 0;
+                g.wrong += Number(item.wrong) || 0;
+
+                let disp = (Number(item.arrested) || 0) + (Number(item.notice) || 0) + (Number(item.court) || 0) + (Number(item.wrong) || 0);
+                g.rem += Math.max(0, yog - disp);
+            });
+
+            currentFcrSummaryList = [];
+            let idx = 1;
+            let gTotal = 0, gCs = 0, gFr = 0, gPending = 0;
+            let gNamed = 0, gRevealed = 0, gYoga = 0;
+            let gArrested = 0, gCourt = 0, gNotice = 0, gWrong = 0, gRem = 0;
+
+            Object.keys(crimeGroups).forEach(crime => {
+                let g = crimeGroups[crime];
+                if (g.total > 0 || crimeFilter === crime) {
+                    currentFcrSummaryList.push({
+                        "क्र०सं०": idx, "अपराध शीर्षक": crime, "कुल मुकदमा": g.total, "आरोप पत्र की संख्या": g.cs,
+                        "अंतिम रिपोर्ट की संख्या": g.fr, "विवेचनाधीन": g.pending, "नामजद": g.named, "प्रकाश": g.revealed,
+                        "योग": g.yoga, "गिरफ्तार": g.arrested, "हा0अ0": g.court, "नोटिस तामीला": g.notice, "नामजदगी गलत": g.wrong, "शेष": g.rem
+                    });
+
+                    gTotal += g.total; gCs += g.cs; gFr += g.fr; gPending += g.pending;
+                    gNamed += g.named; gRevealed += g.revealed; gYoga += g.yoga;
+                    gArrested += g.arrested; gCourt += g.court; gNotice += g.notice;
+                    gWrong += g.wrong; gRem += g.rem;
+
+                    let tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${idx++}</td>
+                        <td style="font-weight: 700;">${crime}</td>
+                        <td><span class="clickable-link" onclick="filterFcrDetailTable('${crime}', 'ALL')">${g.total}</span></td>
+                        <td><span class="clickable-link" onclick="filterFcrDetailTable('${crime}', 'आरोप पत्र प्रेषित')">${g.cs}</span></td>
+                        <td><span class="clickable-link" onclick="filterFcrDetailTable('${crime}', 'अंतिम रिपोर्ट')">${g.fr}</span></td>
+                        <td><span class="clickable-link" onclick="filterFcrDetailTable('${crime}', 'विवेचनाधीन')">${g.pending}</span></td>
+                        <td>${g.named}</td><td>${g.revealed}</td>
+                        <td style="font-weight: bold;">${g.yoga}</td>
+                        <td>${g.arrested}</td><td>${g.court}</td><td>${g.notice}</td><td>${g.wrong}</td>
+                        <td style="font-weight: bold; color: #dc2626;">${g.rem}</td>
+                    `;
+                    tbody.appendChild(tr);
+                }
+            });
+
+            if (tbody && currentFcrSummaryList.length > 0) {
+                let totalTr = document.createElement('tr');
+                totalTr.style.cssText = "font-weight: bold; background-color: #edf2f7; text-align: center;";
+                totalTr.innerHTML = `
+                    <td colspan="2" style="text-align: right; padding-right: 1rem;">कुल योग (Total):</td>
+                    <td><span class="clickable-link" onclick="filterFcrDetailTable('ALL', 'ALL')">${gTotal}</span></td>
+                    <td><span class="clickable-link" onclick="filterFcrDetailTable('ALL', 'आरोप पत्र प्रेषित')">${gCs}</span></td>
+                    <td><span class="clickable-link" onclick="filterFcrDetailTable('ALL', 'अंतिम रिपोर्ट')">${gFr}</span></td>
+                    <td><span class="clickable-link" onclick="filterFcrDetailTable('ALL', 'विवेचनाधीन')">${gPending}</span></td>
+                    <td>${gNamed}</td><td>${gRevealed}</td><td>${gYoga}</td>
+                    <td>${gArrested}</td><td>${gCourt}</td><td>${gNotice}</td><td>${gWrong}</td>
+                    <td style="color: #dc2626;">${gRem}</td>
+                `;
+                tbody.appendChild(totalTr);
+            }
+
+            renderFcrDetailRows(filteredCases);
         }
-    });
 
-    if (tbody && currentFcrSummaryList.length > 0) {
-        let totalTr = document.createElement('tr');
-        totalTr.style.cssText = "font-weight: bold; background-color: #edf2f7; text-align: center;";
-        totalTr.innerHTML = `
-            <td colspan="2" style="text-align: right; padding-right: 1rem;">कुल योग (Total):</td>
-            <td>${gTotal}</td>
-            <td>${gCs}</td>
-            <td>${gFr}</td>
-            <td>${gPending}</td>
-            <td>${gNamed}</td>
-            <td>${gRevealed}</td>
-            <td>${gYoga}</td>
-            <td>${gArrested}</td>
-            <td>${gCourt}</td>
-            <td>${gNotice}</td>
-            <td>${gWrong}</td>
-            <td style="color: #dc2626;">${gRem}</td>
-        `;
-        tbody.appendChild(totalTr);
-    }
+        function filterFcrDetailTable(crimeName, statusType) {
+            const thanaFilterVal = document.getElementById('fcrThanaFilter') ? document.getElementById('fcrThanaFilter').value : 'ALL';
+            const fcrYesNoVal = document.getElementById('fcrYesNoFilter') ? document.getElementById('fcrYesNoFilter').value : 'ALL';
+            const fcrFrom = document.getElementById('fcrFromDate') ? document.getElementById('fcrFromDate').value : '';
+            const fcrTo = document.getElementById('fcrToDate') ? document.getElementById('fcrToDate').value : '';
 
-    if (filteredCases.length === 0) {
-        dBody.innerHTML = '<tr><td colspan="12" style="text-align: center; padding: 1rem; color: #64748b;">कोई विस्तृत मुकदमा उपलब्ध नहीं है।</td></tr>';
-    } else {
-        filteredCases.forEach((item, index) => {
-            let tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${index + 1}</td>
-                <td style="font-weight: 700;">${item.crime_title || '-'}</td>
-                <td>${item.thana || '-'}</td>
-                <td style="font-weight: bold; color: #2563eb;">${item.case_no || '-'}</td>
-                <td>${item.section || '-'}</td>
-                <td>${item.evt_date || '-'}</td>
-                <td>${item.info_date || '-'}</td>
-                <td class="wrap-col w-place">${item.incident_place || '-'}</td>
-                <td class="wrap-col w-complainant">${item.complainant || '-'}</td>
-                <td class="wrap-col w-defendant">${item.defendant || '-'}</td>
-                <td class="wrap-col w-desc">${item.brief_desc || '-'}</td>
-                <td><span style="font-weight:bold; color:${item.status==='विवेचनाधीन'?'#d97706':'#16a34a'}">${item.status || '-'}</span></td>
-            `;
-            dBody.appendChild(tr);
-        });
-    }
-}
+            let filtered = casesData.filter(item => {
+                if (loggedInThana !== 'ALL' && item.thana !== loggedInThana) return false;
+                if (loggedInThana === 'ALL' && thanaFilterVal !== 'ALL' && item.thana !== thanaFilterVal) return false;
+                if (crimeName !== 'ALL' && item.crime_title !== crimeName) return false;
+                if (statusType !== 'ALL' && item.status !== statusType) return false;
+                if (fcrYesNoVal !== 'ALL' && item.fcr_head !== fcrYesNoVal) return false;
+                if (fcrFrom && item.info_date < fcrFrom) return false;
+                if (fcrTo && item.info_date > fcrTo) return false;
+                return true;
+            });
 
-        function filterDashboardByCrime(crimeName, statusType) {
-            switchTab('dash', document.querySelector('.sidebar-menu li:first-child a'));
+            renderFcrDetailRows(filtered);
+
+            switchTab('dash', document.getElementById('menuDash'));
+            document.getElementById('thanaFilter').value = thanaFilterVal;
             document.getElementById('crimeFilter').value = crimeName;
             document.getElementById('statusFilter').value = statusType;
+            if(fcrFrom) document.getElementById('fromDateFilter').value = fcrFrom;
+            if(fcrTo) document.getElementById('toDateFilter').value = fcrTo;
             applyFilters();
         }
 
-        // EXPORT FILTERED DATA TO EXCEL
-        function exportFilteredToExcel() {
-            if (currentlyFilteredCases.length === 0) {
-                alert('फ़िल्टर किए गए डेटा में कोई रिकॉर्ड उपलब्ध नहीं है!');
-                return;
+        function renderFcrDetailRows(list) {
+            const dBody = document.getElementById('fcrDetailTableBody');
+            dBody.innerHTML = '';
+            if (list.length === 0) {
+                dBody.innerHTML = '<tr><td colspan="11" style="text-align: center; padding: 1rem; color: #64748b;">कोई विस्तृत मुकदमा उपलब्ध नहीं है।</td></tr>';
+            } else {
+                list.forEach((item, index) => {
+                    let tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${item.thana || '-'}</td>
+                        <td style="font-weight: bold; color: #2563eb;">${item.case_no || '-'}</td>
+                        <td>${item.section || '-'}</td>
+                        <td>${item.evt_date || '-'}</td>
+                        <td>${item.info_date || '-'}</td>
+                        <td class="wrap-col w-place">${item.incident_place || '-'}</td>
+                        <td class="wrap-col w-complainant">${item.complainant || '-'}</td>
+                        <td class="wrap-col w-defendant">${item.defendant || '-'}</td>
+                        <td class="wrap-col w-desc">${item.brief_desc || '-'}</td>
+                        <td><span style="font-weight:bold; color:${item.status==='विवेचनाधीन'?'#d97706':'#16a34a'}">${item.status || '-'}</span></td>
+                    `;
+                    dBody.appendChild(tr);
+                });
             }
+        }
+
+        function exportFilteredToExcel() {
+            if (currentlyFilteredCases.length === 0) { alert('फ़िल्टर किए गए डेटा में कोई रिकॉर्ड उपलब्ध नहीं है!'); return; }
             const ws = XLSX.utils.json_to_sheet(currentlyFilteredCases);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Filtered_Cases");
             XLSX.writeFile(wb, "RSP_Filtered_Cases.xlsx");
         }
 
-        // PRINT FILTERED DATA TO PDF
-        function printFilteredPDF() {
-            window.print();
-        }
+        function printFilteredPDF() { window.print(); }
 
         function exportFcrToExcel() {
-            if (currentFcrSummaryList.length === 0) { 
-                alert('एक्सपोर्ट करने के लिए कोई FCR डेटा उपलब्ध नहीं है!'); 
-                return; 
-            }
+            if (currentFcrSummaryList.length === 0) { alert('एक्सपोर्ट करने के लिए कोई FCR डेटा उपलब्ध नहीं है!'); return; }
             const ws = XLSX.utils.json_to_sheet(currentFcrSummaryList);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "FCR_Data");
             XLSX.writeFile(wb, "FCR_Data_Summary.xlsx");
         }
 
-        // CATEGORY TABLE WITH FILTERS & EXPORT
+        // CATEGORY TABLE WITH FILTERS, LINKS & TOTAL ROW + DETAIL TABLE
         let currentCategorySummaryList = [];
 
         function renderCategoryTable() {
             const tbody = document.getElementById('categoryTableBody');
+            const tfoot = document.getElementById('categoryTableFoot');
+            const dBody = document.getElementById('categoryDetailTableBody');
             tbody.innerHTML = '';
+            tfoot.innerHTML = '';
+            dBody.innerHTML = '';
 
+            const thanaFilterVal = document.getElementById('catThanaFilter') ? document.getElementById('catThanaFilter').value : 'ALL';
             const catFilter = document.getElementById('catTabFilter').value;
             const statusFilter = document.getElementById('catStatusFilter').value;
+            const fromDate = document.getElementById('catFromDate') ? document.getElementById('catFromDate').value : '';
+            const toDate = document.getElementById('catToDate') ? document.getElementById('catToDate').value : '';
 
             let filteredCases = casesData.filter(item => {
                 if (loggedInThana !== 'ALL' && item.thana !== loggedInThana) return false;
+                if (loggedInThana === 'ALL' && thanaFilterVal !== 'ALL' && item.thana !== thanaFilterVal) return false;
                 if (catFilter !== 'ALL' && item.category !== catFilter) return false;
                 if (statusFilter !== 'ALL' && item.status !== statusFilter) return false;
+                if (fromDate && item.info_date < fromDate) return false;
+                if (toDate && item.info_date > toDate) return false;
                 return true;
             });
 
@@ -1655,19 +1958,17 @@
             let categories = ["शरीर संबंधी", "संपत्ति संबंधी", "अन्य"];
             categories.forEach(cat => {
                 if (catFilter === 'ALL' || catFilter === cat) {
-                    catGroups[cat] = { total: 0, cs: 0, fr: 0, pending: 0, named: 0, revealed: 0, yoga: 0, arrested: 0, court: 0, notice: 0, wrong: 0, rem: 0, thanas: new Set() };
+                    catGroups[cat] = { total: 0, cs: 0, fr: 0, pending: 0, named: 0, revealed: 0, yoga: 0, arrested: 0, court: 0, notice: 0, wrong: 0, rem: 0 };
                 }
             });
 
             filteredCases.forEach(item => {
                 let cat = item.category || "अन्य";
                 if (!catGroups[cat]) {
-                    catGroups[cat] = { total: 0, cs: 0, fr: 0, pending: 0, named: 0, revealed: 0, yoga: 0, arrested: 0, court: 0, notice: 0, wrong: 0, rem: 0, thanas: new Set() };
+                    catGroups[cat] = { total: 0, cs: 0, fr: 0, pending: 0, named: 0, revealed: 0, yoga: 0, arrested: 0, court: 0, notice: 0, wrong: 0, rem: 0 };
                 }
                 let g = catGroups[cat];
                 g.total++;
-                if (item.thana) g.thanas.add(item.thana);
-
                 if (item.status === 'आरोप पत्र प्रेषित') g.cs++;
                 else if (item.status === 'अंतिम रिपोर्ट') g.fr++;
                 else g.pending++;
@@ -1688,76 +1989,270 @@
 
             currentCategorySummaryList = [];
             let idx = 1;
+            let tTotal = 0, tCs = 0, tFr = 0, tPending = 0, tNamed = 0, tRevealed = 0, tYoga = 0, tArrested = 0, tCourt = 0, tNotice = 0, tWrong = 0, tRem = 0;
+
             Object.keys(catGroups).forEach(cat => {
                 let g = catGroups[cat];
                 if (g.total > 0 || catFilter === cat) {
-                    let thanaListStr = Array.from(g.thanas).join(', ') || '-';
                     currentCategorySummaryList.push({
-                        "क्र०सं०": idx,
-                        "अपराध श्रेणी": cat,
-                        "थाना (थानावार)": thanaListStr,
-                        "कुल मुकदमा": g.total,
-                        "आरोप पत्र की संख्या": g.cs,
-                        "अंतिम रिपोर्ट की संख्या": g.fr,
-                        "विवेचनाधीन": g.pending,
-                        "नामजद": g.named,
-                        "प्रकाश": g.revealed,
-                        "योग": g.yoga,
-                        "गिरफ्तार": g.arrested,
-                        "हा0अ0": g.court,
-                        "नोटिस तामीला": g.notice,
-                        "नामजदगी गलत": g.wrong,
-                        "शेष": g.rem
+                        "क्र०सं०": idx, "अपराध श्रेणी": cat, "कुल मुकदमा": g.total, "आरोप पत्र": g.cs, "अंतिम रिपोर्ट": g.fr,
+                        "विवेचनाधीन": g.pending, "नामजद": g.named, "प्रकाश": g.revealed, "योग": g.yoga, "गिरफ्तार": g.arrested,
+                        "हा0अ0": g.court, "नोटिस तामीला": g.notice, "नामजदगी गलत": g.wrong, "शेष": g.rem
                     });
+
+                    tTotal += g.total; tCs += g.cs; tFr += g.fr; tPending += g.pending;
+                    tNamed += g.named; tRevealed += g.revealed; tYoga += g.yoga;
+                    tArrested += g.arrested; tCourt += g.court; tNotice += g.notice;
+                    tWrong += g.wrong; tRem += g.rem;
 
                     let tr = document.createElement('tr');
                     tr.innerHTML = `
                         <td>${idx++}</td>
                         <td style="font-weight: 700; color: #2563eb;">${cat}</td>
-                        <td style="font-size: 0.78rem; color: #475569;">${thanaListStr}</td>
-                        <td><span class="clickable-link" onclick="filterDashboardByCategory('${cat}', 'ALL')">${g.total}</span></td>
-                        <td>${g.cs}</td>
-                        <td>${g.fr}</td>
-                        <td><span class="clickable-link" onclick="filterDashboardByCategory('${cat}', 'विवेचनाधीन')">${g.pending}</span></td>
-                        <td>${g.named}</td>
-                        <td>${g.revealed}</td>
+                        <td><span class="clickable-link" onclick="filterCategoryDetailTable('${cat}', 'ALL')">${g.total}</span></td>
+                        <td>${g.cs}</td><td>${g.fr}</td>
+                        <td><span class="clickable-link" onclick="filterCategoryDetailTable('${cat}', 'विवेचनाधीन')">${g.pending}</span></td>
+                        <td>${g.named}</td><td>${g.revealed}</td>
                         <td style="font-weight: bold;">${g.yoga}</td>
-                        <td>${g.arrested}</td>
-                        <td>${g.court}</td>
-                        <td>${g.notice}</td>
-                        <td>${g.wrong}</td>
-                        <td style="font-weight: bold; color: #dc2626;">${g.rem}</td>
+                        <td>${g.arrested}</td><td>${g.court}</td><td>${g.notice}</td>
+                        <td><span class="clickable-link" onclick="filterCategoryDetailTable('${cat}', 'ALL')">${g.wrong}</span></td>
+                        <td><span class="clickable-link" style="color: #dc2626;" onclick="filterCategoryDetailTable('${cat}', 'विवेचनाधीन')">${g.rem}</span></td>
                     `;
                     tbody.appendChild(tr);
                 }
             });
+
+            if (currentCategorySummaryList.length > 0) {
+                let footTr = document.createElement('tr');
+                footTr.style.cssText = "font-weight: bold; background-color: #edf2f7; text-align: center;";
+                footTr.innerHTML = `
+                    <td colspan="2" style="text-align: right; padding-right: 1rem;">कुल योग (Total):</td>
+                    <td><span class="clickable-link" onclick="filterCategoryDetailTable('ALL', 'ALL')">${tTotal}</span></td>
+                    <td>${tCs}</td><td>${tFr}</td>
+                    <td><span class="clickable-link" onclick="filterCategoryDetailTable('ALL', 'विवेचनाधीन')">${tPending}</span></td>
+                    <td>${tNamed}</td><td>${tRevealed}</td><td>${tYoga}</td>
+                    <td>${tArrested}</td><td>${tCourt}</td><td>${tNotice}</td><td>${tWrong}</td>
+                    <td style="color: #dc2626;">${tRem}</td>
+                `;
+                tfoot.appendChild(footTr);
+            }
+
+            renderCategoryDetailRows(filteredCases);
         }
 
-        function filterDashboardByCategory(catName, statusType) {
-            switchTab('dash', document.querySelector('.sidebar-menu li:first-child a'));
+        function filterCategoryDetailTable(catName, statusType) {
+            const thanaFilterVal = document.getElementById('catThanaFilter') ? document.getElementById('catThanaFilter').value : 'ALL';
+            const fromDate = document.getElementById('catFromDate') ? document.getElementById('catFromDate').value : '';
+            const toDate = document.getElementById('catToDate') ? document.getElementById('catToDate').value : '';
+
+            let filtered = casesData.filter(item => {
+                if (loggedInThana !== 'ALL' && item.thana !== loggedInThana) return false;
+                if (loggedInThana === 'ALL' && thanaFilterVal !== 'ALL' && item.thana !== thanaFilterVal) return false;
+                if (catName !== 'ALL' && item.category !== catName) return false;
+                if (statusType !== 'ALL' && item.status !== statusType) return false;
+                if (fromDate && item.info_date < fromDate) return false;
+                if (toDate && item.info_date > toDate) return false;
+                return true;
+            });
+
+            renderCategoryDetailRows(filtered);
+
+            switchTab('dash', document.getElementById('menuDash'));
+            document.getElementById('thanaFilter').value = thanaFilterVal;
             document.getElementById('categoryFilter').value = catName;
             document.getElementById('statusFilter').value = statusType;
+            if(fromDate) document.getElementById('fromDateFilter').value = fromDate;
+            if(toDate) document.getElementById('toDateFilter').value = toDate;
             applyFilters();
         }
 
-        function exportCategoryToExcel() {
-            if (currentCategorySummaryList.length === 0) { 
-                alert('एक्सपोर्ट करने के लिए कोई डेटा नहीं है!'); 
-                return; 
+        function renderCategoryDetailRows(list) {
+            const dBody = document.getElementById('categoryDetailTableBody');
+            dBody.innerHTML = '';
+            if (list.length === 0) {
+                dBody.innerHTML = '<tr><td colspan="12" style="text-align: center; padding: 1rem; color: #64748b;">कोई विस्तृत विवरण उपलब्ध नहीं है।</td></tr>';
+            } else {
+                list.forEach((item, index) => {
+                    let tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${item.thana || '-'}</td>
+                        <td style="font-weight: 700;">${item.category || '-'}</td>
+                        <td style="font-weight: bold; color: #2563eb;">${item.case_no || '-'}</td>
+                        <td>${item.section || '-'}</td>
+                        <td>${item.evt_date || '-'}</td>
+                        <td>${item.info_date || '-'}</td>
+                        <td class="wrap-col w-place">${item.incident_place || '-'}</td>
+                        <td class="wrap-col w-complainant">${item.complainant || '-'}</td>
+                        <td class="wrap-col w-defendant">${item.defendant || '-'}</td>
+                        <td class="wrap-col w-desc">${item.brief_desc || '-'}</td>
+                        <td><span style="font-weight:bold; color:${item.status==='विवेचनाधीन'?'#d97706':'#16a34a'}">${item.status || '-'}</span></td>
+                    `;
+                    dBody.appendChild(tr);
+                });
             }
+        }
+
+        function exportCategoryToExcel() {
+            if (currentCategorySummaryList.length === 0) { alert('एक्सपोर्ट करने के लिए कोई डेटा नहीं है!'); return; }
             let ws = XLSX.utils.json_to_sheet(currentCategorySummaryList);
             let wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Category_Summary_Data");
             XLSX.writeFile(wb, "Crime_Category_Summary.xlsx");
         }
 
-        // 60/90 DAYS PENDING TABLE WITH FILTERS & EXPORT
-        let currentSixtyNinetyList = [];
+        // GENERIC RENDER FOR DEDICATED TABS (Pocso, SC/ST, IT, Women)
+        function renderGenericTab(type) {
+            let thanaId = type + 'Thana', crimeId = type + 'Crime', fcrId = type + 'Fcr', statusId = type + 'Status', fromId = type + 'From', toId = type + 'To';
+            let tbodyId = type + 'TableBody', tfootId = type + 'TableFoot', detailBodyId = type + 'DetailBody';
+
+            const thanaVal = document.getElementById(thanaId) ? document.getElementById(thanaId).value : 'ALL';
+            const crimeVal = document.getElementById(crimeId) ? document.getElementById(crimeId).value : 'ALL';
+            const fcrVal = document.getElementById(fcrId) ? document.getElementById(fcrId).value : 'ALL';
+            const statusVal = document.getElementById(statusId) ? document.getElementById(statusId).value : 'ALL';
+            const fromDate = document.getElementById(fromId) ? document.getElementById(fromId).value : '';
+            const toDate = document.getElementById(toId) ? document.getElementById(toId).value : '';
+
+            let filtered = casesData.filter(item => {
+                if (loggedInThana !== 'ALL' && item.thana !== loggedInThana) return false;
+                if (loggedInThana === 'ALL' && thanaVal !== 'ALL' && item.thana !== thanaVal) return false;
+                if (crimeVal !== 'ALL' && item.crime_title !== crimeVal) return false;
+                if (fcrVal !== 'ALL' && item.fcr_head !== fcrVal) return false;
+                if (statusVal !== 'ALL' && item.status !== statusVal) return false;
+                if (fromDate && item.info_date < fromDate) return false;
+                if (toDate && item.info_date > toDate) return false;
+
+                if (type === 'pocso' && !checkPocsoMatch(item.section, item.crime_title)) return false;
+                if (type === 'scst' && !checkScstMatch(item.section, item.crime_title)) return false;
+                if (type === 'it' && !checkItMatch(item.section, item.crime_title)) return false;
+                if (type === 'women' && !checkWomenMatch(item.section)) return false;
+                return true;
+            });
+
+            // Group by crime titles or category headers for numerical summary
+            let groups = {};
+            EXACT_CRIME_LIST.forEach(crime => {
+                if (crimeVal === 'ALL' || crimeVal === crime) {
+                    groups[crime] = { total: 0, cs: 0, fr: 0, pending: 0, named: 0, revealed: 0, yoga: 0, arrested: 0, court: 0, notice: 0, wrong: 0, rem: 0, fcrYes: 0 };
+                }
+            });
+
+            filtered.forEach(item => {
+                let cTitle = item.crime_title || 'अन्य';
+                if (!groups[cTitle]) {
+                    groups[cTitle] = { total: 0, cs: 0, fr: 0, pending: 0, named: 0, revealed: 0, yoga: 0, arrested: 0, court: 0, notice: 0, wrong: 0, rem: 0, fcrYes: 0 };
+                }
+                let g = groups[cTitle];
+                g.total++;
+                if (item.status === 'आरोप पत्र प्रेषित') g.cs++;
+                else if (item.status === 'अंतिम रिपोर्ट') g.fr++;
+                else g.pending++;
+
+                g.named += Number(item.named) || 0;
+                g.revealed += Number(item.revealed) || 0;
+                let yog = (Number(item.named) || 0) + (Number(item.revealed) || 0);
+                g.yoga += yog;
+
+                g.arrested += Number(item.arrested) || 0;
+                g.court += Number(item.court) || 0;
+                g.notice += Number(item.notice) || 0;
+                g.wrong += Number(item.wrong) || 0;
+
+                let disp = (Number(item.arrested) || 0) + (Number(item.notice) || 0) + (Number(item.court) || 0) + (Number(item.wrong) || 0);
+                g.rem += Math.max(0, yog - disp);
+                if (item.fcr_head === 'हाँ') g.fcrYes++;
+            });
+
+            const tbody = document.getElementById(tbodyId);
+            const tfoot = document.getElementById(tfootId);
+            const dBody = document.getElementById(detailBodyId);
+            tbody.innerHTML = '';
+            tfoot.innerHTML = '';
+            dBody.innerHTML = '';
+
+            let idx = 1;
+            let tTotal = 0, tCs = 0, tFr = 0, tPending = 0, tNamed = 0, tRevealed = 0, tYoga = 0, tArrested = 0, tCourt = 0, tNotice = 0, tWrong = 0, tRem = 0, tFcr = 0;
+
+            Object.keys(groups).forEach(crime => {
+                let g = groups[crime];
+                if (g.total > 0 || crimeVal === crime) {
+                    tTotal += g.total; tCs += g.cs; tFr += g.fr; tPending += g.pending;
+                    tNamed += g.named; tRevealed += g.revealed; tYoga += g.yoga;
+                    tArrested += g.arrested; tCourt += g.court; tNotice += g.notice;
+                    tWrong += g.wrong; tRem += g.rem; tFcr += g.fcrYes;
+
+                    let tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${idx++}</td>
+                        <td style="font-weight: 700; color: #2563eb;">${crime}</td>
+                        <td><span class="clickable-link" onclick="filterGenericDashboard('${type}', '${crime}', 'ALL')">${g.total}</span></td>
+                        <td>${g.cs}</td><td>${g.fr}</td>
+                        <td><span class="clickable-link" onclick="filterGenericDashboard('${type}', '${crime}', 'विवेचनाधीन')">${g.pending}</span></td>
+                        <td>${g.named}</td><td>${g.revealed}</td>
+                        <td style="font-weight: bold;">${g.yoga}</td>
+                        <td>${g.arrested}</td><td>${g.court}</td><td>${g.notice}</td>
+                        <td><span class="clickable-link" onclick="filterGenericDashboard('${type}', '${crime}', 'ALL')">${g.wrong}</span></td>
+                        <td><span class="clickable-link" style="color: #dc2626;" onclick="filterGenericDashboard('${type}', '${crime}', 'विवेचनाधीन')">${g.rem}</span></td>
+                        <td>${g.fcrYes}</td>
+                    `;
+                    tbody.appendChild(tr);
+                }
+            });
+
+            let footTr = document.createElement('tr');
+            footTr.style.cssText = "font-weight: bold; background-color: #edf2f7; text-align: center;";
+            footTr.innerHTML = `
+                <td colspan="2" style="text-align: right; padding-right: 1rem;">कुल योग (Total):</td>
+                <td>${tTotal}</td><td>${tCs}</td><td>${tFr}</td><td>${tPending}</td>
+                <td>${tNamed}</td><td>${tRevealed}</td><td>${tYoga}</td>
+                <td>${tArrested}</td><td>${tCourt}</td><td>${tNotice}</td><td>${tWrong}</td>
+                <td style="color: #dc2626;">${tRem}</td><td>${tFcr}</td>
+            `;
+            tfoot.appendChild(footTr);
+
+            // Render Detail Rows
+            if (filtered.length === 0) {
+                dBody.innerHTML = '<tr><td colspan="10" style="text-align: center; padding: 1rem; color: #64748b;">कोई विस्तृत विवरण उपलब्ध नहीं है।</td></tr>';
+            } else {
+                filtered.forEach((item, index) => {
+                    let tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td style="font-weight: bold; color: #2563eb;">${item.case_no || '-'}</td>
+                        <td>${item.section || '-'}</td>
+                        <td>${item.evt_date || '-'}</td>
+                        <td>${item.info_date || '-'}</td>
+                        <td class="wrap-col w-place">${item.incident_place || '-'}</td>
+                        <td class="wrap-col w-complainant">${item.complainant || '-'}</td>
+                        <td class="wrap-col w-defendant">${item.defendant || '-'}</td>
+                        <td class="wrap-col w-desc">${item.brief_desc || '-'}</td>
+                        <td><span style="font-weight:bold; color:${item.status==='विवेचनाधीन'?'#d97706':'#16a34a'}">${item.status || '-'}</span></td>
+                    `;
+                    dBody.appendChild(tr);
+                });
+            }
+        }
+
+        function filterGenericDashboard(type, crimeName, statusType) {
+            let thanaId = type + 'Thana', fcrId = type + 'Fcr', fromId = type + 'From', toId = type + 'To';
+            const thanaVal = document.getElementById(thanaId) ? document.getElementById(thanaId).value : 'ALL';
+            const fcrVal = document.getElementById(fcrId) ? document.getElementById(fcrId).value : 'ALL';
+            const fromDate = document.getElementById(fromId) ? document.getElementById(fromId).value : '';
+            const toDate = document.getElementById(toId) ? document.getElementById(toId).value : '';
+
+            switchTab('dash', document.getElementById('menuDash'));
+            document.getElementById('thanaFilter').value = thanaVal;
+            document.getElementById('crimeFilter').value = crimeName;
+            document.getElementById('statusFilter').value = statusType;
+            document.getElementById('fcrFilter').value = fcrVal;
+            if(fromDate) document.getElementById('fromDateFilter').value = fromDate;
+            if(toDate) document.getElementById('toDateFilter').value = toDate;
+            applyFilters();
+        }
 
         function renderSixtyNinetyTable() {
             const tbody = document.getElementById('sixtyNinetyTableBody');
             tbody.innerHTML = '';
-
             const thanaFilter = document.getElementById('snThanaFilter').value;
             const limitFilter = document.getElementById('snLimitFilter').value;
 
@@ -1779,8 +2274,6 @@
                 }
                 return true;
             });
-
-            currentSixtyNinetyList = filteredList;
 
             if (filteredList.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="17" style="text-align: center; padding: 1.8rem; color: #64748b;">मापदंड के अनुसार कोई लम्बित विवेचना उपलब्ध नहीं है।</td></tr>';
@@ -1819,11 +2312,7 @@
         }
 
         function exportSixtyNinetyToExcel() {
-            if (currentSixtyNinetyList.length === 0) { 
-                alert('एक्सपोर्ट करने के लिए कोई फ़िल्टर डेटा नहीं है!'); 
-                return; 
-            }
-            let ws = XLSX.utils.json_to_sheet(currentSixtyNinetyList);
+            let ws = XLSX.utils.json_to_sheet(casesData);
             let wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Pending_60_90_Days");
             XLSX.writeFile(wb, "60_90_Days_Pending_Filtered.xlsx");
@@ -1912,46 +2401,11 @@
             reader.readAsArrayBuffer(file);
         }
     </script> 
-        <!-- Firebase App (Core SDK) -->
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-<!-- Firebase Realtime Database SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-
-<script>
-  // Your web app's Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyBoYzbycJHwedQRsyNhs_Z6KKhMFtXkvo",
-    authDomain: "rsp-crime-portal.firebaseapp.com",
-    databaseURL: "https://rsp-crime-portal-default-rtdb.firebaseio.com",
-    projectId: "rsp-crime-portal",
-    storageBucket: "rsp-crime-portal.firebasestorage.app",
-    messagingSenderId: "648430992933",
-    appId: "1:648430992933:web:9ead45c80204fe007289cc",
-    measurementId: "G-PQ8FP0V6N3"
-  };
-
-  // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-  
-  // Database Reference shortcut
-  const db = firebase.database();
-    // --- 1. Realtime Database se Data Sync karna ---
- db.ref('casesData').on('value', (snapshot) => {
-    const data = snapshot.val();
-    casesData = data ? data : [];
-    localStorage.setItem('rsp_hamirpur_cases', JSON.stringify(casesData));
-    if (typeof applyFilters === 'function') {
-      applyFilters();
-    }
-  });
-
-  // --- 2. Naya Data Save karne ke liye Helper Function ---
- window.saveDataToFirebase = function() {
-    if (Array.isArray(casesData)) {
-        db.ref('casesData').set(casesData);
-    }
-};
-  console.log("Firebase Connected Successfully!");
-</script>
-</body>
-</html>
+    <!-- Firebase App (Core SDK) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBoYzbycJHwedQRsyNhs_Z6KKhMFtXkvo",
+            authDomain: "rsp-crime-portal.firebaseapp.com",
+            database
