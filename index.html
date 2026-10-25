@@ -910,12 +910,17 @@
     // यहाँ नया कोड पेस्ट करें
     const fcrThanaSelect = document.getElementById('fcrThanaFilter');
     if (fcrThanaSelect) {
-        fcrThanaSelect.innerHTML = '<option value="ALL">सभी थाने</option>';
-        ALL_THANAS.forEach(t => {
-            fcrThanaSelect.appendChild(new Option(t, t));
-        });
+        if (loggedInThana === 'ALL') {
+            fcrThanaSelect.innerHTML = '<option value="ALL">सभी 15 थाने</option>';
+            ALL_THANAS.forEach(t => {
+                fcrThanaSelect.appendChild(new Option(t, t));
+            });
+            fcrThanaSelect.disabled = false;
+        } else {
+            fcrThanaSelect.innerHTML = `<option value="${loggedInThana}">${loggedInThana}</option>`;
+            fcrThanaSelect.disabled = true;
+        }
     }
-}
         window.onload = function() {
             initCrimeDropdowns();
             generateCaptcha();
