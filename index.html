@@ -1526,28 +1526,35 @@
             gRem += g.rem;
 
             if (tbody) {
-                tbody.innerHTML += `<tr>
+                let tr = document.createElement('tr');
+                tr.innerHTML = `
                     <td>${idx}</td>
-                    <td>${crime}</td>
-                    <td>${g.total}</td>
-                    <td>${g.cs}</td>
-                    <td>${g.fr}</td>
-                    <td>${g.pending}</td>
+                    <td style="font-weight: 700;">${crime}</td>
+                    <td><span class="clickable-link" onclick="openFcrDetailModal('${crime}', 'total')">${g.total}</span></td>
+                    <td><span class="clickable-link" onclick="openFcrDetailModal('${crime}', 'cs')">${g.cs}</span></td>
+                    <td><span class="clickable-link" onclick="openFcrDetailModal('${crime}', 'fr')">${g.fr}</span></td>
+                    <td><span class="clickable-link" onclick="openFcrDetailModal('${crime}', 'pending')">${g.pending}</span></td>
                     <td>${g.named}</td>
                     <td>${g.revealed}</td>
                     <td>${g.yoga}</td>
-                    <td>${g.arrested}</td>
-                    <td>${g.court}</td>
-                    <td>${g.notice}</td>
-                    <td>${g.wrong}</td>
+                    <td><span class="clickable-link" onclick="openFcrDetailModal('${crime}', 'arrested')">${g.arrested}</span></td>
+                    <td><span class="clickable-link" onclick="openFcrDetailModal('${crime}', 'court')">${g.court}</span></td>
+                    <td><span class="clickable-link" onclick="openFcrDetailModal('${crime}', 'notice')">${g.notice}</span></td>
+                    <td><span class="clickable-link" onclick="openFcrDetailModal('${crime}', 'wrong')">${g.wrong}</span></td>
                     <td>${g.rem}</td>
-                </tr>`;
+                `;
+                tbody.appendChild(tr);
             }
             idx++;
         }
-    });
+   
+        `;
+    }
+}
+                }
+                 });
 
-    // टेबल के सबसे नीचे कुल योग (Total Row) जोड़ने का कोड
+    // लूप पूरी तरह खत्म होने के बाद, सबसे नीचे "कुल योग" (Total Row) जोड़ने का सही कोड
     if (tbody && currentFcrSummaryList.length > 0) {
         tbody.innerHTML += `
             <tr style="font-weight: bold; background-color: #edf2f7; text-align: center;">
@@ -1565,50 +1572,6 @@
                 <td>${gWrong}</td>
                 <td>${gRem}</td>
             </tr>
-        `;
-    }
-}
-            currentFcrSummaryList = [];
-            let idx = 1;
-            Object.keys(crimeGroups).forEach(crime => {
-                let g = crimeGroups[crime];
-                if (g.total > 0 || crimeFilter === crime) {
-                    currentFcrSummaryList.push({
-                        "क्र०सं०": idx,
-                        "अपराध शीर्षक": crime,
-                        "कुल मुकदमा": g.total,
-                        "आरोप पत्र की संख्या": g.cs,
-                        "अंतिम रिपोर्ट की संख्या": g.fr,
-                        "विवेचनाधीन": g.pending,
-                        "नामजद": g.named,
-                        "प्रकाश": g.revealed,
-                        "योग": g.yoga,
-                        "गिरफ्तार": g.arrested,
-                        "हा0अ0": g.court,
-                        "नोटिस तामीला": g.notice,
-                        "नामजदगी गलत": g.wrong,
-                        "शेष": g.rem
-                    });
-
-                    let tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td>${idx++}</td>
-                        <td style="font-weight: 700;">${crime}</td>
-                        <td><span class="clickable-link" onclick="filterDashboardByCrime('${crime}', 'ALL')">${g.total}</span></td>
-                        <td>${g.cs}</td>
-                        <td>${g.fr}</td>
-                        <td><span class="clickable-link" onclick="filterDashboardByCrime('${crime}', 'विवेचनाधीन')">${g.pending}</span></td>
-                        <td>${g.named}</td>
-                        <td>${g.revealed}</td>
-                        <td style="font-weight: bold;">${g.yoga}</td>
-                        <td>${g.arrested}</td>
-                        <td>${g.court}</td>
-                        <td>${g.notice}</td>
-                        <td>${g.wrong}</td>
-                        <td style="font-weight: bold; color: #dc2626;">${g.rem}</td>
-                    `;
-                    tbody.appendChild(tr);
-                }
             });
 
             if (filteredCases.length === 0) {
