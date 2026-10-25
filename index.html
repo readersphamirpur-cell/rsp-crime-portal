@@ -1028,6 +1028,7 @@
             document.getElementById('editCaseId').value = '';
             document.getElementById('caseForm').reset();
             document.getElementById('f_janpad').value = 'हमीरपुर';
+            document.getElementById('f_period').value = '0';
             populateThanaDropdown(loggedInThana !== 'ALL' ? loggedInThana : ALL_THANAS[0]);
             toggleSpecialFields();
             calculateTotalAccused();
@@ -1042,6 +1043,7 @@
             document.getElementById('editCaseId').value = item.id;
             document.getElementById('f_janpad').value = item.janpad || 'हमीरपुर';
             document.getElementById('f_circle').value = item.circle || '';
+            document.getElementById('f_period').value = item.period || '0';
             populateThanaDropdown(item.thana || ALL_THANAS[0]);
             document.getElementById('f_crime_title').value = item.crime_title || EXACT_CRIME_LIST[0];
             toggleSpecialFields();
@@ -1113,6 +1115,7 @@
                 circle: document.getElementById('f_circle').value.trim(),
                 thana: document.getElementById('f_thana').value,
                 crime_title: selectedCrime,
+                period: document.getElementById('f_period').value,
                 case_no: document.getElementById('f_case_no').value.trim(),
                 section: document.getElementById('f_section').value.trim(),
                 evt_date: document.getElementById('f_evt_date').value,
