@@ -2779,7 +2779,7 @@ function deleteSelectedCases() {
         alert('चयनित रिकॉर्ड्स सफलतापूर्वक डिलीट कर दिए गए हैं!');
     }
 }
-        function importFromExcel(evt) {
+       function importFromExcel(evt) {
     let file = evt.target.files[0];
     if (!file) return;
     let reader = new FileReader();
@@ -2794,20 +2794,21 @@ function deleteSelectedCases() {
                 let firebaseUpdates = {};
 
                 importedJson.forEach((item, index) => {
-                    let uniqueId = item.id ? String(item.id) : String(Date.now() + index + Math.floor(Math.random() * 1000));
-                    item.id = uniqueId;
+                    // फायरबेस के लिए पूरी तरह सुरक्षित अल्फा-न्युमेरिक ID बनाएं
+                    let safeUniqueId = 'case_' + Date.now() + '_' + index + Math.floor(Math.random() * 1000);
+                    item.id = safeUniqueId;
                     
                     // लोकल एरे में जोड़ें
                     casesData.push(item);
                     
                     // फायरबेस अपडेट ऑब्जेक्ट तैयार करें
-                    firebaseUpdates['rsp_hamirpur_cases/' + uniqueId] = item;
+                    firebaseUpdates['rsp_hamirpur_cases/' + safeUniqueId] = item;
                 });
 
                 // लोकल स्टोरेज में सेव करें
                 localStorage.setItem('rsp_hamirpur_cases', JSON.stringify(casesData));
 
-                // फायरबेस पर एक साथ सभी इम्पोर्टेड डेटा सिंक करें
+                // फायरबेस पर सुरक्षित रूप से सिंक करें
                 if (window.isFirebaseConnected && window.fbDb) {
                     window.fbSet(window.fbRef(window.fbDb), firebaseUpdates).catch(err => {
                         console.log("Firebase batch import warning:", err.message);
