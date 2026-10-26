@@ -6,8 +6,57 @@
     <title>UTTAR PRADESH POLICE - RSP PORTAL DISTT. HAMIRPUR</title>
     <!-- SheetJS CDN for Excel Import/Export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <!-- ⬇️ यहाँ फायरबेस और हाइब्रिड सिंक स्क्रिप्ट जोड़ें (लाइन 9) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, set, remove, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        // अपनी फायरबेस कॉन्फिगरेशन यहाँ दर्ज करें
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            databaseURL: "YOUR_DATABASE_URL",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        window.fbDb = db;
+        window.fbRef = ref;
+        window.fbSet = set;
+        window.fbRemove = remove;
+        window.isFirebaseConnected = true;
+
+        // फायरबेस से रियल-टाइम डेटा सुनना और लोकल स्टोरेज के साथ सिंक्रनाइज़ करना
+        onValue(ref(db, 'rsp_hamirpur_cases'), (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                window.firebaseCasesData = Array.isArray(data) ? data : Object.values(data);
+                localStorage.setItem('rsp_hamirpur_cases', JSON.stringify(window.firebaseCasesData));
+                if (typeof applyFilters === 'function') applyFilters();
+            }
+        }, (error) => {
+            console.warn("Firebase offline. Falling back to Local Storage.");
+            window.isFirebaseConnected = false;
+        });
+
+        onValue(ref(db, 'rsp_thana_creds'), (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                localStorage.setItem('rsp_thana_creds', JSON.stringify(data));
+            }
+        });
+    </script>
+    <!-- ⬆️ फायरबेस स्क्रिप्ट समाप्त -->
+
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+        /* बाकी का आपका स्टाइल CSS यहाँ रहेगा */
 
         body { 
             background: #b2cfec; 
@@ -1643,77 +1692,89 @@
 
         function closeCaseModal() { document.getElementById('caseModal').style.display = 'none'; }
 
-        function saveCaseData(e) {
-            e.preventDefault();
-            let named = Number(document.getElementById('f_named').value) || 0;
-            let revealed = Number(document.getElementById('f_revealed').value) || 0;
-            let totalAccused = named + revealed;
+      function saveCaseData(e) {
+    e.preventDefault();
+    let named = Number(document.getElementById('f_named').value) || 0;
+    let revealed = Number(document.getElementById('f_revealed').value) || 0;
+    let totalAccused = named + revealed;
 
-            let arrested = Number(document.getElementById('f_arrested').value) || 0;
-            let notice = Number(document.getElementById('f_notice').value) || 0;
-            let court = Number(document.getElementById('f_court').value) || 0;
-            let wrong = Number(document.getElementById('f_wrong').value) || 0;
+    let arrested = Number(document.getElementById('f_arrested').value) || 0;
+    let notice = Number(document.getElementById('f_notice').value) || 0;
+    let court = Number(document.getElementById('f_court').value) || 0;
+    let wrong = Number(document.getElementById('f_wrong').value) || 0;
 
-            let disposalSum = arrested + notice + court + wrong;
-            if (disposalSum > totalAccused) {
-                alert(`त्रुटि: डिस्पोज़ल की संख्या कुल अभियुक्तों से अधिक नहीं हो सकती!`);
-                return;
-            }
+    let disposalSum = arrested + notice + court + wrong;
+    if (disposalSum > totalAccused) {
+        alert(`त्रुटि: डिस्पोज़ल की संख्या कुल अभियुक्तों से अधिक नहीं हो सकती!`);
+        return;
+    }
 
-            const editId = document.getElementById('editCaseId').value;
-            const selectedCrime = document.getElementById('f_crime_title').value;
+    const editId = document.getElementById('editCaseId').value;
+    const selectedCrime = document.getElementById('f_crime_title').value;
+    const caseId = editId ? (isNaN(editId) ? editId : Number(editId)) : Date.now();
 
-            const caseObj = {
-                id: editId ? (isNaN(editId) ? editId : Number(editId)) : Date.now(),
-                janpad: document.getElementById('f_janpad').value.trim(),
-                circle: document.getElementById('f_circle').value.trim(),
-                thana: document.getElementById('f_thana').value,
-                crime_title: selectedCrime,
-                period: document.getElementById('f_period').value,
-                case_no: document.getElementById('f_case_no').value.trim(),
-                section: document.getElementById('f_section').value.trim(),
-                evt_date: document.getElementById('f_evt_date').value,
-                info_date: document.getElementById('f_info_date').value,
-                incident_place: document.getElementById('f_incident_place').value.trim(),
-                complainant: document.getElementById('f_complainant').value.trim(),
-                defendant: document.getElementById('f_defendant').value.trim(),
-                brief_desc: document.getElementById('f_brief_desc').value.trim() || '-',
-                io_name: document.getElementById('f_io_name').value.trim(),
-                status: document.getElementById('f_status').value,
-                cs_no: document.getElementById('f_cs_no').value.trim() || '-',
-                cs_date: document.getElementById('f_cs_date').value || '',
-                named: named,
-                revealed: revealed,
-                arrested: arrested,
-                notice: notice,
-                court: court,
-                wrong: wrong,
-                fcr_head: document.getElementById('f_fcr_head').value,
-                remarks: document.getElementById('f_remarks').value.trim() || '-',
-                category: document.getElementById('f_category').value,
-                sentence: document.getElementById('f_sentence').value,
-                victim_name: VICTIM_CRIMES.includes(selectedCrime) ? document.getElementById('f_victim_name').value : '-',
-                victim_age: VICTIM_CRIMES.includes(selectedCrime) ? document.getElementById('f_victim_age').value : '-',
-                stolen_property: PROPERTY_CRIMES.includes(selectedCrime) ? Number(document.getElementById('f_stolen_property').value) : 0,
-                recovered_property: PROPERTY_CRIMES.includes(selectedCrime) ? Number(document.getElementById('f_recovered_property').value) : 0,
-                injured_detail: ACCIDENT_CRIMES.includes(selectedCrime) ? document.getElementById('f_injured_detail').value : '-',
-                death_detail: ACCIDENT_CRIMES.includes(selectedCrime) ? document.getElementById('f_death_detail').value : '-',
-                recovery_detail: RECOVERY_CRIMES.includes(selectedCrime) ? document.getElementById('f_recovery_detail').value : '-'
-            };
+    const caseObj = {
+        id: caseId,
+        janpad: document.getElementById('f_janpad').value.trim(),
+        circle: document.getElementById('f_circle').value.trim(),
+        thana: document.getElementById('f_thana').value,
+        crime_title: selectedCrime,
+        period: document.getElementById('f_period').value,
+        case_no: document.getElementById('f_case_no').value.trim(),
+        section: document.getElementById('f_section').value.trim(),
+        evt_date: document.getElementById('f_evt_date').value,
+        info_date: document.getElementById('f_info_date').value,
+        incident_place: document.getElementById('f_incident_place').value.trim(),
+        complainant: document.getElementById('f_complainant').value.trim(),
+        defendant: document.getElementById('f_defendant').value.trim(),
+        brief_desc: document.getElementById('f_brief_desc').value.trim() || '-',
+        io_name: document.getElementById('f_io_name').value.trim(),
+        status: document.getElementById('f_status').value,
+        cs_no: document.getElementById('f_cs_no').value.trim() || '-',
+        cs_date: document.getElementById('f_cs_date').value || '',
+        named: named,
+        revealed: revealed,
+        arrested: arrested,
+        notice: notice,
+        court: court,
+        wrong: wrong,
+        fcr_head: document.getElementById('f_fcr_head').value,
+        remarks: document.getElementById('f_remarks').value.trim() || '-',
+        category: document.getElementById('f_category').value,
+        sentence: document.getElementById('f_sentence').value,
+        victim_name: VICTIM_CRIMES.includes(selectedCrime) ? document.getElementById('f_victim_name').value : '-',
+        victim_age: VICTIM_CRIMES.includes(selectedCrime) ? document.getElementById('f_victim_age').value : '-',
+        stolen_property: PROPERTY_CRIMES.includes(selectedCrime) ? Number(document.getElementById('f_stolen_property').value) : 0,
+        recovered_property: PROPERTY_CRIMES.includes(selectedCrime) ? Number(document.getElementById('f_recovered_property').value) : 0,
+        injured_detail: ACCIDENT_CRIMES.includes(selectedCrime) ? document.getElementById('f_injured_detail').value : '-',
+        death_detail: ACCIDENT_CRIMES.includes(selectedCrime) ? document.getElementById('f_death_detail').value : '-',
+        recovery_detail: RECOVERY_CRIMES.includes(selectedCrime) ? document.getElementById('f_recovery_detail').value : '-'
+    };
 
-            if (editId) {
-                let index = casesData.findIndex(c => String(c.id) === String(editId) || Number(c.id) === Number(editId));
-                if (index !== -1) casesData[index] = caseObj;
-                alert('मुकदमा सफलतापूर्वक अपडेट कर दिया गया है!');
-            } else {
-                casesData.push(caseObj);
-                alert('नया मुकदमा सफलतापूर्वक दर्ज हो गया है!');
-            }
+    // 1. LocalStorage में तुरंत सेव/अपडेट करें
+    let index = casesData.findIndex(c => String(c.id) === String(caseId));
+    if (index !== -1) {
+        casesData[index] = caseObj;
+    } else {
+        casesData.push(caseObj);
+    }
+    localStorage.setItem('rsp_hamirpur_cases', JSON.stringify(casesData));
 
-            localStorage.setItem('rsp_hamirpur_cases', JSON.stringify(casesData));
-            closeCaseModal();
-            applyFilters();
-        }
+    // 2. यदि Firebase उपलब्ध है तो वहाँ भी साथ ही सिंक करें
+    if (window.isFirebaseConnected && window.fbDb) {
+        window.fbSet(window.fbRef(window.fbDb, 'rsp_hamirpur_cases/' + caseId), caseObj).catch(err => {
+            console.log("Firebase sync warning: " + err.message);
+        });
+    }
+
+    if (editId) {
+        alert('मुकदमा सफलतापूर्वक अपडेट कर दिया गया है!');
+    } else {
+        alert('नया मुकदमा सफलतापूर्वक दर्ज हो गया है!');
+    }
+    closeCaseModal();
+    applyFilters();
+}
 
         function calculateDurationDays(infoDateStr, status, csDateStr) {
             if (!infoDateStr) return 0;
@@ -1759,19 +1820,30 @@
 
         function closeUserMgmtModal() { document.getElementById('userModal').style.display = 'none'; }
 
-        function saveThanaCredentials() {
-            thanaCredentials['admin'] = { username: document.getElementById('adm_user').value.trim(), password: document.getElementById('adm_pass').value.trim() };
-            ALL_THANAS.forEach(t => {
-                let uEl = document.getElementById('usr_' + t);
-                let pEl = document.getElementById('pwd_' + t);
-                if(uEl && pEl) {
-                    thanaCredentials[t] = { username: uEl.value.trim(), password: pEl.value.trim() };
-                }
-            });
-            localStorage.setItem('rsp_thana_creds', JSON.stringify(thanaCredentials));
-            alert('क्रेडेंशियल्स सफलतापूर्वक अपडेट और सहेज दिए गए हैं!');
-            closeUserMgmtModal();
+       function saveThanaCredentials() {
+    thanaCredentials['admin'] = { 
+        username: document.getElementById('adm_user').value.trim(), 
+        password: document.getElementById('adm_pass').value.trim() 
+    };
+    ALL_THANAS.forEach(t => {
+        let uEl = document.getElementById('usr_' + t);
+        let pEl = document.getElementById('pwd_' + t);
+        if(uEl && pEl) {
+            thanaCredentials[t] = { username: uEl.value.trim(), password: pEl.value.trim() };
         }
+    });
+
+    // लोकल स्टोरेज में सेव
+    localStorage.setItem('rsp_thana_creds', JSON.stringify(thanaCredentials));
+
+    // फायरबेस में सेव
+    if (window.isFirebaseConnected && window.fbDb) {
+        window.fbSet(window.fbRef(window.fbDb, 'rsp_thana_creds'), thanaCredentials).catch(err => console.log(err));
+    }
+
+    alert('क्रेडेंशियल्स सफलतापूर्वक अपडेट और सहेज दिए गए हैं!');
+    closeUserMgmtModal();
+}
 
         function applyFilters() {
             const search = document.getElementById('searchInput').value.toLowerCase();
@@ -2664,32 +2736,46 @@
 
         function printFilteredPDF() { window.print(); }
 
-        function deleteCase(id) {
-            if (confirm("क्या आप निश्चित रूप से इस मुकदमे को डिलीट करना चाहते हैं?")) {
-                casesData = casesData.filter(c => String(c.id) !== String(id) && Number(c.id) !== Number(id));
-                localStorage.setItem('rsp_hamirpur_cases', JSON.stringify(casesData));
-                applyFilters();
-            }
+       function deleteCase(id) {
+    if (confirm("क्या आप निश्चित रूप से इस मुकदमे को डिलीट करना चाहते हैं?")) {
+        // लोकल स्टोरेज से डिलीट
+        casesData = casesData.filter(c => String(c.id) !== String(id) && Number(c.id) !== Number(id));
+        localStorage.setItem('rsp_hamirpur_cases', JSON.stringify(casesData));
+
+        // फायरबेस से डिलीट
+        if (window.isFirebaseConnected && window.fbDb) {
+            window.fbRemove(window.fbRef(window.fbDb, 'rsp_hamirpur_cases/' + id)).catch(err => console.log(err));
         }
 
-        function toggleSelectAll(master) {
-            document.querySelectorAll('.rowCheckbox').forEach(cb => cb.checked = master.checked);
+        applyFilters();
+        alert('रिकॉर्ड सफलतापूर्वक डिलीट कर दिया गया है!');
+    }
+}
+
+function deleteSelectedCases() {
+    let checkedBoxes = document.querySelectorAll('.rowCheckbox:checked');
+    if (checkedBoxes.length === 0) {
+        alert("कृपया डिलीट करने के लिए कम से कम एक रिकॉर्ड चुनें!");
+        return;
+    }
+    if (confirm(`क्या आप चुने गए ${checkedBoxes.length} रिकॉर्ड्स को डिलीट करना चाहते हैं?`)) {
+        let idsToDelete = Array.from(checkedBoxes).map(cb => cb.value);
+        
+        // लोकल स्टोरेज से डिलीट
+        casesData = casesData.filter(c => !idsToDelete.includes(String(c.id)) && !idsToDelete.includes(Number(c.id)));
+        localStorage.setItem('rsp_hamirpur_cases', JSON.stringify(casesData));
+
+        // फायरबेस से डिलीट
+        if (window.isFirebaseConnected && window.fbDb) {
+            let updates = {};
+            idsToDelete.forEach(id => { updates['rsp_hamirpur_cases/' + id] = null; });
+            window.fbSet(window.fbRef(window.fbDb), updates).catch(err => console.log(err));
         }
 
-        function deleteSelectedCases() {
-            let checkedBoxes = document.querySelectorAll('.rowCheckbox:checked');
-            if (checkedBoxes.length === 0) {
-                alert("कृपया डिलीट करने के लिए कम से कम एक रिकॉर्ड चुनें!");
-                return;
-            }
-            if (confirm(`क्या आप चुने गए ${checkedBoxes.length} रिकॉर्ड्स को डिलीट करना चाहते हैं?`)) {
-                let idsToDelete = Array.from(checkedBoxes).map(cb => cb.value);
-                casesData = casesData.filter(c => !idsToDelete.includes(String(c.id)) && !idsToDelete.includes(Number(c.id)));
-                localStorage.setItem('rsp_hamirpur_cases', JSON.stringify(casesData));
-                applyFilters();
-            }
-        }
-
+        applyFilters();
+        alert('चयनित रिकॉर्ड्स सफलतापूर्वक डिलीट कर दिए गए हैं!');
+    }
+}
         function importFromExcel(evt) {
             let file = evt.target.files[0];
             if (!file) return;
