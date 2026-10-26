@@ -1642,58 +1642,57 @@
             document.getElementById('caseModal').style.display = 'flex';
         }
 
-        function editCase(id) {
-            const item = casesData.find(c => String(c.id) === String(id) || Number(c.id) === Number(id));
-            if (!item) return;
+       function editCase(id) {
+    const item = casesData.find(c => String(c.id) === String(id) || Number(c.id) === Number(id));
+    if (!item) return;
 
-            document.getElementById('modalTitle').innerText = 'मुकदमा विवरण संशोधित करें';
-            document.getElementById('editCaseId').value = item.id;
-            document.getElementById('f_janpad').value = item.janpad || 'हमीरपुर';
-            document.getElementById('f_circle').value = item.circle || '';
-            document.getElementById('f_period').value = item.period || getPrescribedLimit(item.section || '');
-            populateThanaDropdown(item.thana || ALL_THANAS[0]);
-            document.getElementById('f_crime_title').value = item.crime_title || EXACT_CRIME_LIST[0];
-            toggleSpecialFields();
+    document.getElementById('modalTitle').innerText = 'मुकदमा विवरण संशोधित करें';
+    document.getElementById('editCaseId').value = item.id; // 👈 यह सुनिश्चित करता है कि ID फॉर्म में सेट हो रहा है
+    document.getElementById('f_janpad').value = item.janpad || 'हमीरपुर';
+    document.getElementById('f_circle').value = item.circle || '';
+    document.getElementById('f_period').value = item.period || getPrescribedLimit(item.section || '');
+    populateThanaDropdown(item.thana || ALL_THANAS[0]);
+    document.getElementById('f_crime_title').value = item.crime_title || EXACT_CRIME_LIST[0];
+    toggleSpecialFields();
 
-            document.getElementById('f_case_no').value = item.case_no || '';
-            document.getElementById('f_section').value = item.section || '';
-            document.getElementById('f_evt_date').value = item.evt_date || '';
-            document.getElementById('f_info_date').value = item.info_date || '';
-            document.getElementById('f_incident_place').value = item.incident_place || '';
-            document.getElementById('f_complainant').value = item.complainant || '';
-            document.getElementById('f_defendant').value = item.defendant || '';
-            document.getElementById('f_brief_desc').value = item.brief_desc || '';
-            document.getElementById('f_io_name').value = item.io_name || '';
-            document.getElementById('f_status').value = item.status || 'विवेचनाधीन';
-            document.getElementById('f_cs_no').value = item.cs_no || '-';
-            document.getElementById('f_cs_date').value = item.cs_date || '';
-            document.getElementById('f_named').value = item.named || 0;
-            document.getElementById('f_revealed').value = item.revealed || 0;
-            calculateTotalAccused();
+    document.getElementById('f_case_no').value = item.case_no || '';
+    document.getElementById('f_section').value = item.section || '';
+    document.getElementById('f_evt_date').value = item.evt_date || '';
+    document.getElementById('f_info_date').value = item.info_date || '';
+    document.getElementById('f_incident_place').value = item.incident_place || '';
+    document.getElementById('f_complainant').value = item.complainant || '';
+    document.getElementById('f_defendant').value = item.defendant || '';
+    document.getElementById('f_brief_desc').value = item.brief_desc || '';
+    document.getElementById('f_io_name').value = item.io_name || '';
+    document.getElementById('f_status').value = item.status || 'विवेचनाधीन';
+    document.getElementById('f_cs_no').value = item.cs_no || '-';
+    document.getElementById('f_cs_date').value = item.cs_date || '';
+    document.getElementById('f_named').value = item.named || 0;
+    document.getElementById('f_revealed').value = item.revealed || 0;
+    calculateTotalAccused();
 
-            document.getElementById('f_arrested').value = item.arrested || 0;
-            document.getElementById('f_notice').value = item.notice || 0;
-            document.getElementById('f_court').value = item.court || 0;
-            document.getElementById('f_wrong').value = item.wrong || 0;
-            document.getElementById('f_fcr_head').value = item.fcr_head || 'हाँ';
-            document.getElementById('f_remarks').value = item.remarks || '';
-            document.getElementById('f_category').value = item.category || 'शरीर संबंधी';
-            document.getElementById('f_sentence').value = item.sentence || '07 वर्ष से कम';
+    document.getElementById('f_arrested').value = item.arrested || 0;
+    document.getElementById('f_notice').value = item.notice || 0;
+    document.getElementById('f_court').value = item.court || 0;
+    document.getElementById('f_wrong').value = item.wrong || 0;
+    document.getElementById('f_fcr_head').value = item.fcr_head || 'हाँ';
+    document.getElementById('f_remarks').value = item.remarks || '';
+    document.getElementById('f_category').value = item.category || 'शरीर संबंधी';
+    document.getElementById('f_sentence').value = item.sentence || '07 वर्ष से कम';
 
-            document.getElementById('f_victim_name').value = item.victim_name || '';
-            document.getElementById('f_victim_age').value = item.victim_age || '';
-            document.getElementById('f_stolen_property').value = item.stolen_property || 0;
-            document.getElementById('f_recovered_property').value = item.recovered_property || 0;
-            document.getElementById('f_injured_detail').value = item.injured_detail || '';
-            document.getElementById('f_death_detail').value = item.death_detail || '';
-            document.getElementById('f_recovery_detail').value = item.recovery_detail || '';
+    document.getElementById('f_victim_name').value = item.victim_name || '';
+    document.getElementById('f_victim_age').value = item.victim_age || '';
+    document.getElementById('f_stolen_property').value = item.stolen_property || 0;
+    document.getElementById('f_recovered_property').value = item.recovered_property || 0;
+    document.getElementById('f_injured_detail').value = item.injured_detail || '';
+    document.getElementById('f_death_detail').value = item.death_detail || '';
+    document.getElementById('f_recovery_detail').value = item.recovery_detail || '';
 
-            document.getElementById('caseModal').style.display = 'flex';
-        }
-
+    document.getElementById('caseModal').style.display = 'flex';
+}
         function closeCaseModal() { document.getElementById('caseModal').style.display = 'none'; }
 
-      function saveCaseData(e) {
+     function saveCaseData(e) {
     e.preventDefault();
     let named = Number(document.getElementById('f_named').value) || 0;
     let revealed = Number(document.getElementById('f_revealed').value) || 0;
@@ -1712,7 +1711,9 @@
 
     const editId = document.getElementById('editCaseId').value;
     const selectedCrime = document.getElementById('f_crime_title').value;
-    const caseId = editId ? (isNaN(editId) ? editId : Number(editId)) : Date.now();
+    
+    // अगर editId है तो पुराना ID उपयोग करें, अन्यथा नया Date.now() बनाएं
+    const caseId = editId ? editId : Date.now();
 
     const caseObj = {
         id: caseId,
@@ -1752,7 +1753,7 @@
         recovery_detail: RECOVERY_CRIMES.includes(selectedCrime) ? document.getElementById('f_recovery_detail').value : '-'
     };
 
-    // 1. LocalStorage में तुरंत सेव/अपडेट करें
+    // 1. LocalStorage में अपडेट या नया जोड़ें
     let index = casesData.findIndex(c => String(c.id) === String(caseId));
     if (index !== -1) {
         casesData[index] = caseObj;
@@ -1761,11 +1762,15 @@
     }
     localStorage.setItem('rsp_hamirpur_cases', JSON.stringify(casesData));
 
-    // 2. यदि Firebase उपलब्ध है तो वहाँ भी साथ ही सिंक करें
+    // 2. Firebase पर सुरक्षित रूप से अपडेट करें
     if (window.isFirebaseConnected && window.fbDb) {
-        window.fbSet(window.fbRef(window.fbDb, 'rsp_hamirpur_cases/' + caseId), caseObj).catch(err => {
-            console.log("Firebase sync warning: " + err.message);
-        });
+        window.fbSet(window.fbRef(window.fbDb, 'rsp_hamirpur_cases/' + caseId), caseObj)
+            .then(() => {
+                console.log("Firebase sync successful");
+            })
+            .catch(err => {
+                console.warn("Firebase sync warning: " + err.message);
+            });
     }
 
     if (editId) {
@@ -1773,6 +1778,7 @@
     } else {
         alert('नया मुकदमा सफलतापूर्वक दर्ज हो गया है!');
     }
+    
     closeCaseModal();
     applyFilters();
 }
