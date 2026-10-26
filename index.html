@@ -35,23 +35,16 @@
 
     // फायरबेस से रियल-टाइम डेटा सिंक और लोकल स्टोरेज बैकअप
     onValue(ref(db, 'rsp_hamirpur_cases'), (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-            window.firebaseCasesData = Array.isArray(data) ? data : Object.values(data);
-            localStorage.setItem('rsp_hamirpur_cases', JSON.stringify(window.firebaseCasesData));
-            if (typeof applyFilters === 'function') applyFilters();
-        }
-    }, (error) => {
-        console.warn("Firebase offline. Running on Local Storage mode.");
-        window.isFirebaseConnected = false;
-    });
-
-    onValue(ref(db, 'rsp_thana_creds'), (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-            localStorage.setItem('rsp_thana_creds', JSON.stringify(data));
-        }
-    });
+    const data = snapshot.val();
+    if (data) {
+        let rawData = Array.isArray(data) ? data : Object.values(data);
+        // null या undefined डेटा को हटा दें ताकि एरर न आए
+        window.firebaseCasesData = rawData.filter(item => item !== null && item !== undefined);
+        casesData = window.firebaseCasesData;
+        localStorage.setItem('rsp_hamirpur_cases', JSON.stringify(casesData));
+        if (typeof applyFilters === 'function') applyFilters();
+    }
+});
 </script>
     <!-- ⬆️ फायरबेस स्क्रिप्ट समाप्त -->
 
@@ -1883,106 +1876,109 @@
             renderTable(currentlyFilteredCases);
             updateStats(currentlyFilteredCases);
         }
+function renderTable(data) {
+    const tbody = document.getElementById('caseTableBody');
+    tbody.innerHTML = '';
+    
+    // सुरक्षित रूप से केवल वैध (non-null) डेटा को ही फ़िल्टर करें
+    const validData = (data || []).filter(item => item !== null && item !== undefined);
 
-        function renderTable(data) {
-            const tbody = document.getElementById('caseTableBody');
-            tbody.innerHTML = '';
-            if (data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="40" style="text-align: center; padding: 1.8rem; color: #64748b;">कोई रिकॉर्ड उपलब्ध नहीं है।</td></tr>';
-                return;
+    if (validData.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="40" style="text-align: center; padding: 1.8rem; color: #64748b;">कोई रिकॉर्ड उपलब्ध नहीं है।</td></tr>';
+        return;
+    }
+    
+    validData.forEach((item, index) => {
+        let evaluatedCategory = item.category || 'अन्य';
+        let evaluatedSentence = item.sentence || '07 वर्ष से कम';
+        if (!evaluatedCategory || !evaluatedSentence) {
+            let extractedNums = extractSectionNumbers(item.section || '');
+            let matchedBody = false;
+            let matchedProperty = false;
+            for (let num of extractedNums) {
+                if (num >= 100 && num <= 146) { matchedBody = true; break; }
             }
-            data.forEach((item, index) => {
-                let evaluatedCategory = item.category;
-                let evaluatedSentence = item.sentence;
-                if (!evaluatedCategory || !evaluatedSentence) {
-                    let extractedNums = extractSectionNumbers(item.section || '');
-                    let matchedBody = false;
-                    let matchedProperty = false;
-                    for (let num of extractedNums) {
-                        if (num >= 100 && num <= 146) { matchedBody = true; break; }
-                    }
-                    if (!matchedBody) {
-                        for (let num of extractedNums) {
-                            if (num >= 303 && num <= 330) { matchedProperty = true; break; }
-                        }
-                    }
-                    evaluatedCategory = matchedBody ? 'शरीर संबंधी' : (matchedProperty ? 'संपत्ति संबंधी' : 'अन्य');
-                    
-                    let is7Plus = false;
-                    for (let num of extractedNums) {
-                        if (SECTIONS_7_YEARS_PLUS.includes(num.toString())) { is7Plus = true; break; }
-                    }
-                    evaluatedSentence = is7Plus ? '7 वर्ष से अधिक' : '07 वर्ष से कम';
+            if (!matchedBody) {
+                for (let num of extractedNums) {
+                    if (num >= 303 && num <= 330) { matchedProperty = true; break; }
                 }
-
-                let totalAccused = (Number(item.named) || 0) + (Number(item.revealed) || 0);
-                let disposedAccused = (Number(item.arrested) || 0) + (Number(item.notice) || 0) + (Number(item.court) || 0) + (Number(item.wrong) || 0);
-                let pendingAccused = Math.max(0, totalAccused - disposedAccused);
-
-                let durationDays = calculateDurationDays(item.info_date, item.status, item.cs_date);
-                let durationText = item.status === 'विवेचनाधीन' ? `${durationDays} दिन (लम्बित)` : `${durationDays} दिन (निस्तारित)`;
-                let prescribedLimit = getPrescribedLimit(item.section);
-
-                const isVictim = VICTIM_CRIMES.includes(item.crime_title);
-                const isProperty = PROPERTY_CRIMES.includes(item.crime_title);
-                const isAccident = ACCIDENT_CRIMES.includes(item.crime_title);
-                const isRecovery = RECOVERY_CRIMES.includes(item.crime_title);
-
-                let tr = document.createElement('tr');
-                let checkboxTD = loggedInThana === 'ALL' ? `<td style="text-align:center;"><input type="checkbox" class="rowCheckbox" value="${item.id}"></td>` : '';
-                let actionTD = `<td style="text-align: center; display: flex; gap: 4px; justify-content: center;">` +
-                    `<button onclick="editCase('${item.id}')" class="btn btn-blue" style="padding: 0.2rem 0.45rem; font-size: 0.72rem;">Edit</button>`;
-                if (loggedInThana === 'ALL') {
-                    actionTD += `<button onclick="deleteCase('${item.id}')" class="btn btn-red" style="padding: 0.2rem 0.45rem; font-size: 0.72rem;">Delete</button>`;
-                }
-                actionTD += `</td>`;
-
-                tr.innerHTML = `
-                    ${checkboxTD}
-                    <td class="w-janpad">${item.janpad || 'हमीरपुर'}</td>
-                    <td>${index + 1}</td>
-                    <td>${item.circle || '-'}</td>
-                    <td>${item.thana || '-'}</td>
-                    <td>${item.crime_title || '-'}</td>
-                    <td class="w-caseno" style="font-weight: bold; color: #2563eb;">${item.case_no || '-'}</td>
-                    <td class="w-section">${item.section || '-'}</td>
-                    <td>${item.evt_date || '-'}</td>
-                    <td>${item.info_date || '-'}</td>
-                    <td class="wrap-col w-place">${item.incident_place || '-'}</td>
-                    <td class="wrap-col w-complainant">${item.complainant || '-'}</td>
-                    <td class="wrap-col w-defendant">${item.defendant || '-'}</td>
-                    <td class="wrap-col w-desc">${item.brief_desc || '-'}</td>
-                    <td class="wrap-col w-io">${item.io_name || '-'}</td>
-                    <td>${item.status || '-'}</td>
-                    <td>${item.cs_no || '-'}</td>
-                    <td>${item.cs_date || '-'}</td>
-                    <td>${item.named || 0}</td>
-                    <td>${item.revealed || 0}</td>
-                    <td style="font-weight: bold; background: #fef08a;">${totalAccused}</td>
-                    <td>${item.arrested || 0}</td>
-                    <td>${item.notice || 0}</td>
-                    <td>${item.court || 0}</td>
-                    <td>${item.wrong || 0}</td>
-                    <td style="font-weight: bold; color: #dc2626; background: #fee2e2;">${pendingAccused}</td>
-                    <td>${item.fcr_head || '-'}</td>
-                    <td>${item.remarks || '-'}</td>
-                    <td style="font-weight: bold; color: #0284c7;">${evaluatedCategory}</td>
-                    <td style="font-weight: bold; color: ${evaluatedSentence === '7 वर्ष से अधिक' ? '#dc2626' : '#16a34a'};">${evaluatedSentence}</td>
-                    <td>${isVictim ? (item.victim_name || '-') : 'NA'}</td>
-                    <td>${isVictim ? (item.victim_age || '-') : 'NA'}</td>
-                    <td>${isProperty ? (item.stolen_property || '0') : 'NA'}</td>
-                    <td>${isProperty ? (item.recovered_property || '0') : 'NA'}</td>
-                    <td>${isAccident ? (item.injured_detail || '-') : 'NA'}</td>
-                    <td>${isAccident ? (item.death_detail || '-') : 'NA'}</td>
-                    <td>${isRecovery ? (item.recovery_detail || '-') : 'NA'}</td>
-                    <td style="font-weight: bold; color: #0f172a; background: #f8fafc;">${durationText}</td>
-                    <td style="font-weight: bold; color: #0284c7; background: #e0f2fe;">${prescribedLimit} दिवस</td>
-                    ${actionTD}
-                `;
-                tbody.appendChild(tr);
-            });
+            }
+            evaluatedCategory = matchedBody ? 'शरीर संबंधी' : (matchedProperty ? 'संपत्ति संबंधी' : 'अन्य');
+            
+            let is7Plus = false;
+            for (let num of extractedNums) {
+                if (SECTIONS_7_YEARS_PLUS.includes(num.toString())) { is7Plus = true; break; }
+            }
+            evaluatedSentence = is7Plus ? '7 वर्ष से अधिक' : '07 वर्ष से कम';
         }
 
+        let totalAccused = (Number(item.named) || 0) + (Number(item.revealed) || 0);
+        let disposedAccused = (Number(item.arrested) || 0) + (Number(item.notice) || 0) + (Number(item.court) || 0) + (Number(item.wrong) || 0);
+        let pendingAccused = Math.max(0, totalAccused - disposedAccused);
+
+        let durationDays = calculateDurationDays(item.info_date, item.status, item.cs_date);
+        let durationText = item.status === 'विवेचनाधीन' ? `${durationDays} दिन (लम्बित)` : `${durationDays} दिन (निस्तारित)`;
+        let prescribedLimit = getPrescribedLimit(item.section);
+
+        const isVictim = VICTIM_CRIMES.includes(item.crime_title);
+        const isProperty = PROPERTY_CRIMES.includes(item.crime_title);
+        const isAccident = ACCIDENT_CRIMES.includes(item.crime_title);
+        const isRecovery = RECOVERY_CRIMES.includes(item.crime_title);
+
+        let tr = document.createElement('tr');
+        let checkboxTD = loggedInThana === 'ALL' ? `<td style="text-align:center;"><input type="checkbox" class="rowCheckbox" value="${item.id}"></td>` : '';
+        let actionTD = `<td style="text-align: center; display: flex; gap: 4px; justify-content: center;">` +
+            `<button onclick="editCase('${item.id}')" class="btn btn-blue" style="padding: 0.2rem 0.45rem; font-size: 0.72rem;">Edit</button>`;
+        if (loggedInThana === 'ALL') {
+            actionTD += `<button onclick="deleteCase('${item.id}')" class="btn btn-red" style="padding: 0.2rem 0.45rem; font-size: 0.72rem;">Delete</button>`;
+        }
+        actionTD += `</td>`;
+
+        tr.innerHTML = `
+            ${checkboxTD}
+            <td class="w-janpad">${item.janpad || 'हमीरपुर'}</td>
+            <td>${index + 1}</td>
+            <td>${item.circle || '-'}</td>
+            <td>${item.thana || '-'}</td>
+            <td>${item.crime_title || '-'}</td>
+            <td class="w-caseno" style="font-weight: bold; color: #2563eb;">${item.case_no || '-'}</td>
+            <td class="w-section">${item.section || '-'}</td>
+            <td>${item.evt_date || '-'}</td>
+            <td>${item.info_date || '-'}</td>
+            <td class="wrap-col w-place">${item.incident_place || '-'}</td>
+            <td class="wrap-col w-complainant">${item.complainant || '-'}</td>
+            <td class="wrap-col w-defendant">${item.defendant || '-'}</td>
+            <td class="wrap-col w-desc">${item.brief_desc || '-'}</td>
+            <td class="wrap-col w-io">${item.io_name || '-'}</td>
+            <td>${item.status || '-'}</td>
+            <td>${item.cs_no || '-'}</td>
+            <td>${item.cs_date || '-'}</td>
+            <td>${item.named || 0}</td>
+            <td>${item.revealed || 0}</td>
+            <td style="font-weight: bold; background: #fef08a;">${totalAccused}</td>
+            <td>${item.arrested || 0}</td>
+            <td>${item.notice || 0}</td>
+            <td>${item.court || 0}</td>
+            <td>${item.wrong || 0}</td>
+            <td style="font-weight: bold; color: #dc2626; background: #fee2e2;">${pendingAccused}</td>
+            <td>${item.fcr_head || '-'}</td>
+            <td>${item.remarks || '-'}</td>
+            <td style="font-weight: bold; color: #0284c7;">${evaluatedCategory}</td>
+            <td style="font-weight: bold; color: ${evaluatedSentence === '7 वर्ष से अधिक' ? '#dc2626' : '#16a34a'};">${evaluatedSentence}</td>
+            <td>${isVictim ? (item.victim_name || '-') : 'NA'}</td>
+            <td>${isVictim ? (item.victim_age || '-') : 'NA'}</td>
+            <td>${isProperty ? (item.stolen_property || '0') : 'NA'}</td>
+            <td>${isProperty ? (item.recovered_property || '0') : 'NA'}</td>
+            <td>${isAccident ? (item.injured_detail || '-') : 'NA'}</td>
+            <td>${isAccident ? (item.death_detail || '-') : 'NA'}</td>
+            <td>${isRecovery ? (item.recovery_detail || '-') : 'NA'}</td>
+            <td style="font-weight: bold; color: #0f172a; background: #f8fafc;">${durationText}</td>
+            <td style="font-weight: bold; color: #0284c7; background: #e0f2fe;">${prescribedLimit} दिवस</td>
+            ${actionTD}
+        `;
+        tbody.appendChild(tr);
+    });
+}
         function updateStats(data) {
             let totalCases = data.length;
             let totalAccused = 0, totalArrested = 0, totalCourt = 0, totalNotice = 0, totalWrong = 0, totalPendingAccused = 0;
