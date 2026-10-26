@@ -312,7 +312,7 @@
     <!-- MAIN DASHBOARD LAYOUT -->
     <div id="dashboardSection" class="dashboard-container hidden">
         <!-- LEFT SIDEBAR -->
-        aside class="sidebar">
+        <aside class="sidebar">
             <div class="sidebar-brand">
                 <div class="sidebar-brand-text">
                     <h3>RSP MONITORING</h3>
@@ -1859,7 +1859,7 @@
                 const isRecovery = RECOVERY_CRIMES.includes(item.crime_title);
 
                 let tr = document.createElement('tr');
-                let checkboxTD = loggedInThana === 'ALL' ? ` style="text-align:center;"><input type="checkbox" class="rowCheckbox" value="${item.id}"></td>` : '';
+                let checkboxTD = loggedInThana === 'ALL' ? `<td style="text-align:center;"><input type="checkbox" class="rowCheckbox" value="${item.id}"></td>` : '';
                 let actionTD = `<td style="text-align: center; display: flex; gap: 4px; justify-content: center;">` +
                     `<button onclick="editCase('${item.id}')" class="btn btn-blue" style="padding: 0.2rem 0.45rem; font-size: 0.72rem;">Edit</button>`;
                 if (loggedInThana === 'ALL') {
@@ -1868,7 +1868,7 @@
                 actionTD += `</td>`;
 
                 tr.innerHTML = `
-                    ${checkboxTD ? '<td>' + checkboxTD : ''}
+                    ${checkboxTD}
                     <td class="w-janpad">${item.janpad || 'हमीरपुर'}</td>
                     <td>${index + 1}</td>
                     <td>${item.circle || '-'}</td>
