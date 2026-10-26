@@ -2790,15 +2790,17 @@ function deleteSelectedCases() {
                 let firebaseUpdates = {};
 
                 importedJson.forEach((item, index) => {
-                    // फायरबेस के लिए पूरी तरह सुरक्षित अल्फा-न्युमेरिक ID बनाएं
-                    let safeUniqueId = 'case_' + Date.now() + '_' + index + Math.floor(Math.random() * 1000);
-                    item.id = safeUniqueId;
+                    // आईडी से किसी भी अमान्य कैरेक्टर या डॉट (.) को पूरी तरह हटाकर साफ की बनाएं
+                    let rawId = item.id ? String(item.id) : ('case_' + Date.now() + '_' + index);
+                    let cleanUniqueId = rawId.replace(/[\.#$\/\[\]]/g, '_');
+                    
+                    item.id = cleanUniqueId;
                     
                     // लोकल एरे में जोड़ें
                     casesData.push(item);
                     
                     // फायरबेस अपडेट ऑब्जेक्ट तैयार करें
-                    firebaseUpdates['rsp_hamirpur_cases/' + safeUniqueId] = item;
+                    firebaseUpdates['rsp_hamirpur_cases/' + cleanUniqueId] = item;
                 });
 
                 // लोकल स्टोरेज में सेव करें
