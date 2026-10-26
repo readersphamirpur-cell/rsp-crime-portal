@@ -2028,11 +2028,7 @@
             Object.keys(crimeGroups).forEach(crime => {
                 let g = crimeGroups[crime];
                 if (g.total > 0 || crimeFilter === crime) {
-                    currentFcrSummaryList.push({
-                        क्र०सं०: idx, अपराध शीर्षक: crime, कुल मुकदमा: g.total, आरोप पत्र की संख्या: g.cs,
-                        अंतिम रिपोर्ट की संख्या: g.fr, विवेचनाधीन: g.pending, नामजद: g.named, प्रकाश: g.revealed,
-                        योग: g.yoga, गिरफ्तार: g.arrested, हा0अ0: g.court, नोटिस तामीला: g.notice, नामजदगी गलत: g.wrong, शेष: g.rem
-                    });
+                    
 
                     gTotal += g.total; gCs += g.cs; gFr += g.fr; gPending += g.pending;
                     gNamed += g.named; gRevealed += g.revealed; gYoga += g.yoga;
@@ -2209,10 +2205,21 @@
             categories.forEach(cat => {
                 let g = summary[cat];
                 currentCatSummaryList.push({
-                    क्र0सं0: idx, अपराध श्रेणी: cat, कुल मुकदमा: g.total, आरोप पत्र: g.cs, अंतिम रिपोर्ट: g.fr,
-                    विवेचनाधीन: g.pending, नामजद: g.named, प्रकाश: g.revealed, योग: g.yoga, गिरफ्तार: g.arrested,
-                    हा0अ0: g.court, नोटिस तामीला: g.notice, नामजदगी गलत: g.wrong, शेष: g.rem
-                });
+    क्र०सं०: idx, 
+    'अपराध श्रेणी': cat, 
+    'कुल मुकदमा': g.total, 
+    'आरोप पत्र': g.cs, 
+    'अंतिम रिपोर्ट': g.fr,
+    विवेचनाधीन: g.pending, 
+    नामजद: g.named, 
+    प्रकाश: g.revealed, 
+    योग: g.yoga, 
+    गिरफ्तार: g.arrested,
+    हा०अ०: g.court, 
+    'नोटिस तामिला': g.notice, 
+    'नामजदगी गलत': g.wrong, 
+    शेष: g.rem
+});
 
                 gTotal += g.total; gCs += g.cs; gFr += g.fr; gPending += g.pending;
                 gNamed += g.named; gRevealed += g.revealed; gYoga += g.yoga;
