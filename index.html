@@ -1240,64 +1240,46 @@
             return numbers;
         }
 
-        function autoClassifyFormFields() {
-            const secVal = document.getElementById('f_section').value.trim();
-            const secUpper = secVal.toUpperCase();
-            document.getElementById('f_period').value = getPrescribedLimit(secVal);
+       function autoClassifyFormFields() {
+    const secVal = document.getElementById('f_section').value.trim();
+    const secUpper = secVal.toUpperCase();
+    
+    // 1. निर्धारित अवधि (Prescribed Limit - 60/90 दिन) सेट करें
+    document.getElementById('f_period').value = getPrescribedLimit(secVal);
 
-            let extractedNums = extractSectionNumbers(secVal);
-            
-            let cat = "अन्य";
-            let matchedBody = false;
-            let matchedProperty = false;
+    let extractedNums = extractSectionNumbers(secVal);
+    
+    // 2. अपराध श्रेणी (शरीर/संपत्ति/अन्य) सेट करें
+    let matchedBody = extractedNums.some(num => num >= 100 && num <= 146);
+    let matchedProperty = !matchedBody && extractedNums.some(num => num >= 303 && num <= 330);
 
-            for (let num of extractedNums) {
-                if (num >= 100 && num <= 146) {
-                    matchedBody = true;
-                    break;
-                }
-            }
+    let cat = "अन्य";
+    if (matchedBody) cat = "शरीर संबंधी";
+    else if (matchedProperty) cat = "संपत्ति संबंधी";
+    
+    document.getElementById('f_category').value = cat;
 
-            if (!matchedBody) {
-                for (let num of extractedNums) {
-                    if (num >= 303 && num <= 330) {
-                        matchedProperty = true;
-                        break;
-                    }
-                }
-            }
-
-            if (matchedBody) {
-                cat = "शरीर संबंधी";
-            } else if (matchedProperty) {
-                cat = "संपत्ति संबंधी";
-            } else {
-                cat = "अन्य";
-            }
-            document.getElementById('f_category').value = cat;
-
-            let is7Plus = false;
-            for (let num of extractedNums) {
-                if (SECTIONS_7_YEARS_PLUS.includes(num.toString())) {
-                    is7Plus = true;
-                    break;
-                }
-            }
-
-            if (!is7Plus) {
-                for (let s of SECTIONS_7_YEARS_PLUS) {
-                    let escapedS = s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-                    let regexSec = new RegExp('(?:^|[^\\d])' + escapedS + '(?:$|[^\\d])', 'i');
-                    if (regexSec.test(secUpper) || secUpper.includes(s)) {
-                        is7Plus = true;
-                        break;
-                    }
-                }
-            }
-
-            document.getElementById('f_sentence').value = is7Plus ? "7 वर्ष से अधिक" : "07 वर्ष से कम";
+    // 3. केवल एग्जैक्ट नंबर मैच के आधार पर सजा (Sentence) तय करना (सब्सट्रिंग मैच हटाया गया)
+    let is7Plus = false;
+    for (let num of extractedNums) {
+        // चेक करें कि क्या निकाला गया नंबर 7 वर्ष से अधिक वाली सूची में exact मौजूद है
+        if (SECTIONS_7_YEARS_PLUS.includes(num.toString())) {
+            is7Plus = true;
+            break;
         }
+        // सब-सेक्शंस जैसे '103(1)' या '64(1)' के लिए भी चेक करें
+        for (let s of SECTIONS_7_YEARS_PLUS) {
+            if (s.startsWith(num.toString()) && secUpper.includes(s)) {
+                is7Plus = true;
+                break;
+            }
+        }
+        if (is7Plus) break;
+    }
 
+    // सजा सेट करें: यदि सूची में है तो "7 वर्ष से अधिक", अन्यथा "07 वर्ष से कम"
+    document.getElementById('f_sentence').value = is7Plus ? "7 वर्ष से अधिक" : "07 वर्ष से कम";
+}
         function checkPocsoMatch(secStr, crimeTitle) {
             let s = (secStr || '').toUpperCase();
             let c = (crimeTitle || '').toUpperCase();
