@@ -8,50 +8,51 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     
     <!-- ⬇️ यहाँ फायरबेस और हाइब्रिड सिंक स्क्रिप्ट जोड़ें (लाइन 9) -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, set, remove, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+   <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, set, remove, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        // अपनी फायरबेस कॉन्फिगरेशन यहाँ दर्ज करें
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            databaseURL: "YOUR_DATABASE_URL",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
+    // आपके कंसोल से लिया गया बिल्कुल सही और सटीक Firebase Configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyBoYzZbzjcJHwedQRsyNhs_Z6KKhMFtXkvo",
+        authDomain: "rsp-crime-portal.firebaseapp.com",
+        databaseURL: "https://rsp-crime-portal-default-rtdb.firebaseio.com",
+        projectId: "rsp-crime-portal",
+        storageBucket: "rsp-crime-portal.appspot.com",
+        messagingSenderId: "648430992933",
+        appId: "1:648430992933:web:9ead45c80204fe007289cc",
+        measurementId: "G-PQ8F0V6N3"
+    };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
 
-        window.fbDb = db;
-        window.fbRef = ref;
-        window.fbSet = set;
-        window.fbRemove = remove;
-        window.isFirebaseConnected = true;
+    window.fbDb = db;
+    window.fbRef = ref;
+    window.fbSet = set;
+    window.fbRemove = remove;
+    window.isFirebaseConnected = true;
 
-        // फायरबेस से रियल-टाइम डेटा सुनना और लोकल स्टोरेज के साथ सिंक्रनाइज़ करना
-        onValue(ref(db, 'rsp_hamirpur_cases'), (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                window.firebaseCasesData = Array.isArray(data) ? data : Object.values(data);
-                localStorage.setItem('rsp_hamirpur_cases', JSON.stringify(window.firebaseCasesData));
-                if (typeof applyFilters === 'function') applyFilters();
-            }
-        }, (error) => {
-            console.warn("Firebase offline. Falling back to Local Storage.");
-            window.isFirebaseConnected = false;
-        });
+    // फायरबेस से रियल-टाइम डेटा सिंक और लोकल स्टोरेज बैकअप
+    onValue(ref(db, 'rsp_hamirpur_cases'), (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+            window.firebaseCasesData = Array.isArray(data) ? data : Object.values(data);
+            localStorage.setItem('rsp_hamirpur_cases', JSON.stringify(window.firebaseCasesData));
+            if (typeof applyFilters === 'function') applyFilters();
+        }
+    }, (error) => {
+        console.warn("Firebase offline. Running on Local Storage mode.");
+        window.isFirebaseConnected = false;
+    });
 
-        onValue(ref(db, 'rsp_thana_creds'), (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                localStorage.setItem('rsp_thana_creds', JSON.stringify(data));
-            }
-        });
-    </script>
+    onValue(ref(db, 'rsp_thana_creds'), (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+            localStorage.setItem('rsp_thana_creds', JSON.stringify(data));
+        }
+    });
+</script>
     <!-- ⬆️ फायरबेस स्क्रिप्ट समाप्त -->
 
     <style>
