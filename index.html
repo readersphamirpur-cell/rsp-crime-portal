@@ -1692,7 +1692,7 @@
 }
         function closeCaseModal() { document.getElementById('caseModal').style.display = 'none'; }
 
-     function saveCaseData(e) {
+    function saveCaseData(e) {
     e.preventDefault();
     let named = Number(document.getElementById('f_named').value) || 0;
     let revealed = Number(document.getElementById('f_revealed').value) || 0;
@@ -1711,9 +1711,7 @@
 
     const editId = document.getElementById('editCaseId').value;
     const selectedCrime = document.getElementById('f_crime_title').value;
-    
-    // अगर editId है तो पुराना ID उपयोग करें, अन्यथा नया Date.now() बनाएं
-    const caseId = editId ? editId : Date.now();
+    const caseId = editId ? String(editId) : String(Date.now());
 
     const caseObj = {
         id: caseId,
@@ -1753,24 +1751,22 @@
         recovery_detail: RECOVERY_CRIMES.includes(selectedCrime) ? document.getElementById('f_recovery_detail').value : '-'
     };
 
-    // 1. LocalStorage में अपडेट या नया जोड़ें
-    let index = casesData.findIndex(c => String(c.id) === String(caseId));
+    // एरे में अपडेट या जोड़ें
+    let index = casesData.findIndex(c => String(c.id) === caseId);
     if (index !== -1) {
         casesData[index] = caseObj;
     } else {
         casesData.push(caseObj);
     }
+
+    // लोकल स्टोरेज में सेव करें
     localStorage.setItem('rsp_hamirpur_cases', JSON.stringify(casesData));
 
-    // 2. Firebase पर सुरक्षित रूप से अपडेट करें
+    // फायरबेस पर सेव करें
     if (window.isFirebaseConnected && window.fbDb) {
-        window.fbSet(window.fbRef(window.fbDb, 'rsp_hamirpur_cases/' + caseId), caseObj)
-            .then(() => {
-                console.log("Firebase sync successful");
-            })
-            .catch(err => {
-                console.warn("Firebase sync warning: " + err.message);
-            });
+        window.fbSet(window.fbRef(window.fbDb, 'rsp_hamirpur_cases/' + caseId), caseObj).catch(err => {
+            console.log("Firebase save warning:", err.message);
+        });
     }
 
     if (editId) {
@@ -2784,26 +2780,52 @@ function deleteSelectedCases() {
     }
 }
         function importFromExcel(evt) {
-            let file = evt.target.files[0];
-            if (!file) return;
-            let reader = new FileReader();
-            reader.onload = function(e) {
-                let data = new Uint8Array(e.target.result);
-                let workbook = XLSX.read(data, { type: 'array' });
-                let sheetName = workbook.SheetNames[0];
-                let importedJson = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
-                if (importedJson && importedJson.length > 0) {
-                    importedJson.forEach(item => {
-                        if (!item.id) item.id = Date.now() + Math.random();
-                        casesData.push(item);
+    let file = evt.target.files[0];
+    if (!file) return;
+    let reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            let data = new Uint8Array(e.target.result);
+            let workbook = XLSX.read(data, { type: 'array' });
+            let sheetName = workbook.SheetNames[0];
+            let importedJson = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+            
+            if (importedJson && importedJson.length > 0) {
+                let firebaseUpdates = {};
+
+                importedJson.forEach((item, index) => {
+                    let uniqueId = item.id ? String(item.id) : String(Date.now() + index + Math.floor(Math.random() * 1000));
+                    item.id = uniqueId;
+                    
+                    // लोकल एरे में जोड़ें
+                    casesData.push(item);
+                    
+                    // फायरबेस अपडेट ऑब्जेक्ट तैयार करें
+                    firebaseUpdates['rsp_hamirpur_cases/' + uniqueId] = item;
+                });
+
+                // लोकल स्टोरेज में सेव करें
+                localStorage.setItem('rsp_hamirpur_cases', JSON.stringify(casesData));
+
+                // फायरबेस पर एक साथ सभी इम्पोर्टेड डेटा सिंक करें
+                if (window.isFirebaseConnected && window.fbDb) {
+                    window.fbSet(window.fbRef(window.fbDb), firebaseUpdates).catch(err => {
+                        console.log("Firebase batch import warning:", err.message);
                     });
-                    localStorage.setItem('rsp_hamirpur_cases', JSON.stringify(casesData));
-                    applyFilters();
-                    alert("डाटा सफलतापूर्वक इम्पोर्ट कर दिया गया है!");
                 }
-            };
-            reader.readAsArrayBuffer(file);
+
+                applyFilters();
+                alert("डाटा सफलतापूर्वक इम्पोर्ट और सेव कर दिया गया है!");
+            } else {
+                alert("एक्सेल फ़ाइल में कोई डेटा नहीं मिला!");
+            }
+        } catch (error) {
+            alert("इम्पोर्ट करने में त्रुटि: " + error.message);
         }
+        evt.target.value = '';
+    };
+    reader.readAsArrayBuffer(file);
+}
     </script>
 </body>
 </html>
