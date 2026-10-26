@@ -2790,9 +2790,9 @@ function deleteSelectedCases() {
                 let firebaseUpdates = {};
 
                 importedJson.forEach((item, index) => {
-                    // आईडी से किसी भी अमान्य कैरेक्टर या डॉट (.) को पूरी तरह हटाकर साफ की बनाएं
-                    let rawId = item.id ? String(item.id) : ('case_' + Date.now() + '_' + index);
-                    let cleanUniqueId = rawId.replace(/[\.#$\/\[\]]/g, '_');
+                    // यदि आईडी नंबर या अमान्य है, तो उसे सुरक्षित स्ट्रिंग में बदलें
+                    let rawId = item.id !== undefined && item.id !== null ? String(item.id) : ('case_' + Date.now() + '_' + index);
+                    let cleanUniqueId = 'id_' + rawId.replace(/[\.#$\/\[\]]/g, '_');
                     
                     item.id = cleanUniqueId;
                     
