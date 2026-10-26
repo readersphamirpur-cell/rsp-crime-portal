@@ -255,7 +255,6 @@
         .modal-content { background: white; padding: 1.8rem; border-radius: 10px; width: 100%; max-width: 800px; max-height: 88vh; overflow-y: auto; color: #1e293b; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
         
         .section-subheading { font-size: 0.95rem; font-weight: 800; color: #1e293b; margin: 1.2rem 0 0.6rem 0; display: flex; align-items: center; gap: 0.4rem; }
-
         .table-title { font-weight: bold; color: #1e293b; margin: 0.8rem 0 0.4rem 0; font-size: 0.95rem; text-align: left; }
 
         /* PRINT STYLES */
@@ -1712,7 +1711,6 @@
             }
 
             localStorage.setItem('rsp_hamirpur_cases', JSON.stringify(casesData));
-            if(typeof saveDataToFirebase === 'function') saveDataToFirebase();
             closeCaseModal();
             applyFilters();
         }
@@ -1771,10 +1769,7 @@
                 }
             });
             localStorage.setItem('rsp_thana_creds', JSON.stringify(thanaCredentials));
-            if(typeof db !== 'undefined' && db.ref) {
-                db.ref('thanaCredentials').set(thanaCredentials);
-            }
-            alert('क्रेडेंशियल्स रियल-टाइम में सफलतापूर्वक अपडेट और सहेज दिए गए हैं!');
+            alert('क्रेडेंशियल्स सफलतापूर्वक अपडेट और सहेज दिए गए हैं!');
             closeUserMgmtModal();
         }
 
@@ -1960,9 +1955,6 @@
             document.getElementById('stRecoveredProp').innerText = totalRecoveredProp.toLocaleString('hi-IN');
         }
 
-        /* ----------------------------------------------------
-           TAB 2: FCR DATA RENDER & LINKING
-        ---------------------------------------------------- */
         let currentFcrSummaryList = [];
 
         function renderFcrTable() {
@@ -2028,7 +2020,22 @@
             Object.keys(crimeGroups).forEach(crime => {
                 let g = crimeGroups[crime];
                 if (g.total > 0 || crimeFilter === crime) {
-                    
+                    currentFcrSummaryList.push({
+    क्र०सं०: idx, 
+    'अपराध शीर्षक': crime, 
+    'कुल मुकदमा': g.total, 
+    'आरोप पत्र की संख्या': g.cs,
+    'अंतिम रिपोर्ट की संख्या': g.fr, 
+    विवेचनाधीन: g.pending, 
+    नामजद: g.named, 
+    प्रकाश: g.revealed,
+    योग: g.yoga, 
+    गिरफ्तार: g.arrested, 
+    हा०अ०: g.court, 
+    'नोटिस तामिला': g.notice, 
+    'नामजदगी गलत': g.wrong, 
+    शेष: g.rem
+});
 
                     gTotal += g.total; gCs += g.cs; gFr += g.fr; gPending += g.pending;
                     gNamed += g.named; gRevealed += g.revealed; gYoga += g.yoga;
@@ -2055,7 +2062,6 @@
                 }
             });
 
-            // Summary row with links for all metrics
             let totalTr = document.createElement('tr');
             totalTr.style.fontWeight = 'bold';
             totalTr.style.background = '#e2e8f0';
@@ -2115,7 +2121,7 @@
             });
 
             if (filtered.length === 0) {
-                dBody.innerHTML = '<tr><td colspan="12" style="text-align:center; padding: 1rem;">कोई विस्तृत रिकॉर्ड उपलब्ध नहीं है।</td></tr>';
+                dBody.innerHTML = '<tr><td colspan="11" style="text-align:center; padding: 1rem;">कोई विस्तृत रिकॉर्ड उपलब्ध नहीं है।</td></tr>';
                 return;
             }
 
@@ -2138,9 +2144,6 @@
             });
         }
 
-        /* ----------------------------------------------------
-           TAB 3: CRIME CATEGORY RENDER & LINKING
-        ---------------------------------------------------- */
         let currentCatSummaryList = [];
 
         function renderCategoryTable() {
@@ -2326,9 +2329,6 @@
             });
         }
 
-        /* ----------------------------------------------------
-           GENERIC TAB (POCSO, SCST, IT, WOMEN) RENDER & LINKING
-        ---------------------------------------------------- */
         function renderGenericTab(tabType) {
             let thanaId = `${tabType}Thana`, crimeId = `${tabType}Crime`, fcrId = `${tabType}Fcr`;
             let statusId = `${tabType}Status`, fromId = `${tabType}From`, toId = `${tabType}To`;
@@ -2360,20 +2360,18 @@
             };
 
             let filtered = casesData.filter(filterFunc);
-
-            // Separate into FCR and NON FCR datasets
             let fcrCases = filtered.filter(item => item.fcr_head === 'हाँ');
             let nonFcrCases = filtered.filter(item => item.fcr_head !== 'हाँ');
 
             renderGenericSummaryTable(tabType, fcrBodyId, fcrFootId, fcrCases, 'FCR');
             renderGenericSummaryTable(tabType, nonFcrBodyId, nonFcrFootId, nonFcrCases, 'NON_FCR');
-
             renderGenericDetail(tabType, detailBodyId, 'ALL', '', '');
         }
 
         function renderGenericSummaryTable(tabType, bodyId, footId, dataset, tableKind) {
             const tbody = document.getElementById(bodyId);
             const tfoot = document.getElementById(footId);
+            if (!tbody || !tfoot) return;
             tbody.innerHTML = '';
             tfoot.innerHTML = '';
 
@@ -2553,11 +2551,9 @@
             });
         }
 
-        /* ----------------------------------------------------
-           TAB 4: 60/90 DAYS PENDING VIEW RENDER
-        ---------------------------------------------------- */
         function renderSixtyNinetyTable() {
             const tbody = document.getElementById('sixtyNinetyTableBody');
+            if (!tbody) return;
             tbody.innerHTML = '';
 
             const thana = document.getElementById('snThanaFilter').value;
@@ -2615,7 +2611,6 @@
             });
         }
 
-        /* EXPORT FUNCTIONS */
         function exportFilteredToExcel() {
             let wb = XLSX.utils.book_new();
             let ws = XLSX.utils.json_to_sheet(currentlyFilteredCases);
