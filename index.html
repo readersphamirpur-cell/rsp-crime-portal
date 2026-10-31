@@ -3006,7 +3006,7 @@
                     if (json && json.length > 0) {
                         const importNextByStation = {};
                         const seenKeys = new Set((casesData || []).map(c =>
-                            normalizeDashboardDuplicateKey(c.thana) + '|' + normalizeDashboardDuplicateKey(c.case_no || c.crimeNo)
+                            normalizeDashboardDuplicateKey(c.thana) + '|' + normalizeDashboardDuplicateKey(c._import_source_case_no || c.case_no || c.crimeNo)
                         ));
                         const accepted = [];
                         const duplicateRows = [];
@@ -3034,6 +3034,7 @@
                                 thana: importThana,
                                 crime_title: item.crime_title || 'अन्य',
                                 case_no: importedCaseNo,
+                                _import_source_case_no: sourceCaseNo,
                                 section: item.section || '-',
                                 evt_date: item.evt_date || '-',
                                 info_date: item.info_date || '-',
