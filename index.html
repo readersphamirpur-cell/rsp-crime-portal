@@ -502,8 +502,8 @@
                 <p class="sso-verify-text">Start to verify yourself with the basic information (with authentication)</p>
                 <form onsubmit="handleLogin(event)" autocomplete="off">
                     <div class="sso-input-group">
-                        <label>User Name *</label>
-                        <input type="text" id="usernameInput" class="sso-control" placeholder="Enter User Name Here!" autocomplete="off" required>
+                        <label>Firebase Email ID *</label>
+                        <input type="email" id="usernameInput" class="sso-control" placeholder="Enter Firebase Email ID" autocomplete="off" required>
                     </div>
                     <div class="sso-input-group">
                         <label>Password*</label>
@@ -1636,37 +1636,60 @@
             document.getElementById('f_total_accused_display').value = named + revealed;
         }
 
-        function handleLogin(e) {
+        // Firebase Authentication account mapping: email -> permitted portal area.
+        // UID/email identities are not passwords; password verification is performed by Firebase Auth.
+        const FIREBASE_LOGIN_ACCESS = {
+            'readersphamirpur@gmail.com': { role: 'admin', thana: 'ALL' },
+            'readersphamirpur+kotwali@gmail.com': { role: 'station', thana: 'कोतवाली नगर' },
+            'readersphamirpur+kurara@gmail.com': { role: 'station', thana: 'कुरारा' },
+            'readersphamirpur+lalpura@gmail.com': { role: 'station', thana: 'ललपुरा' },
+            'readersphamirpur+sumerpur@gmail.com': { role: 'station', thana: 'सुमेरपुर' },
+            'readersphamirpur+mahila@gmail.com': { role: 'station', thana: 'महिला थाना' },
+            'readersphamirpur+cyber@gmail.com': { role: 'station', thana: 'साइबर थाना' },
+            'readersphamirpur+maudaha@gmail.com': { role: 'station', thana: 'मौदहा' },
+            'readersphamirpur+biwar@gmail.com': { role: 'station', thana: 'बिवार' },
+            'readersphamirpur+sisolar@gmail.com': { role: 'station', thana: 'सिसोलर' },
+            'readersphamirpur+rath@gmail.com': { role: 'station', thana: 'राठ' },
+            'readersphamirpur+muskara@gmail.com': { role: 'station', thana: 'मुस्करा' },
+            'readersphamirpur+majhgawa@gmail.com': { role: 'station', thana: 'मझगवां' },
+            'readersphamirpur+chikasi@gmail.com': { role: 'station', thana: 'चिकासी' },
+            'readersphamirpur+jariya@gmail.com': { role: 'station', thana: 'जरिया' },
+            'readersphamirpur+jalalour@gmail.com': { role: 'station', thana: 'जलालपुर' }
+        };
+
+        async function handleLogin(e) {
             e.preventDefault();
-            const u = document.getElementById('usernameInput').value.trim();
-            const p = document.getElementById('passwordInput').value.trim();
+            const u = document.getElementById('usernameInput').value.trim().toLowerCase();
+            const p = document.getElementById('passwordInput').value;
             const cap = document.getElementById('captchaInput').value.trim();
 
             if (cap !== currentCaptcha) {
-                alert('गलत कैप्सा कोड दर्ज किया गया है!');
+                alert('गलत कैप्चा कोड दर्ज किया गया है!');
                 generateCaptcha();
                 document.getElementById('captchaInput').value = '';
                 return;
             }
-
-            if (u === thanaCredentials['admin'].username && p === thanaCredentials['admin'].password) {
-                loggedInThana = 'ALL';
-                startDashboard('Admin (सभी थाने)');
+            const access = FIREBASE_LOGIN_ACCESS[u];
+            if (!access) {
+                alert('यह Firebase Email ID पोर्टल के अधिकृत 16 Users में नहीं है।');
+                generateCaptcha();
                 return;
             }
-
-            let foundThana = null;
-            for (let t of ALL_THANAS) {
-                if (thanaCredentials[t] && thanaCredentials[t].username === u && thanaCredentials[t].password === p) {
-                    foundThana = t; break;
+            try {
+                const credential = await firebase.auth().signInWithEmailAndPassword(u, p);
+                const signedInEmail = (credential.user.email || '').toLowerCase();
+                const verifiedAccess = FIREBASE_LOGIN_ACCESS[signedInEmail];
+                if (!verifiedAccess || signedInEmail !== u) {
+                    await firebase.auth().signOut();
+                    throw new Error('इस Firebase खाते के लिए पोर्टल अनुमति उपलब्ध नहीं है।');
                 }
-            }
-
-            if (foundThana) {
-                loggedInThana = foundThana;
-                startDashboard(`थाना: ${foundThana}`);
-            } else {
-                alert('गलत यूज़र आईडी या पासवर्ड!');
+                loggedInThana = verifiedAccess.role === 'admin' ? 'ALL' : verifiedAccess.thana;
+                startDashboard(verifiedAccess.role === 'admin' ? 'Admin (सभी थाने)' : `थाना: ${verifiedAccess.thana}`);
+            } catch (err) {
+                console.error('Firebase login failed:', err);
+                alert(err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found'
+                    ? 'Firebase Email ID या Password गलत है।'
+                    : (err.message || 'Firebase Login नहीं हो सका। कृपया पुनः प्रयास करें।'));
                 generateCaptcha();
             }
         }
@@ -1777,6 +1800,8 @@
         }
 
         function handleLogout() {
+            if (window.firebase && firebase.auth) { firebase.auth().signOut().catch(err => console.error('Firebase sign-out failed:', err)); }
+            loggedInThana = 'ALL';
             document.getElementById('dashboardSection').classList.add('hidden');
             document.getElementById('dashboardSection').classList.remove('flex');
             document.getElementById('loginSection').classList.remove('hidden');
@@ -3220,6 +3245,7 @@
     <!-- FIREBASE REALTIME DATABASE SYNC CONFIGURATION -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyBoYzbycJHwedQRsyNhs_Z6KKhMFtXkvo",
