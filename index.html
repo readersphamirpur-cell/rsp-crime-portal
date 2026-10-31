@@ -1441,9 +1441,7 @@
             localStorage.setItem('rsp_thana_creds', JSON.stringify(thanaCredentials));
         }
 
-        let casesData = JSON.parse(localStorage.getItem('rsp_hamirpur_cases')) || [
-            { id: 1, janpad: "हमीरपुर", circle: "सदर", thana: "कोतवाली नगर", crime_title: "हत्या", case_no: "124/2026", section: "103(1) BNS", evt_date: "2026-01-10", info_date: "2026-01-10", incident_place: "मुख्य बाजार", complainant: "राम", defendant: "अज्ञात", brief_desc: "हत्या की घटना", io_name: "उ०नि० अजय", status: "विवेचनाधीन", cs_no: "-", cs_date: "", named: 1, revealed: 0, arrested: 1, notice: 0, court: 0, wrong: 0, fcr_head: "हाँ", remarks: "जारी", category: "शरीर संबंधी", sentence: "7 वर्ष से अधिक", victim_name: "श्याम", victim_age: "30", stolen_property: 0, recovered_property: 0, injured_detail: "-", death_detail: "-", recovery_detail: "-" }
-        ];
+        let casesData = []; // Live Firebase data is loaded only after successful authentication.
 
         let loggedInThana = 'ALL';
 
@@ -1685,6 +1683,7 @@
                 }
                 loggedInThana = verifiedAccess.role === 'admin' ? 'ALL' : verifiedAccess.thana;
                 startDashboard(verifiedAccess.role === 'admin' ? 'Admin (सभी थाने)' : `थाना: ${verifiedAccess.thana}`);
+                startFirebaseDataSync();
             } catch (err) {
                 console.error('Firebase login failed:', err);
                 alert(err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found'
@@ -1800,7 +1799,9 @@
         }
 
         function handleLogout() {
+            if (typeof stopFirebaseDataSync === 'function') stopFirebaseDataSync();
             if (window.firebase && firebase.auth) { firebase.auth().signOut().catch(err => console.error('Firebase sign-out failed:', err)); }
+            casesData = [];
             loggedInThana = 'ALL';
             document.getElementById('dashboardSection').classList.add('hidden');
             document.getElementById('dashboardSection').classList.remove('flex');
@@ -2959,7 +2960,7 @@
                             id: item.id ? String(item.id) : (Date.now() + idx),
                             janpad: item.janpad || 'हमीरपुर',
                             circle: item.circle || '-',
-                            thana: item.thana || 'कोतवाली नगर',
+                            thana: loggedInThana !== 'ALL' ? loggedInThana : (item.thana || 'कोतवाली नगर'),
                             crime_title: item.crime_title || 'अन्य',
                             case_no: item.case_no || '-',
                             section: item.section || '-',
@@ -3259,31 +3260,166 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        
-        db.ref('casesData').on('value', (snapshot) => {
-            const data = snapshot.val();
-            if (data !== null) {
-                casesData = data;
+
+        // Firebase data is separated by police station. Admin reads/writes all station nodes.
+        const ADMIN_EMAIL = "readersphamirpur@gmail.com";
+        const STATION_ACCESS = {
+            "कोतवाली नगर": { email: "readersphamirpur+kotwali@gmail.com", key: "kotwali_nagar" },
+            "कुरारा": { email: "readersphamirpur+kurara@gmail.com", key: "kurara" },
+            "ललपुरा": { email: "readersphamirpur+lalpura@gmail.com", key: "lalpura" },
+            "सुमेरपुर": { email: "readersphamirpur+sumerpur@gmail.com", key: "sumerpur" },
+            "महिला थाना": { email: "readersphamirpur+mahila@gmail.com", key: "mahila_thana" },
+            "साइबर थाना": { email: "readersphamirpur+cyber@gmail.com", key: "cyber_thana" },
+            "मौदहा": { email: "readersphamirpur+maudaha@gmail.com", key: "maudaha" },
+            "बिवार": { email: "readersphamirpur+biwar@gmail.com", key: "biwar" },
+            "सिसोलर": { email: "readersphamirpur+sisolar@gmail.com", key: "sisolar" },
+            "राठ": { email: "readersphamirpur+rath@gmail.com", key: "rath" },
+            "मुस्करा": { email: "readersphamirpur+muskara@gmail.com", key: "muskara" },
+            "मझगवां": { email: "readersphamirpur+majhgawa@gmail.com", key: "majhgawa" },
+            "चिकासी": { email: "readersphamirpur+chikasi@gmail.com", key: "chikasi" },
+            "जरिया": { email: "readersphamirpur+jariya@gmail.com", key: "jariya" },
+            "जलालपुर": { email: "readersphamirpur+jalalour@gmail.com", key: "jalalpur" }
+        };
+        const STATION_KEYS = Object.fromEntries(Object.entries(STATION_ACCESS).map(([name, item]) => [name, item.key]));
+        let activeCaseListeners = {};
+        let activeCredentialsListener = null;
+        let activeCredentialsRef = null;
+        let firebaseStationData = {};
+
+        function isAuthenticatedAdmin() {
+            const user = firebase.auth().currentUser;
+            return !!(user && (user.email || '').toLowerCase() === ADMIN_EMAIL);
+        }
+
+        function getAuthenticatedStation() {
+            const user = firebase.auth().currentUser;
+            if (!user) return null;
+            const email = (user.email || '').toLowerCase();
+            return Object.entries(STATION_ACCESS).find(([, access]) => access.email === email)?.[0] || null;
+        }
+
+        function caseArrayFromSnapshot(snapshot) {
+            const value = snapshot.val();
+            if (!value) return [];
+            return Array.isArray(value) ? value : Object.values(value);
+        }
+
+        function refreshCasesFromStationCache() {
+            if (isAuthenticatedAdmin()) {
+                casesData = Object.values(firebaseStationData).flat();
             } else {
-                casesData = [];
+                const station = getAuthenticatedStation();
+                casesData = station ? (firebaseStationData[station] || []) : [];
             }
             localStorage.setItem('rsp_hamirpur_cases', JSON.stringify(casesData));
-            if (typeof applyFilters === 'function') { applyFilters(); }
-            if (typeof syncCasesToExtraInvestigation === 'function') { syncCasesToExtraInvestigation(); }
-        });
+            if (typeof applyFilters === 'function') applyFilters();
+            if (typeof syncCasesToExtraInvestigation === 'function') syncCasesToExtraInvestigation();
+        }
 
-        db.ref('thanaCredentials').on('value', (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                thanaCredentials = data;
-                localStorage.setItem('rsp_hamirpur_creds', JSON.stringify(thanaCredentials));
+        window.startFirebaseDataSync = function() {
+            const user = firebase.auth().currentUser;
+            if (!user) {
+                alert('Firebase Read के लिए अधिकृत Login आवश्यक है।');
+                return;
             }
-        });
+            stopFirebaseDataSync();
+            firebaseStationData = {};
+
+            const stationsToRead = isAuthenticatedAdmin()
+                ? Object.keys(STATION_ACCESS)
+                : [getAuthenticatedStation()].filter(Boolean);
+
+            if (!isAuthenticatedAdmin() && stationsToRead.length !== 1) {
+                alert('इस Firebase खाते के लिए थाना अनुमति नहीं मिली।');
+                firebase.auth().signOut();
+                return;
+            }
+
+            stationsToRead.forEach((station) => {
+                const key = STATION_KEYS[station];
+                const ref = db.ref('casesByThana/' + key);
+                const listener = (snapshot) => {
+                    firebaseStationData[station] = caseArrayFromSnapshot(snapshot);
+                    refreshCasesFromStationCache();
+                };
+                activeCaseListeners[key] = { ref, listener };
+                ref.on('value', listener, (error) => {
+                    console.error('Firebase station READ failed:', station, error);
+                    alert(station + ' का डेटा पढ़ने में समस्या: ' + error.message);
+                });
+            });
+
+            // Credentials are Admin-only; station users do not read this shared node.
+            if (isAuthenticatedAdmin()) {
+                activeCredentialsRef = db.ref('thanaCredentials');
+                activeCredentialsListener = (snapshot) => {
+                    const data = snapshot.val();
+                    if (data) {
+                        thanaCredentials = data;
+                        localStorage.setItem('rsp_hamirpur_creds', JSON.stringify(thanaCredentials));
+                    }
+                };
+                activeCredentialsRef.on('value', activeCredentialsListener, (error) => {
+                    console.error('Firebase credentials READ failed:', error);
+                    alert('Firebase credentials पढ़ने में समस्या: ' + error.message);
+                });
+            }
+        };
+
+        window.stopFirebaseDataSync = function() {
+            Object.values(activeCaseListeners).forEach((entry) => entry.ref.off('value', entry.listener));
+            activeCaseListeners = {};
+            if (activeCredentialsRef && activeCredentialsListener) {
+                activeCredentialsRef.off('value', activeCredentialsListener);
+            }
+            activeCredentialsRef = null;
+            activeCredentialsListener = null;
+            firebaseStationData = {};
+        };
+
+        function firebaseSafeCaseKey(caseObj, index) {
+            const raw = String(caseObj && caseObj.id != null ? caseObj.id : ('case_' + Date.now() + '_' + index));
+            return 'case_' + raw.replace(/[.#$\/\[\]]/g, '_');
+        }
 
         window.saveDataToFirebase = function() {
-            if (Array.isArray(casesData)) { 
-                db.ref('casesData').set(casesData); 
+            const user = firebase.auth().currentUser;
+            if (!user) {
+                alert('Firebase Write के लिए Login आवश्यक है।');
+                return Promise.reject(new Error('Authentication required'));
             }
+
+            const writes = [];
+            if (isAuthenticatedAdmin()) {
+                Object.keys(STATION_ACCESS).forEach((station) => {
+                    const stationCases = (casesData || []).filter(item => item.thana === station);
+                    const payload = {};
+                    stationCases.forEach((item, index) => {
+                        payload[firebaseSafeCaseKey(item, index)] = item;
+                    });
+                    writes.push(db.ref('casesByThana/' + STATION_KEYS[station]).set(payload));
+                });
+            } else {
+                const station = getAuthenticatedStation();
+                if (!station || loggedInThana !== station) {
+                    alert('आपको इस थाने का डेटा लिखने की अनुमति नहीं है।');
+                    return Promise.reject(new Error('Station authorization mismatch'));
+                }
+                const payload = {};
+                (casesData || []).forEach((item, index) => {
+                    if (item.thana !== station) {
+                        throw new Error('दूसरे थाने का रिकॉर्ड सेव करने की अनुमति नहीं है।');
+                    }
+                    payload[firebaseSafeCaseKey(item, index)] = item;
+                });
+                writes.push(db.ref('casesByThana/' + STATION_KEYS[station]).set(payload));
+            }
+
+            return Promise.all(writes).catch((error) => {
+                console.error('Firebase station WRITE failed:', error);
+                alert('Firebase में डेटा सेव नहीं हुआ: ' + error.message);
+                throw error;
+            });
         };
     </script>
 
