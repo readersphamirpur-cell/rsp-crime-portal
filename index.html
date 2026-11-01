@@ -199,6 +199,7 @@
         .input-group label { display: block; font-size: 1.0rem; font-weight: 700; color: #fc0c04; margin-bottom: 0.2rem; }
         .input-control { width: 100%; padding: 0.4rem 0.55rem; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 5px; color: #0f172a; font-size: 0.9rem; }
         .input-control:focus { outline: none; border-color: #2563eb; background: #fff; }
+        .date-clear-btn { margin-top: 3px; padding: 2px 8px; border: 1px solid #94a3b8; border-radius: 4px; background: #fff; color: #334155; font-size: 0.75rem; cursor: pointer; }
 
         /* STATS CARDS */
         .stats-grid {
@@ -634,11 +635,11 @@
                             </div>
                             <div class="input-group">
                                 <label>FROM (सूचना)</label>
-                                <input type="date" id="fromDateFilter" onchange="applyFilters()" class="input-control">
+                                <input type="date" id="fromDateFilter" onchange="applyFilters()" class="input-control"><button type="button" onclick="clearDateFilter('fromDateFilter', applyFilters)" class="date-clear-btn">Clear</button>
                             </div>
                             <div class="input-group">
                                 <label>To (सूचना)</label>
-                                <input type="date" id="toDateFilter" onchange="applyFilters()" class="input-control">
+                                <input type="date" id="toDateFilter" onchange="applyFilters()" class="input-control"><button type="button" onclick="clearDateFilter('toDateFilter', applyFilters)" class="date-clear-btn">Clear</button>
                             </div>
                             <div class="input-group">
                                 <label>F.C.R.</label>
@@ -768,11 +769,11 @@
                             </div>
                             <div class="input-group">
                                 <label>FROM (सूचना)</label>
-                                <input type="date" id="fcrFromDate" onchange="renderFcrTable()" class="input-control">
+                                <input type="date" id="fcrFromDate" onchange="renderFcrTable()" class="input-control"><button type="button" onclick="clearDateFilter('fcrFromDate', renderFcrTable)" class="date-clear-btn">Clear</button>
                             </div>
                             <div class="input-group">
                                 <label>TO (सूचना)</label>
-                                <input type="date" id="fcrToDate" onchange="renderFcrTable()" class="input-control">
+                                <input type="date" id="fcrToDate" onchange="renderFcrTable()" class="input-control"><button type="button" onclick="clearDateFilter('fcrToDate', renderFcrTable)" class="date-clear-btn">Clear</button>
                             </div>
                         </div>
 
@@ -860,11 +861,11 @@
                             </div>
                             <div class="input-group">
                                 <label>FROM (सूचना)</label>
-                                <input type="date" id="catFromDate" onchange="renderCategoryTable()" class="input-control">
+                                <input type="date" id="catFromDate" onchange="renderCategoryTable()" class="input-control"><button type="button" onclick="clearDateFilter('catFromDate', renderCategoryTable)" class="date-clear-btn">Clear</button>
                             </div>
                             <div class="input-group">
                                 <label>TO (सूचना)</label>
-                                <input type="date" id="catToDate" onchange="renderCategoryTable()" class="input-control">
+                                <input type="date" id="catToDate" onchange="renderCategoryTable()" class="input-control"><button type="button" onclick="clearDateFilter('catToDate', renderCategoryTable)" class="date-clear-btn">Clear</button>
                             </div>
                         </div>
 
@@ -933,8 +934,8 @@
                             <div class="input-group"><label>अपराध शीर्षक</label><select id="pocsoCrime" onchange="renderGenericTab('pocso')" class="input-control"></select></div>
                             <div class="input-group"><label>F.C.R.</label><select id="pocsoFcr" onchange="renderGenericTab('pocso')" class="input-control"><option value="ALL">सभी</option><option value="हाँ">हाँ</option><option value="नहीं">नहीं</option></select></div>
                             <div class="input-group"><label>विवेचना की स्थिति</label><select id="pocsoStatus" onchange="renderGenericTab('pocso')" class="input-control"><option value="ALL">सभी</option><option value="विवेचनाधीन">विवेचनाधीन</option><option value="आरोप पत्र प्रेषित">आरोप पत्र</option><option value="अंतिम रिपोर्ट">अंतिम रिपोर्ट</option></select></div>
-                            <div class="input-group"><label>FROM</label><input type="date" id="pocsoFrom" onchange="renderGenericTab('pocso')" class="input-control"></div>
-                            <div class="input-group"><label>TO</label><input type="date" id="pocsoTo" onchange="renderGenericTab('pocso')" class="input-control"></div>
+                            <div class="input-group"><label>FROM</label><input type="date" id="pocsoFrom" onchange="renderGenericTab('pocso')" class="input-control"><button type="button" onclick="clearDateFilter('pocsoFrom', () => renderGenericTab('pocso'))" class="date-clear-btn">Clear</button></div>
+                            <div class="input-group"><label>TO</label><input type="date" id="pocsoTo" onchange="renderGenericTab('pocso')" class="input-control"><button type="button" onclick="clearDateFilter('pocsoTo', () => renderGenericTab('pocso'))" class="date-clear-btn">Clear</button></div>
                         </div>
                         <div class="table-container" style="margin-bottom: 1.5rem;">
                             <table>
@@ -1002,8 +1003,8 @@
                             <div class="input-group"><label>अपराध शीर्षक</label><select id="scstCrime" onchange="renderGenericTab('scst')" class="input-control"></select></div>
                             <div class="input-group"><label>F.C.R.</label><select id="scstFcr" onchange="renderGenericTab('scst')" class="input-control"><option value="ALL">सभी</option><option value="हाँ">हाँ</option><option value="नहीं">नहीं</option></select></div>
                             <div class="input-group"><label>विवेचना की स्थिति</label><select id="scstStatus" onchange="renderGenericTab('scst')" class="input-control"><option value="ALL">सभी</option><option value="विवेचनाधीन">विवेचनाधीन</option><option value="आरोप पत्र प्रेषित">आरोप पत्र</option><option value="अंतिम रिपोर्ट">अंतिम रिपोर्ट</option></select></div>
-                            <div class="input-group"><label>FROM</label><input type="date" id="scstFrom" onchange="renderGenericTab('scst')" class="input-control"></div>
-                            <div class="input-group"><label>TO</label><input type="date" id="scstTo" onchange="renderGenericTab('scst')" class="input-control"></div>
+                            <div class="input-group"><label>FROM</label><input type="date" id="scstFrom" onchange="renderGenericTab('scst')" class="input-control"><button type="button" onclick="clearDateFilter('scstFrom', () => renderGenericTab('scst'))" class="date-clear-btn">Clear</button></div>
+                            <div class="input-group"><label>TO</label><input type="date" id="scstTo" onchange="renderGenericTab('scst')" class="input-control"><button type="button" onclick="clearDateFilter('scstTo', () => renderGenericTab('scst'))" class="date-clear-btn">Clear</button></div>
                         </div>
                         <div class="table-container" style="margin-bottom: 1.5rem;">
                             <table>
@@ -1070,8 +1071,8 @@
                             <div class="input-group"><label>थाना</label><select id="itThana" onchange="renderGenericTab('it')" class="input-control"><option value="ALL">सभी</option></select></div>
                             <div class="input-group"><label>F.C.R.</label><select id="itFcr" onchange="renderGenericTab('it')" class="input-control"><option value="ALL">सभी</option><option value="हाँ">हाँ</option><option value="नहीं">नहीं</option></select></div>
                             <div class="input-group"><label>विवेचना की स्थिति</label><select id="itStatus" onchange="renderGenericTab('it')" class="input-control"><option value="ALL">सभी</option><option value="विवेचनाधीन">विवेचनाधीन</option><option value="आरोप पत्र प्रेषित">आरोप पत्र</option><option value="अंतिम रिपोर्ट">अंतिम रिपोर्ट</option></select></div>
-                            <div class="input-group"><label>FROM</label><input type="date" id="itFrom" onchange="renderGenericTab('it')" class="input-control"></div>
-                            <div class="input-group"><label>TO</label><input type="date" id="itTo" onchange="renderGenericTab('it')" class="input-control"></div>
+                            <div class="input-group"><label>FROM</label><input type="date" id="itFrom" onchange="renderGenericTab('it')" class="input-control"><button type="button" onclick="clearDateFilter('itFrom', () => renderGenericTab('it'))" class="date-clear-btn">Clear</button></div>
+                            <div class="input-group"><label>TO</label><input type="date" id="itTo" onchange="renderGenericTab('it')" class="input-control"><button type="button" onclick="clearDateFilter('itTo', () => renderGenericTab('it'))" class="date-clear-btn">Clear</button></div>
                         </div>
                         <div class="table-container" style="margin-bottom: 1.5rem;">
                             <table>
@@ -1139,8 +1140,8 @@
                             <div class="input-group"><label>अपराध शीर्षक</label><select id="womenCrime" onchange="renderGenericTab('women')" class="input-control"></select></div>
                             <div class="input-group"><label>F.C.R.</label><select id="womenFcr" onchange="renderGenericTab('women')" class="input-control"><option value="ALL">सभी</option><option value="हाँ">हाँ</option><option value="नहीं">नहीं</option></select></div>
                             <div class="input-group"><label>विवेचना की स्थिति</label><select id="womenStatus" onchange="renderGenericTab('women')" class="input-control"><option value="ALL">सभी</option><option value="विवेचनाधीन">विवेचनाधीन</option><option value="आरोप पत्र प्रेषित">आरोप पत्र</option><option value="अंतिम रिपोर्ट">अंतिम रिपोर्ट</option></select></div>
-                            <div class="input-group"><label>FROM</label><input type="date" id="womenFrom" onchange="renderGenericTab('women')" class="input-control"></div>
-                            <div class="input-group"><label>TO</label><input type="date" id="womenTo" onchange="renderGenericTab('women')" class="input-control"></div>
+                            <div class="input-group"><label>FROM</label><input type="date" id="womenFrom" onchange="renderGenericTab('women')" class="input-control"><button type="button" onclick="clearDateFilter('womenFrom', () => renderGenericTab('women'))" class="date-clear-btn">Clear</button></div>
+                            <div class="input-group"><label>TO</label><input type="date" id="womenTo" onchange="renderGenericTab('women')" class="input-control"><button type="button" onclick="clearDateFilter('womenTo', () => renderGenericTab('women'))" class="date-clear-btn">Clear</button></div>
                         </div>
                         <div class="table-container" style="margin-bottom: 1.5rem;">
                             <table>
@@ -1265,8 +1266,8 @@
                             <div class="input-group"><label>वर्ष (Year)</label><select id="ffYear" class="input-control" onchange="renderFcrFortnightly()"><option value="ALL">सभी</option></select></div>
                             <div class="input-group"><label>माह (Month)</label><select id="ffMonth" class="input-control" onchange="renderFcrFortnightly()"><option value="ALL">सभी</option><option value="01">जनवरी</option><option value="02">फरवरी</option><option value="03">मार्च</option><option value="04">अप्रैल</option><option value="05">मई</option><option value="06">जून</option><option value="07">जुलाई</option><option value="08">अगस्त</option><option value="09">सितंबर</option><option value="10">अक्टूबर</option><option value="11">नवंबर</option><option value="12">दिसंबर</option></select></div>
                             <div class="input-group"><label>पक्ष (Fortnight)</label><select id="ffHalf" class="input-control" onchange="renderFcrFortnightly()"><option value="ALL">दोनों पक्ष</option><option value="1">प्रथम पक्ष (1–15)</option><option value="2">द्वितीय पक्ष (16–माह अंत)</option></select></div>
-                            <div class="input-group"><label>दिनांक सूचना से (From)</label><input type="date" id="ffFrom" class="input-control" onchange="renderFcrFortnightly()"></div>
-                            <div class="input-group"><label>दिनांक सूचना तक (To)</label><input type="date" id="ffTo" class="input-control" onchange="renderFcrFortnightly()"></div>
+                            <div class="input-group"><label>दिनांक सूचना से (From)</label><input type="date" id="ffFrom" class="input-control" onchange="renderFcrFortnightly()"><button type="button" onclick="clearDateFilter('ffFrom', () => renderFcrFortnightly())" class="date-clear-btn">Clear</button></div>
+                            <div class="input-group"><label>दिनांक सूचना तक (To)</label><input type="date" id="ffTo" class="input-control" onchange="renderFcrFortnightly()"><button type="button" onclick="clearDateFilter('ffTo', () => renderFcrFortnightly())" class="date-clear-btn">Clear</button></div>
                             <div class="input-group"><label>FCR (हाँ/नहीं)</label><select id="ffFcr" class="input-control" onchange="renderFcrFortnightly()"><option value="ALL">सभी</option><option value="हाँ">हाँ (Yes)</option><option value="नहीं">नहीं (No)</option></select></div>
                         </div>
                     </div>
@@ -1284,8 +1285,8 @@
                         <div class="filter-grid new-report-filters">
                             <div class="input-group"><label>थाना (Police Station)</label><select id="piThana" class="input-control" onchange="renderPartialInvestigation()"><option value="ALL">सभी</option></select></div>
                             <div class="input-group"><label>अपराध शीर्षक (Crime Head)</label><select id="piCrime" class="input-control" onchange="renderPartialInvestigation()"><option value="ALL">सभी</option></select></div>
-                            <div class="input-group"><label>दिनांक सूचना से (From)</label><input type="date" id="piFrom" class="input-control" onchange="renderPartialInvestigation()"></div>
-                            <div class="input-group"><label>दिनांक सूचना तक (To)</label><input type="date" id="piTo" class="input-control" onchange="renderPartialInvestigation()"></div>
+                            <div class="input-group"><label>दिनांक सूचना से (From)</label><input type="date" id="piFrom" class="input-control" onchange="renderPartialInvestigation()"><button type="button" onclick="clearDateFilter('piFrom', () => renderPartialInvestigation())" class="date-clear-btn">Clear</button></div>
+                            <div class="input-group"><label>दिनांक सूचना तक (To)</label><input type="date" id="piTo" class="input-control" onchange="renderPartialInvestigation()"><button type="button" onclick="clearDateFilter('piTo', () => renderPartialInvestigation())" class="date-clear-btn">Clear</button></div>
                         </div>
                     </div>
                     <div class="section-subheading">आंशिक विवेचना — थाना-वार संख्यात्मक सारांश (किसी संख्या पर क्लिक करें)</div>
@@ -2207,6 +2208,14 @@
             });
         }
 
+        function clearDateFilter(inputId, refreshFunction) {
+            const dateInput = document.getElementById(inputId);
+            if (dateInput) {
+                dateInput.value = '';
+                if (typeof refreshFunction === 'function') refreshFunction();
+            }
+        }
+
         function applyFilters() {
             installDashboardMultiSelects();
             const yearSelect = document.getElementById('dashboardYearFilter');
@@ -3059,8 +3068,8 @@
                                 victim_name: item.victim_name || '-',
                                 victim_gender: item.victim_gender || '-',
                                 victim_age: item.victim_age || '-',
-                                stolen_property: Number(item.stolen_property || 0),
-                                recovered_property: Number(item.recovered_property || 0),
+                                stolen_property: Number.isFinite(Number(item.stolen_property)) ? Number(item.stolen_property) : 0,
+                                recovered_property: Number.isFinite(Number(item.recovered_property)) ? Number(item.recovered_property) : 0,
                                 injured_detail: item.injured_detail || '-',
                                 death_detail: item.death_detail || '-',
                                 recovery_detail: item.recovery_detail || '-'
@@ -3454,6 +3463,16 @@
                 alert('Firebase Write के लिए Login आवश्यक है।');
                 return Promise.reject(new Error('Authentication required'));
             }
+
+            // Repair legacy NaN / text values before Firebase receives the records.
+            // Firebase Realtime Database rejects NaN, including values left by an earlier failed import.
+            (casesData || []).forEach((item) => {
+                const stolen = Number(item && item.stolen_property);
+                const recovered = Number(item && item.recovered_property);
+                item.stolen_property = Number.isFinite(stolen) ? stolen : 0;
+                item.recovered_property = Number.isFinite(recovered) ? recovered : 0;
+            });
+            localStorage.setItem('rsp_hamirpur_cases', JSON.stringify(casesData || []));
 
             const writes = [];
             if (isAuthenticatedAdmin()) {
