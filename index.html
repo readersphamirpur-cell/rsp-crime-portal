@@ -655,8 +655,8 @@
                                 <label class="btn btn-blue" style="flex: 1; justify-content: center; cursor: pointer;">
                                     Import <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" onchange="importFromExcel(event)" style="display: none;">
                                 </label>
-                                <button type="button" onclick="toggleWrongStationRecords()" class="btn btn-red" style="flex: 1; justify-content: center;">गलत थाना रिकॉर्ड</button>
                                 <button id="bulkDeleteBtn" onclick="deleteSelectedCases()" class="btn btn-red hidden" style="flex: 1; justify-content: center;">Delete</button>
+                                <button id="wrongStationRecordsBtn" onclick="openWrongStationRecords()" class="btn btn-red" style="flex: 1; justify-content: center;">गलत थाना रिकॉर्ड</button>
                             </div>
                         </div>
                     </div>
@@ -677,10 +677,6 @@
                         <div class="stat-card c-emerald" role="button" tabindex="0" onclick="filterDashboardByStat('recovered')" onkeydown="if(event.key==='Enter'||event.key===' ')filterDashboardByStat('recovered')"><h4 style="color: #059669;">बरामद सम्पत्ति (रू)</h4><p id="stRecoveredProp" style="color: #059669;">0</p></div>
                     </div>
                     <div id="dashboardStatFilterHint" class="dashboard-stat-filter-hint"></div>
-                    <div id="wrongStationRecordsPanel" class="hidden" style="margin: 12px 0; padding: 12px; border: 1px solid #dc2626; border-radius: 8px; background: #fff7f7;">
-                        <h3 style="color:#b91c1c; margin:0 0 8px;">गलत थाना नाम से पहले से दर्ज रिकॉर्ड</h3>
-                        <div id="wrongStationRecordsList"></div>
-                    </div>
 
                     <!-- DATA TABLE CONTAINER -->
                     <div class="table-container">
@@ -1384,6 +1380,28 @@
             <div style="display: flex; gap: 0.6rem;">
                 <button onclick="saveThanaCredentials()" class="btn btn-blue" style="flex: 1; padding: 0.65rem; justify-content: center;">बदलाव सहेजें</button>
                 <button onclick="closeUserMgmtModal()" class="btn btn-red" style="flex: 1; padding: 0.65rem; justify-content: center;">बंद करें</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- WRONG POLICE STATION RECORDS MODAL -->
+    <div id="wrongStationRecordsModal" class="modal">
+        <div class="modal-content" style="max-width: 1500px; width:96%; max-height:92vh;">
+            <h3 style="color:#b91c1c; margin-bottom:.6rem; font-size:1.15rem; font-weight:800;">गलत थाना नाम से दर्ज रिकॉर्ड</h3>
+            <p id="wrongStationRecordsSummary" style="margin-bottom:.8rem; color:#475569;">रिकॉर्ड जाँचे जा रहे हैं...</p>
+            <div class="table-container" style="max-height:68vh; overflow:auto;">
+                <table style="min-width:1450px; width:100%;">
+                    <thead><tr>
+                        <th>क्र0सं0</th><th>जनपद</th><th>सर्किल</th><th>दर्ज थाना नाम</th>
+                        <th>अपराध शीर्षक</th><th>मु0अ0सं0</th><th>धारा</th><th>दिनांक सूचना</th>
+                        <th>घटनास्थल</th><th>वादी</th><th>अभियुक्त</th><th>घटना विवरण</th>
+                        <th>विवेचक</th><th>स्थिति</th><th>रिकॉर्ड स्रोत</th><th>कार्यवाही</th>
+                    </tr></thead>
+                    <tbody id="wrongStationRecordsBody"></tbody>
+                </table>
+            </div>
+            <div style="display:flex; justify-content:flex-end; margin-top:.8rem;">
+                <button type="button" onclick="closeWrongStationRecords()" class="btn btn-red">बंद करें</button>
             </div>
         </div>
     </div>
@@ -2993,7 +3011,6 @@
                 localStorage.setItem('rsp_hamirpur_cases', JSON.stringify(casesData));
                 saveDataToFirebase();
                 applyFilters();
-                if (!document.getElementById('wrongStationRecordsPanel')?.classList.contains('hidden')) renderWrongStationRecords();
             }
         }
 
@@ -3009,109 +3026,6 @@
             }
         }
 
-        function toggleWrongStationRecords() {
-            const panel = document.getElementById('wrongStationRecordsPanel');
-            if (!panel) return;
-            panel.classList.toggle('hidden');
-            if (!panel.classList.contains('hidden')) renderWrongStationRecords();
-        }
-
-        function getWrongStationRecordsFromBothStores() {
-            const collected = [];
-            const getStoredStationName = (record) => String(
-                record?.thana ?? record?.['थाना'] ?? record?.police_station ?? record?.['Police Station'] ?? ''
-            ).replace(/[\u200B-\u200D\uFEFF]/g, '').replace(/\s+/g, ' ').trim();
-            // केवल वास्तविक गलत/पुराने नाम वाले रिकॉर्ड दिखें। बिवार सही नाम है;
-            // पहले इस्तेमाल हुआ 'बिवांर' गलत नाम है और इसे जानबूझकर वैध सूची में नहीं रखा गया है।
-            const isInvalidStationRecord = (record) => {
-                if (!record || typeof record !== 'object') return false;
-                const storedName = getStoredStationName(record);
-                return !storedName || !ALL_THANAS.includes(storedName);
-            };
-            const addRecord = (record, source, extra = {}) => {
-                if (isInvalidStationRecord(record)) {
-                    collected.push({ ...record, ...extra, _wrong_station_name: getStoredStationName(record), _record_source: source });
-                }
-            };
-
-            // Firebase: सभी पढ़े गए parent nodes सहित हर रिकॉर्ड की जाँच।
-            Object.values(firebaseStationData || {}).flat().forEach(record => addRecord(record, 'firebase'));
-
-            // Local Storage: पुराना डेटा भी जाँचें, भले ही Firebase sync ने casesData बदल दिया हो।
-            try {
-                const localRecords = JSON.parse(localStorage.getItem('rsp_hamirpur_cases') || '[]');
-                (Array.isArray(localRecords) ? localRecords : []).forEach(record => addRecord(record, 'local'));
-            } catch (error) { console.warn('Local wrong-station scan failed:', error); }
-
-            // वर्तमान मेमोरी डेटा भी जाँचें; इससे पुराने नाम वाले रिकॉर्ड छूटेंगे नहीं।
-            (Array.isArray(casesData) ? casesData : []).forEach(record => addRecord(record, 'local'));
-
-            // Firebase और Local Storage में एक ही रिकॉर्ड हो तो एक ही पंक्ति दिखाएँ।
-            const unique = new Map();
-            collected.forEach(record => {
-                const identity = [String(record.id ?? ''), record._wrong_station_name, String(record.case_no ?? record['मु0अ0सं0'] ?? ''), String(record.crime_title ?? '')].join('|');
-                const key = record._firebase_parent_key && record._firebase_child_key
-                    ? 'fb:' + record._firebase_parent_key + '/' + record._firebase_child_key
-                    : 'rec:' + identity;
-                if (!unique.has(key) || record._record_source === 'firebase') unique.set(key, record);
-            });
-            return Array.from(unique.values());
-        }
-
-        function renderWrongStationRecords() {
-            const host = document.getElementById('wrongStationRecordsList');
-            if (!host) return;
-            const invalid = getWrongStationRecordsFromBothStores();
-            if (!invalid.length) {
-                host.innerHTML = '<p style="margin:0;color:#166534;">Firebase और Local Storage दोनों में गलत थाना नाम से कोई रिकॉर्ड नहीं मिला। Firebase की पूरी read permission न होने पर कुछ रिकॉर्ड छूट सकते हैं।</p>';
-                return;
-            }
-            host.innerHTML = `<p style="margin:0 0 8px;color:#991b1b;">कुल ${invalid.length} अलग रिकॉर्ड मिले (Firebase और Local Storage दोनों की जाँच)। डिलीट करने से पहले थाना और मुकदमा संख्या जाँच लें।</p>` +
-                `<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;background:#fff;"><thead><tr><th style="padding:6px;border:1px solid #ddd;">थाना (दर्ज)</th><th style="padding:6px;border:1px solid #ddd;">मुकदमा संख्या</th><th style="padding:6px;border:1px solid #ddd;">अपराध शीर्षक</th><th style="padding:6px;border:1px solid #ddd;">वादी</th><th style="padding:6px;border:1px solid #ddd;">विवेचक</th><th style="padding:6px;border:1px solid #ddd;">स्रोत</th><th style="padding:6px;border:1px solid #ddd;">कार्यवाही</th></tr></thead><tbody>` +
-                invalid.map((c, i) => `<tr><td style="padding:6px;border:1px solid #ddd;">${escapeHtml(String(c._wrong_station_name || c.thana || c['थाना'] || 'खाली'))}</td><td style="padding:6px;border:1px solid #ddd;">${escapeHtml(String(c.case_no || '-'))}</td><td style="padding:6px;border:1px solid #ddd;">${escapeHtml(String(c.crime_title || '-'))}</td><td style="padding:6px;border:1px solid #ddd;">${escapeHtml(String(c.complainant || '-'))}</td><td style="padding:6px;border:1px solid #ddd;">${escapeHtml(String(c.io_name || '-'))}</td><td style="padding:6px;border:1px solid #ddd;">${c._record_source === 'firebase' ? 'Firebase' : 'Local Storage'}</td><td style="padding:6px;border:1px solid #ddd;"><button class="btn btn-red" onclick="deleteWrongStationRecord(${i})">डिलीट</button></td></tr>`).join('') + '</tbody></table></div>';
-            window._wrongStationRecordsCurrent = invalid;
-        }
-
-        function deleteWrongStationRecord(index) {
-            const records = window._wrongStationRecordsCurrent || [];
-            const record = records[Number(index)];
-            if (!record) { alert('रिकॉर्ड नहीं मिला। सूची फिर से खोलें।'); return; }
-            if (!confirm('क्या आप इस गलत थाना रिकॉर्ड को Firebase और Local Storage दोनों से स्थायी रूप से डिलीट करना चाहते हैं?')) return;
-
-            const removeLocalCopies = () => {
-                const sameRecord = item => {
-                    if (!item) return false;
-                    if (record.id !== undefined && record.id !== null && String(item.id) === String(record.id)) return true;
-                    return String(item.thana || '') === String(record.thana || '') && String(item.case_no || '') === String(record.case_no || '') && String(item.crime_title || '') === String(record.crime_title || '');
-                };
-                try {
-                    const local = JSON.parse(localStorage.getItem('rsp_hamirpur_cases') || '[]');
-                    localStorage.setItem('rsp_hamirpur_cases', JSON.stringify((Array.isArray(local) ? local : []).filter(item => !sameRecord(item))));
-                } catch (error) { console.warn('Local delete failed:', error); }
-                casesData = (casesData || []).filter(item => !sameRecord(item));
-            };
-
-            const finish = () => {
-                removeLocalCopies();
-                localStorage.setItem('rsp_hamirpur_cases', JSON.stringify(casesData || []));
-                renderWrongStationRecords();
-                if (typeof applyFilters === 'function') applyFilters();
-            };
-
-            if (record._firebase_parent_key && record._firebase_child_key && firebase.auth().currentUser) {
-                db.ref('casesByThana/' + record._firebase_parent_key + '/' + record._firebase_child_key).remove()
-                    .then(finish)
-                    .catch(error => alert('Firebase से रिकॉर्ड डिलीट नहीं हुआ: ' + error.message));
-            } else {
-                finish();
-                alert('यह रिकॉर्ड Local Storage से डिलीट किया गया। Firebase में इसका स्थान उपलब्ध नहीं था।');
-            }
-        }
-
-        function escapeHtml(value) {
-            return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
-        }
-
         function importFromExcel(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -3120,40 +3034,28 @@
                 try {
                     const data = new Uint8Array(evt.target.result);
                     const workbook = XLSX.read(data, { type: 'array' });
-                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-                    const json = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+                    const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { defval: '' });
                     if (json && json.length > 0) {
                         const importNextByStation = {};
-                        // Only exact official station names are accepted; misspellings/aliases are rejected.
-                        const readImportValue = (item, keys) => {
-                            for (const key of keys) {
-                                if (item[key] !== undefined && item[key] !== null && String(item[key]).trim() !== '') return item[key];
-                            }
-                            return '';
-                        };
-                        const resolveImportStation = (value) => {
-                            const raw = String(value ?? '').trim().replace(/\s+/g, ' ');
-                            const normalized = normalizeDashboardDuplicateKey(raw);
-                            return ALL_THANAS.find(station => normalizeDashboardDuplicateKey(station) === normalized) || '';
-                        };
                         const seenKeys = new Set((casesData || []).map(c =>
                             normalizeDashboardDuplicateKey(c.thana) + '|' + normalizeDashboardDuplicateKey(c._import_source_case_no || c.case_no || c.crimeNo)
                         ));
                         const accepted = [];
                         const duplicateRows = [];
                         const invalidStationRows = [];
-                        const missingCaseNoRows = [];
                         json.forEach((item, idx) => {
-                            // Station users are restricted to their own station; Admin imports use the station column.
-                            const sheetStation = readImportValue(item, ['thana', 'थाना', 'थाना नाम', 'police_station', 'Police Station']);
-                            const resolvedSheetStation = resolveImportStation(sheetStation);
-                            const importThana = resolvedSheetStation;
-                            if (!importThana || !ALL_THANAS.includes(importThana) || (loggedInThana !== 'ALL' && importThana !== loggedInThana)) {
-                                const caseForError = readImportValue(item, ['case_no', 'crime_no', 'crimeNo', 'मु0अ0सं0', 'मुकदमा संख्या', 'मुकदमा सं0']) || '-';
-                                invalidStationRows.push(`Excel पंक्ति ${idx + 2}: थाना “${String(sheetStation || 'खाली').trim()}”, मुकदमा संख्या ${caseForError}`);
+                            const rawThana = loggedInThana !== 'ALL'
+                                ? loggedInThana
+                                : String(item.thana || item['थाना'] || item['थाना नाम'] || item.police_station || item['Police Station'] || '').trim();
+                            const importThana = String(rawThana || '').trim();
+
+                            // Unknown/misspelled station names are rejected; never route them to Kotwali.
+                            if (!ALL_THANAS.includes(importThana)) {
+                                invalidStationRows.push(`Excel पंक्ति ${idx + 2}: थाना "${importThana || 'खाली'}"`);
                                 return;
                             }
-                            const sourceCaseNo = String(readImportValue(item, ['case_no', 'crime_no', 'crimeNo', 'मु0अ0सं0', 'मुकदमा संख्या', 'मुकदमा सं0']) || '').trim();
+
+                            const sourceCaseNo = String(item.case_no || item.crime_no || item.crimeNo || item['मु0अ0सं0'] || item['मुकदमा संख्या'] || '').trim();
                             if (sourceCaseNo) {
                                 const sourceKey = normalizeDashboardDuplicateKey(importThana) + '|' + normalizeDashboardDuplicateKey(sourceCaseNo);
                                 if (seenKeys.has(sourceKey)) {
@@ -3161,14 +3063,11 @@
                                     return;
                                 }
                                 seenKeys.add(sourceKey);
-                            } else {
-                                missingCaseNoRows.push(`Excel पंक्ति ${idx + 2} (${importThana})`);
                             }
                             const stationKey = normalizeDashboardDuplicateKey(importThana);
                             if (importNextByStation[stationKey] === undefined) {
                                 importNextByStation[stationKey] = Number(nextCrimeNumberForStation(importThana).split('/')[0]);
                             }
-                            // Preserve the portal's existing automatic station-wise serial numbering.
                             const importedCaseNo = String(importNextByStation[stationKey]++).padStart(3, '0') + '/2026';
                             accepted.push({
                                 id: item.id ? String(item.id) : (Date.now() + idx),
@@ -3179,26 +3078,26 @@
                                 case_no: importedCaseNo,
                                 _import_source_case_no: sourceCaseNo,
                                 section: item.section || item['धारा'] || '-',
-                                evt_date: item.evt_date || item['घटना दिनांक'] || '-',
-                                info_date: item.info_date || item['सूचना दिनांक'] || '-',
+                                evt_date: item.evt_date || item['दिनांक घटना'] || '-',
+                                info_date: item.info_date || item['दिनांक सूचना'] || '-',
                                 incident_place: item.incident_place || item['घटनास्थल'] || '-',
                                 complainant: item.complainant || item['वादी'] || '-',
-                                defendant: item.defendant || item['अभियुक्त'] || '-',
-                                brief_desc: item.brief_desc || item['संक्षिप्त विवरण'] || '-',
+                                defendant: item.defendant || item['अभियुक्त'] || item['प्रतिवादी'] || '-',
+                                brief_desc: item.brief_desc || item['घटना का संक्षिप्त विवरण'] || '-',
                                 io_name: item.io_name || item['विवेचक'] || '-',
-                                status: item.status || item['स्थिति'] || 'विवेचनाधीन',
-                                cs_no: item.cs_no || item['चार्जशीट संख्या'] || '-',
-                                cs_date: item.cs_date || item['चार्जशीट दिनांक'] || '',
+                                status: item.status || item['विवेचना की स्थिति'] || 'विवेचनाधीन',
+                                cs_no: item.cs_no || '-',
+                                cs_date: item.cs_date || '',
                                 named: Number(item.named) || 0,
                                 revealed: Number(item.revealed) || 0,
                                 arrested: Number(item.arrested) || 0,
                                 notice: Number(item.notice) || 0,
                                 court: Number(item.court) || 0,
                                 wrong: getWrongCount(item),
-                                fcr_head: item.fcr_head || item['FCR'] || 'नहीं',
-                                remarks: item.remarks || item['टिप्पणी'] || '-',
-                                category: item.category || item['श्रेणी'] || 'अन्य',
-                                sentence: item.sentence || item['सजा'] || '07 वर्ष से कम',
+                                fcr_head: item.fcr_head || 'नहीं',
+                                remarks: item.remarks || '-',
+                                category: item.category || 'अन्य',
+                                sentence: item.sentence || '07 वर्ष से कम',
                                 victim_name: item.victim_name || '-',
                                 victim_gender: item.victim_gender || '-',
                                 victim_age: item.victim_age || '-',
@@ -3209,20 +3108,15 @@
                                 recovery_detail: item.recovery_detail || '-'
                             });
                         });
-                        // Append accepted rows only; existing records and their stored order are untouched.
                         casesData = casesData.concat(accepted);
                         localStorage.setItem('rsp_hamirpur_cases', JSON.stringify(casesData));
                         saveDataToFirebase();
-                        let msg = `Excel में ${json.length} रिकॉर्ड मिले।\n${accepted.length} रिकॉर्ड सफलतापूर्वक इम्पोर्ट हुए।`;
+                        let msg = `${accepted.length} रिकॉर्ड सफलतापूर्वक इम्पोर्ट हुए।`;
                         if (duplicateRows.length) msg += `\n\nडुप्लीकेट होने के कारण ${duplicateRows.length} रिकॉर्ड नहीं जुड़े (थाना / मुकदमा संख्या):\n` + duplicateRows.join('\n');
-                        if (invalidStationRows.length) msg += `\n\nथाना नाम पहचान में न आने के कारण ${invalidStationRows.length} रिकॉर्ड नहीं जुड़े:\n` + invalidStationRows.join('\n');
-                        if (missingCaseNoRows.length) msg += `\n\nमुकदमा संख्या खाली थी; ऐसे ${missingCaseNoRows.length} रिकॉर्ड को क्रम संख्या दी गई:\n` + missingCaseNoRows.join('\n');
+                        if (invalidStationRows.length) msg += `\n\nगलत/अमान्य थाना नाम के कारण ${invalidStationRows.length} रिकॉर्ड इम्पोर्ट नहीं हुए:\n` + invalidStationRows.join('\n');
                         alert(msg);
                         applyFilters();
-                        if (!document.getElementById('wrongStationRecordsPanel')?.classList.contains('hidden')) renderWrongStationRecords();
                         if (typeof syncCasesToExtraInvestigation === 'function') syncCasesToExtraInvestigation();
-                    } else {
-                        alert('Excel शीट में इम्पोर्ट करने योग्य रिकॉर्ड नहीं मिले।');
                     }
                 } catch (err) { alert('त्रुटि: ' + err.message); }
                 e.target.value = '';
@@ -3539,41 +3433,17 @@
             stopFirebaseDataSync();
             firebaseStationData = {};
 
-            if (isAuthenticatedAdmin()) {
-                // Admin reads the complete casesByThana tree so records stored under an
-                // unexpected/legacy station key are also visible for review and deletion.
-                const rootRef = db.ref('casesByThana');
-                const rootListener = (snapshot) => {
-                    const allNodes = snapshot.val() || {};
-                    firebaseStationData = {};
-                    Object.entries(allNodes).forEach(([parentKey, nodeValue]) => {
-                        const records = Array.isArray(nodeValue) ? nodeValue : (nodeValue && typeof nodeValue === 'object' ? Object.entries(nodeValue).map(([childKey, value]) => {
-                            if (!value || typeof value !== 'object') return null;
-                            return { ...value, _firebase_parent_key: parentKey, _firebase_child_key: childKey };
-                        }).filter(Boolean) : []);
-                        const prepared = records.map((record, index) => {
-                            if (!record || typeof record !== 'object') return null;
-                            const childKey = Array.isArray(nodeValue) ? String(index) : String(record._firebase_child_key || index);
-                            return { ...record, _firebase_parent_key: parentKey, _firebase_child_key: childKey };
-                        }).filter(Boolean);
-                        firebaseStationData['firebase:' + parentKey] = prepared;
-                    });
-                    refreshCasesFromStationCache();
-                    const panel = document.getElementById('wrongStationRecordsPanel');
-                    if (panel && !panel.classList.contains('hidden')) renderWrongStationRecords();
-                };
-                activeCaseListeners['__all_casesByThana__'] = { ref: rootRef, listener: rootListener };
-                rootRef.on('value', rootListener, (error) => {
-                    console.error('Firebase complete casesByThana READ failed:', error);
-                    alert('सभी थाना रिकॉर्ड पढ़ने में समस्या: ' + error.message + '। यदि Firebase Rules अनुमति नहीं देते, तो root read permission आवश्यक होगी।');
-                });
-            } else {
-                const station = getAuthenticatedStation();
-                if (!station) {
-                    alert('इस Firebase खाते के लिए थाना अनुमति नहीं मिली।');
-                    firebase.auth().signOut();
-                    return;
-                }
+            const stationsToRead = isAuthenticatedAdmin()
+                ? Object.keys(STATION_ACCESS)
+                : [getAuthenticatedStation()].filter(Boolean);
+
+            if (!isAuthenticatedAdmin() && stationsToRead.length !== 1) {
+                alert('इस Firebase खाते के लिए थाना अनुमति नहीं मिली।');
+                firebase.auth().signOut();
+                return;
+            }
+
+            stationsToRead.forEach((station) => {
                 const key = STATION_KEYS[station];
                 const ref = db.ref('casesByThana/' + key);
                 const listener = (snapshot) => {
@@ -3585,7 +3455,7 @@
                     console.error('Firebase station READ failed:', station, error);
                     alert(station + ' का डेटा पढ़ने में समस्या: ' + error.message);
                 });
-            }
+            });
 
             // Credentials are Admin-only; station users do not read this shared node.
             if (isAuthenticatedAdmin()) {
@@ -3641,8 +3511,13 @@
             if (isAuthenticatedAdmin()) {
                 Object.keys(STATION_ACCESS).forEach((station) => {
                     const stationCases = (casesData || []).filter(item => item.thana === station);
+                    // Keep legacy records with a misspelled/invalid Thana value in the node
+                    // where they were found, so they remain reviewable instead of vanishing.
+                    const legacyWrongStationCases = (firebaseStationData[station] || []).filter(item =>
+                        item && !ALL_THANAS.includes(String(item.thana || '').trim())
+                    );
                     const payload = {};
-                    stationCases.forEach((item, index) => {
+                    stationCases.concat(legacyWrongStationCases).forEach((item, index) => {
                         payload[firebaseSafeCaseKey(item, index)] = item;
                     });
                     writes.push(db.ref('casesByThana/' + STATION_KEYS[station]).set(payload));
@@ -3670,6 +3545,147 @@
             });
         };
     </script>
+
+<script>
+    // Admin-only list: only non-canonical Thana values are shown.
+    function wrongStationEscape(value) {
+        return String(value == null || value === '' ? '-' : value).replace(/[&<>"']/g, ch => ({
+            '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+        }[ch]));
+    }
+
+    function wrongStationIdentity(item) {
+        if (item && item.id != null && String(item.id).trim() !== '') return 'id:' + String(item.id);
+        return [item && item.thana, item && (item.case_no || item.crimeNo),
+            item && item.crime_title, item && item.info_date, item && item.complainant]
+            .map(v => String(v || '').trim()).join('|');
+    }
+
+    let wrongStationLegacyRootData = [];
+    let wrongStationRecordCache = [];
+
+    function collectWrongStationRecords() {
+        const merged = new Map();
+        const addRecord = (item, source) => {
+            if (!item || ALL_THANAS.includes(String(item.thana || '').trim())) return;
+            const key = wrongStationIdentity(item) + '|thana:' + String(item.thana || '').trim();
+            if (!merged.has(key)) merged.set(key, { item, sources: new Set() });
+            merged.get(key).sources.add(source);
+        };
+        try {
+            const localRows = JSON.parse(localStorage.getItem('rsp_hamirpur_cases') || '[]');
+            if (Array.isArray(localRows)) localRows.forEach(item => addRecord(item, 'Local Storage'));
+        } catch (error) { console.warn('Local Storage scan failed:', error); }
+
+        if (typeof firebaseStationData !== 'undefined' && firebaseStationData) {
+            Object.entries(firebaseStationData).forEach(([station, rows]) => {
+                (Array.isArray(rows) ? rows : []).forEach(item => addRecord(item, 'Firebase / ' + station));
+            });
+        }
+        (Array.isArray(wrongStationLegacyRootData) ? wrongStationLegacyRootData : [])
+            .forEach(item => addRecord(item, 'Firebase / casesData'));
+        return Array.from(merged.values());
+    }
+
+    async function openWrongStationRecords() {
+        if (typeof isAuthenticatedAdmin === 'function' && !isAuthenticatedAdmin()) {
+            alert('गलत थाना रिकॉर्ड देखने के लिए Admin लॉगिन आवश्यक है।');
+            return;
+        }
+        const summary = document.getElementById('wrongStationRecordsSummary');
+        summary.textContent = 'Firebase और Local Storage के सभी रिकॉर्ड जाँचे जा रहे हैं...';
+        try {
+            if (typeof db !== 'undefined' && typeof STATION_KEYS !== 'undefined' && isAuthenticatedAdmin()) {
+                const stationReads = Object.entries(STATION_KEYS).map(async ([station, key]) => {
+                    const snap = await db.ref('casesByThana/' + key).once('value');
+                    firebaseStationData[station] = caseArrayFromSnapshot(snap);
+                });
+                const rootRead = db.ref('casesData').once('value').then(snapshot => {
+                    const value = snapshot.val();
+                    wrongStationLegacyRootData = !value ? [] : (Array.isArray(value) ? value : Object.values(value));
+                });
+                await Promise.all([...stationReads, rootRead]);
+            }
+        } catch (error) {
+            console.error('Wrong station records read failed:', error);
+            summary.textContent = 'Firebase से पूरा डेटा नहीं पढ़ा जा सका: ' + error.message + '। Local Storage में उपलब्ध रिकॉर्ड दिखाए जा रहे हैं।';
+        }
+        const modal = document.getElementById('wrongStationRecordsModal');
+        const body = document.getElementById('wrongStationRecordsBody');
+        const records = collectWrongStationRecords();
+        wrongStationRecordCache = records;
+        if (!records.length) {
+            summary.textContent = 'गलत थाना नाम से कोई रिकॉर्ड नहीं मिला। सही 15 थाना नाम वाले रिकॉर्ड इस सूची में नहीं दिखेंगे।';
+            body.innerHTML = '<tr><td colspan="16" class="empty-cell">गलत थाना नाम वाला कोई रिकॉर्ड नहीं मिला।</td></tr>';
+        } else {
+            summary.textContent = `कुल ${records.length} गलत थाना रिकॉर्ड मिले। सही थाना नाम वाले रिकॉर्ड इस सूची में शामिल नहीं हैं।`;
+            body.innerHTML = records.map((entry, index) => {
+                const c = entry.item || {};
+                const values = [index + 1, c.janpad, c.circle, c.thana, c.crime_title,
+                    c.case_no || c.crimeNo, c.section, c.info_date, c.incident_place,
+                    c.complainant, c.defendant, c.brief_desc, c.io_name, c.status,
+                    Array.from(entry.sources).join(' + ')];
+                return '<tr>' + values.map((value, i) =>
+                    `<td class="${i === 11 ? 'wrap-col' : ''}">${wrongStationEscape(value)}</td>`
+                ).join('') + `<td><button type="button" class="btn btn-red" style="padding:.25rem .5rem" onclick="deleteWrongStationRecord(${index})">डिलीट</button></td></tr>`;
+            }).join('');
+        }
+        modal.style.display = 'flex';
+    }
+
+    async function deleteWrongStationRecord(index) {
+        const entry = wrongStationRecordCache[index];
+        if (!entry || !entry.item) return;
+        const target = entry.item;
+        if (!confirm(`क्या इस गलत थाना रिकॉर्ड को Firebase और Local Storage दोनों से डिलीट करना चाहते हैं?\\nथाना: ${target.thana || '-'}\\nमुकदमा संख्या: ${target.case_no || target.crimeNo || '-'}`)) return;
+
+        const matchesTarget = candidate => candidate &&
+            String(candidate.thana || '').trim() === String(target.thana || '').trim() &&
+            wrongStationIdentity(candidate) === wrongStationIdentity(target);
+
+        try {
+            const removals = [];
+            if (typeof db !== 'undefined' && typeof STATION_KEYS !== 'undefined' && isAuthenticatedAdmin()) {
+                for (const key of Object.values(STATION_KEYS)) {
+                    const snap = await db.ref('casesByThana/' + key).once('value');
+                    snap.forEach(child => {
+                        if (matchesTarget(child.val())) removals.push(child.ref.remove());
+                    });
+                }
+                const rootSnap = await db.ref('casesData').once('value');
+                rootSnap.forEach(child => {
+                    if (matchesTarget(child.val())) removals.push(child.ref.remove());
+                });
+            }
+            await Promise.all(removals);
+
+            try {
+                const localRows = JSON.parse(localStorage.getItem('rsp_hamirpur_cases') || '[]');
+                localStorage.setItem('rsp_hamirpur_cases', JSON.stringify(
+                    (Array.isArray(localRows) ? localRows : []).filter(item => !matchesTarget(item))
+                ));
+            } catch (_) {}
+
+            Object.keys(firebaseStationData || {}).forEach(station => {
+                firebaseStationData[station] = (firebaseStationData[station] || []).filter(item => !matchesTarget(item));
+            });
+            wrongStationLegacyRootData = (wrongStationLegacyRootData || []).filter(item => !matchesTarget(item));
+            casesData = (casesData || []).filter(item => !matchesTarget(item));
+            localStorage.setItem('rsp_hamirpur_cases', JSON.stringify(casesData));
+
+            alert('गलत थाना रिकॉर्ड Firebase और Local Storage से हटाने की प्रक्रिया पूरी हुई।');
+            await openWrongStationRecords();
+        } catch (error) {
+            console.error('Wrong station record delete failed:', error);
+            alert('रिकॉर्ड पूरी तरह डिलीट नहीं हो सका: ' + error.message);
+        }
+    }
+
+    function closeWrongStationRecords() {
+        const modal = document.getElementById('wrongStationRecordsModal');
+        if (modal) modal.style.display = 'none';
+    }
+</script>
 
 <style id="partial-investigation-mobile-fix-final">
 /* Scoped fix only for आंशिक विवेचना विस्तृत विवरण table */
