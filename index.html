@@ -3412,9 +3412,38 @@
             return Array.isArray(value) ? value : Object.values(value);
         }
 
+        // Keep the last downloaded records visible while Firebase refreshes in the background.
+        let firebaseInitialLoadedStations = new Set();
+        let firebaseExpectedStations = [];
+
+        function readCachedCasesForCurrentUser() {
+            try {
+                const cached = JSON.parse(localStorage.getItem('rsp_hamirpur_cases') || '[]');
+                if (!Array.isArray(cached)) return [];
+                if (isAuthenticatedAdmin()) return cached;
+                const station = getAuthenticatedStation();
+                return station ? cached.filter(item => item && item.thana === station) : [];
+            } catch (error) {
+                console.warn('Cached case read failed:', error);
+                return [];
+            }
+        }
+
         function refreshCasesFromStationCache() {
             if (isAuthenticatedAdmin()) {
-                casesData = Object.values(firebaseStationData).flat();
+                const allInitialSnapshotsArrived = firebaseExpectedStations.length > 0 &&
+                    firebaseExpectedStations.every(station => firebaseInitialLoadedStations.has(station));
+                if (allInitialSnapshotsArrived) {
+                    casesData = Object.values(firebaseStationData).flat();
+                } else {
+                    // Retain cached rows for stations whose first Firebase snapshot is still pending.
+                    const cachedRows = readCachedCasesForCurrentUser();
+                    const pendingCachedRows = cachedRows.filter(item => {
+                        const station = String(item && item.thana || '').trim();
+                        return !firebaseInitialLoadedStations.has(station);
+                    });
+                    casesData = pendingCachedRows.concat(Object.values(firebaseStationData).flat());
+                }
             } else {
                 const station = getAuthenticatedStation();
                 casesData = station ? (firebaseStationData[station] || []) : [];
@@ -3432,10 +3461,17 @@
             }
             stopFirebaseDataSync();
             firebaseStationData = {};
+            firebaseInitialLoadedStations = new Set();
+
+            // Show this device's previously downloaded data immediately; Firebase refreshes it below.
+            casesData = readCachedCasesForCurrentUser();
+            if (typeof applyFilters === 'function') applyFilters();
+            if (typeof syncCasesToExtraInvestigation === 'function') syncCasesToExtraInvestigation();
 
             const stationsToRead = isAuthenticatedAdmin()
                 ? Object.keys(STATION_ACCESS)
                 : [getAuthenticatedStation()].filter(Boolean);
+            firebaseExpectedStations = stationsToRead.slice();
 
             if (!isAuthenticatedAdmin() && stationsToRead.length !== 1) {
                 alert('इस Firebase खाते के लिए थाना अनुमति नहीं मिली।');
@@ -3448,6 +3484,7 @@
                 const ref = db.ref('casesByThana/' + key);
                 const listener = (snapshot) => {
                     firebaseStationData[station] = caseArrayFromSnapshot(snapshot);
+                    firebaseInitialLoadedStations.add(station);
                     refreshCasesFromStationCache();
                 };
                 activeCaseListeners[key] = { ref, listener };
@@ -3483,6 +3520,8 @@
             activeCredentialsRef = null;
             activeCredentialsListener = null;
             firebaseStationData = {};
+            firebaseInitialLoadedStations = new Set();
+            firebaseExpectedStations = [];
         };
 
         function firebaseSafeCaseKey(caseObj, index) {
