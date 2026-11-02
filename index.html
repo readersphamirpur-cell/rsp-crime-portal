@@ -3016,17 +3016,96 @@
             if (!panel.classList.contains('hidden')) renderWrongStationRecords();
         }
 
+        function getWrongStationRecordsFromBothStores() {
+            const collected = [];
+            const getStoredStationName = (record) => String(
+                record?.thana ?? record?.['थाना'] ?? record?.police_station ?? record?.['Police Station'] ?? ''
+            ).replace(/[\u200B-\u200D\uFEFF]/g, '').replace(/\s+/g, ' ').trim();
+            // केवल वास्तविक गलत/पुराने नाम वाले रिकॉर्ड दिखें। बिवार सही नाम है;
+            // पहले इस्तेमाल हुआ 'बिवांर' गलत नाम है और इसे जानबूझकर वैध सूची में नहीं रखा गया है।
+            const isInvalidStationRecord = (record) => {
+                if (!record || typeof record !== 'object') return false;
+                const storedName = getStoredStationName(record);
+                return !storedName || !ALL_THANAS.includes(storedName);
+            };
+            const addRecord = (record, source, extra = {}) => {
+                if (isInvalidStationRecord(record)) {
+                    collected.push({ ...record, ...extra, _wrong_station_name: getStoredStationName(record), _record_source: source });
+                }
+            };
+
+            // Firebase: सभी पढ़े गए parent nodes सहित हर रिकॉर्ड की जाँच।
+            Object.values(firebaseStationData || {}).flat().forEach(record => addRecord(record, 'firebase'));
+
+            // Local Storage: पुराना डेटा भी जाँचें, भले ही Firebase sync ने casesData बदल दिया हो।
+            try {
+                const localRecords = JSON.parse(localStorage.getItem('rsp_hamirpur_cases') || '[]');
+                (Array.isArray(localRecords) ? localRecords : []).forEach(record => addRecord(record, 'local'));
+            } catch (error) { console.warn('Local wrong-station scan failed:', error); }
+
+            // वर्तमान मेमोरी डेटा भी जाँचें; इससे पुराने नाम वाले रिकॉर्ड छूटेंगे नहीं।
+            (Array.isArray(casesData) ? casesData : []).forEach(record => addRecord(record, 'local'));
+
+            // Firebase और Local Storage में एक ही रिकॉर्ड हो तो एक ही पंक्ति दिखाएँ।
+            const unique = new Map();
+            collected.forEach(record => {
+                const identity = [String(record.id ?? ''), record._wrong_station_name, String(record.case_no ?? record['मु0अ0सं0'] ?? ''), String(record.crime_title ?? '')].join('|');
+                const key = record._firebase_parent_key && record._firebase_child_key
+                    ? 'fb:' + record._firebase_parent_key + '/' + record._firebase_child_key
+                    : 'rec:' + identity;
+                if (!unique.has(key) || record._record_source === 'firebase') unique.set(key, record);
+            });
+            return Array.from(unique.values());
+        }
+
         function renderWrongStationRecords() {
             const host = document.getElementById('wrongStationRecordsList');
             if (!host) return;
-            const invalid = (casesData || []).filter(c => !ALL_THANAS.includes(String(c.thana || '').trim()));
+            const invalid = getWrongStationRecordsFromBothStores();
             if (!invalid.length) {
-                host.innerHTML = '<p style="margin:0;color:#166534;">गलत थाना नाम से कोई रिकॉर्ड नहीं मिला।</p>';
+                host.innerHTML = '<p style="margin:0;color:#166534;">Firebase और Local Storage दोनों में गलत थाना नाम से कोई रिकॉर्ड नहीं मिला। Firebase की पूरी read permission न होने पर कुछ रिकॉर्ड छूट सकते हैं।</p>';
                 return;
             }
-            host.innerHTML = `<p style="margin:0 0 8px;color:#991b1b;">कुल ${invalid.length} रिकॉर्ड मिले। डिलीट करने से पहले थाना और मुकदमा संख्या जाँच लें।</p>` +
-                `<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;background:#fff;"><thead><tr><th style="padding:6px;border:1px solid #ddd;">थाना (दर्ज)</th><th style="padding:6px;border:1px solid #ddd;">मुकदमा संख्या</th><th style="padding:6px;border:1px solid #ddd;">अपराध शीर्षक</th><th style="padding:6px;border:1px solid #ddd;">वादी</th><th style="padding:6px;border:1px solid #ddd;">विवेचक</th><th style="padding:6px;border:1px solid #ddd;">कार्यवाही</th></tr></thead><tbody>` +
-                invalid.map(c => `<tr><td style="padding:6px;border:1px solid #ddd;">${escapeHtml(String(c.thana || 'खाली'))}</td><td style="padding:6px;border:1px solid #ddd;">${escapeHtml(String(c.case_no || '-'))}</td><td style="padding:6px;border:1px solid #ddd;">${escapeHtml(String(c.crime_title || '-'))}</td><td style="padding:6px;border:1px solid #ddd;">${escapeHtml(String(c.complainant || '-'))}</td><td style="padding:6px;border:1px solid #ddd;">${escapeHtml(String(c.io_name || '-'))}</td><td style="padding:6px;border:1px solid #ddd;"><button class="btn btn-red" onclick="deleteCase('${String(c.id).replace(/'/g, "\\'")}'); setTimeout(renderWrongStationRecords, 100);">डिलीट</button></td></tr>`).join('') + '</tbody></table></div>';
+            host.innerHTML = `<p style="margin:0 0 8px;color:#991b1b;">कुल ${invalid.length} अलग रिकॉर्ड मिले (Firebase और Local Storage दोनों की जाँच)। डिलीट करने से पहले थाना और मुकदमा संख्या जाँच लें।</p>` +
+                `<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;background:#fff;"><thead><tr><th style="padding:6px;border:1px solid #ddd;">थाना (दर्ज)</th><th style="padding:6px;border:1px solid #ddd;">मुकदमा संख्या</th><th style="padding:6px;border:1px solid #ddd;">अपराध शीर्षक</th><th style="padding:6px;border:1px solid #ddd;">वादी</th><th style="padding:6px;border:1px solid #ddd;">विवेचक</th><th style="padding:6px;border:1px solid #ddd;">स्रोत</th><th style="padding:6px;border:1px solid #ddd;">कार्यवाही</th></tr></thead><tbody>` +
+                invalid.map((c, i) => `<tr><td style="padding:6px;border:1px solid #ddd;">${escapeHtml(String(c._wrong_station_name || c.thana || c['थाना'] || 'खाली'))}</td><td style="padding:6px;border:1px solid #ddd;">${escapeHtml(String(c.case_no || '-'))}</td><td style="padding:6px;border:1px solid #ddd;">${escapeHtml(String(c.crime_title || '-'))}</td><td style="padding:6px;border:1px solid #ddd;">${escapeHtml(String(c.complainant || '-'))}</td><td style="padding:6px;border:1px solid #ddd;">${escapeHtml(String(c.io_name || '-'))}</td><td style="padding:6px;border:1px solid #ddd;">${c._record_source === 'firebase' ? 'Firebase' : 'Local Storage'}</td><td style="padding:6px;border:1px solid #ddd;"><button class="btn btn-red" onclick="deleteWrongStationRecord(${i})">डिलीट</button></td></tr>`).join('') + '</tbody></table></div>';
+            window._wrongStationRecordsCurrent = invalid;
+        }
+
+        function deleteWrongStationRecord(index) {
+            const records = window._wrongStationRecordsCurrent || [];
+            const record = records[Number(index)];
+            if (!record) { alert('रिकॉर्ड नहीं मिला। सूची फिर से खोलें।'); return; }
+            if (!confirm('क्या आप इस गलत थाना रिकॉर्ड को Firebase और Local Storage दोनों से स्थायी रूप से डिलीट करना चाहते हैं?')) return;
+
+            const removeLocalCopies = () => {
+                const sameRecord = item => {
+                    if (!item) return false;
+                    if (record.id !== undefined && record.id !== null && String(item.id) === String(record.id)) return true;
+                    return String(item.thana || '') === String(record.thana || '') && String(item.case_no || '') === String(record.case_no || '') && String(item.crime_title || '') === String(record.crime_title || '');
+                };
+                try {
+                    const local = JSON.parse(localStorage.getItem('rsp_hamirpur_cases') || '[]');
+                    localStorage.setItem('rsp_hamirpur_cases', JSON.stringify((Array.isArray(local) ? local : []).filter(item => !sameRecord(item))));
+                } catch (error) { console.warn('Local delete failed:', error); }
+                casesData = (casesData || []).filter(item => !sameRecord(item));
+            };
+
+            const finish = () => {
+                removeLocalCopies();
+                localStorage.setItem('rsp_hamirpur_cases', JSON.stringify(casesData || []));
+                renderWrongStationRecords();
+                if (typeof applyFilters === 'function') applyFilters();
+            };
+
+            if (record._firebase_parent_key && record._firebase_child_key && firebase.auth().currentUser) {
+                db.ref('casesByThana/' + record._firebase_parent_key + '/' + record._firebase_child_key).remove()
+                    .then(finish)
+                    .catch(error => alert('Firebase से रिकॉर्ड डिलीट नहीं हुआ: ' + error.message));
+            } else {
+                finish();
+                alert('यह रिकॉर्ड Local Storage से डिलीट किया गया। Firebase में इसका स्थान उपलब्ध नहीं था।');
+            }
         }
 
         function escapeHtml(value) {
@@ -3460,17 +3539,41 @@
             stopFirebaseDataSync();
             firebaseStationData = {};
 
-            const stationsToRead = isAuthenticatedAdmin()
-                ? Object.keys(STATION_ACCESS)
-                : [getAuthenticatedStation()].filter(Boolean);
-
-            if (!isAuthenticatedAdmin() && stationsToRead.length !== 1) {
-                alert('इस Firebase खाते के लिए थाना अनुमति नहीं मिली।');
-                firebase.auth().signOut();
-                return;
-            }
-
-            stationsToRead.forEach((station) => {
+            if (isAuthenticatedAdmin()) {
+                // Admin reads the complete casesByThana tree so records stored under an
+                // unexpected/legacy station key are also visible for review and deletion.
+                const rootRef = db.ref('casesByThana');
+                const rootListener = (snapshot) => {
+                    const allNodes = snapshot.val() || {};
+                    firebaseStationData = {};
+                    Object.entries(allNodes).forEach(([parentKey, nodeValue]) => {
+                        const records = Array.isArray(nodeValue) ? nodeValue : (nodeValue && typeof nodeValue === 'object' ? Object.entries(nodeValue).map(([childKey, value]) => {
+                            if (!value || typeof value !== 'object') return null;
+                            return { ...value, _firebase_parent_key: parentKey, _firebase_child_key: childKey };
+                        }).filter(Boolean) : []);
+                        const prepared = records.map((record, index) => {
+                            if (!record || typeof record !== 'object') return null;
+                            const childKey = Array.isArray(nodeValue) ? String(index) : String(record._firebase_child_key || index);
+                            return { ...record, _firebase_parent_key: parentKey, _firebase_child_key: childKey };
+                        }).filter(Boolean);
+                        firebaseStationData['firebase:' + parentKey] = prepared;
+                    });
+                    refreshCasesFromStationCache();
+                    const panel = document.getElementById('wrongStationRecordsPanel');
+                    if (panel && !panel.classList.contains('hidden')) renderWrongStationRecords();
+                };
+                activeCaseListeners['__all_casesByThana__'] = { ref: rootRef, listener: rootListener };
+                rootRef.on('value', rootListener, (error) => {
+                    console.error('Firebase complete casesByThana READ failed:', error);
+                    alert('सभी थाना रिकॉर्ड पढ़ने में समस्या: ' + error.message + '। यदि Firebase Rules अनुमति नहीं देते, तो root read permission आवश्यक होगी।');
+                });
+            } else {
+                const station = getAuthenticatedStation();
+                if (!station) {
+                    alert('इस Firebase खाते के लिए थाना अनुमति नहीं मिली।');
+                    firebase.auth().signOut();
+                    return;
+                }
                 const key = STATION_KEYS[station];
                 const ref = db.ref('casesByThana/' + key);
                 const listener = (snapshot) => {
@@ -3482,7 +3585,7 @@
                     console.error('Firebase station READ failed:', station, error);
                     alert(station + ' का डेटा पढ़ने में समस्या: ' + error.message);
                 });
-            });
+            }
 
             // Credentials are Admin-only; station users do not read this shared node.
             if (isAuthenticatedAdmin()) {
