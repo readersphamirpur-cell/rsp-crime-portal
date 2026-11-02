@@ -655,6 +655,7 @@
                                 <label class="btn btn-blue" style="flex: 1; justify-content: center; cursor: pointer;">
                                     Import <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" onchange="importFromExcel(event)" style="display: none;">
                                 </label>
+                                <button type="button" onclick="toggleWrongStationRecords()" class="btn btn-red" style="flex: 1; justify-content: center;">गलत थाना रिकॉर्ड</button>
                                 <button id="bulkDeleteBtn" onclick="deleteSelectedCases()" class="btn btn-red hidden" style="flex: 1; justify-content: center;">Delete</button>
                             </div>
                         </div>
@@ -676,6 +677,10 @@
                         <div class="stat-card c-emerald" role="button" tabindex="0" onclick="filterDashboardByStat('recovered')" onkeydown="if(event.key==='Enter'||event.key===' ')filterDashboardByStat('recovered')"><h4 style="color: #059669;">बरामद सम्पत्ति (रू)</h4><p id="stRecoveredProp" style="color: #059669;">0</p></div>
                     </div>
                     <div id="dashboardStatFilterHint" class="dashboard-stat-filter-hint"></div>
+                    <div id="wrongStationRecordsPanel" class="hidden" style="margin: 12px 0; padding: 12px; border: 1px solid #dc2626; border-radius: 8px; background: #fff7f7;">
+                        <h3 style="color:#b91c1c; margin:0 0 8px;">गलत थाना नाम से पहले से दर्ज रिकॉर्ड</h3>
+                        <div id="wrongStationRecordsList"></div>
+                    </div>
 
                     <!-- DATA TABLE CONTAINER -->
                     <div class="table-container">
@@ -2988,6 +2993,7 @@
                 localStorage.setItem('rsp_hamirpur_cases', JSON.stringify(casesData));
                 saveDataToFirebase();
                 applyFilters();
+                if (!document.getElementById('wrongStationRecordsPanel')?.classList.contains('hidden')) renderWrongStationRecords();
             }
         }
 
@@ -3003,6 +3009,30 @@
             }
         }
 
+        function toggleWrongStationRecords() {
+            const panel = document.getElementById('wrongStationRecordsPanel');
+            if (!panel) return;
+            panel.classList.toggle('hidden');
+            if (!panel.classList.contains('hidden')) renderWrongStationRecords();
+        }
+
+        function renderWrongStationRecords() {
+            const host = document.getElementById('wrongStationRecordsList');
+            if (!host) return;
+            const invalid = (casesData || []).filter(c => !ALL_THANAS.includes(String(c.thana || '').trim()));
+            if (!invalid.length) {
+                host.innerHTML = '<p style="margin:0;color:#166534;">गलत थाना नाम से कोई रिकॉर्ड नहीं मिला।</p>';
+                return;
+            }
+            host.innerHTML = `<p style="margin:0 0 8px;color:#991b1b;">कुल ${invalid.length} रिकॉर्ड मिले। डिलीट करने से पहले थाना और मुकदमा संख्या जाँच लें।</p>` +
+                `<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;background:#fff;"><thead><tr><th style="padding:6px;border:1px solid #ddd;">थाना (दर्ज)</th><th style="padding:6px;border:1px solid #ddd;">मुकदमा संख्या</th><th style="padding:6px;border:1px solid #ddd;">अपराध शीर्षक</th><th style="padding:6px;border:1px solid #ddd;">वादी</th><th style="padding:6px;border:1px solid #ddd;">विवेचक</th><th style="padding:6px;border:1px solid #ddd;">कार्यवाही</th></tr></thead><tbody>` +
+                invalid.map(c => `<tr><td style="padding:6px;border:1px solid #ddd;">${escapeHtml(String(c.thana || 'खाली'))}</td><td style="padding:6px;border:1px solid #ddd;">${escapeHtml(String(c.case_no || '-'))}</td><td style="padding:6px;border:1px solid #ddd;">${escapeHtml(String(c.crime_title || '-'))}</td><td style="padding:6px;border:1px solid #ddd;">${escapeHtml(String(c.complainant || '-'))}</td><td style="padding:6px;border:1px solid #ddd;">${escapeHtml(String(c.io_name || '-'))}</td><td style="padding:6px;border:1px solid #ddd;"><button class="btn btn-red" onclick="deleteCase('${String(c.id).replace(/'/g, "\\'")}'); setTimeout(renderWrongStationRecords, 100);">डिलीट</button></td></tr>`).join('') + '</tbody></table></div>';
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+        }
+
         function importFromExcel(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -3011,18 +3041,40 @@
                 try {
                     const data = new Uint8Array(evt.target.result);
                     const workbook = XLSX.read(data, { type: 'array' });
-                    const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const json = XLSX.utils.sheet_to_json(sheet, { defval: '' });
                     if (json && json.length > 0) {
                         const importNextByStation = {};
+                        // Only exact official station names are accepted; misspellings/aliases are rejected.
+                        const readImportValue = (item, keys) => {
+                            for (const key of keys) {
+                                if (item[key] !== undefined && item[key] !== null && String(item[key]).trim() !== '') return item[key];
+                            }
+                            return '';
+                        };
+                        const resolveImportStation = (value) => {
+                            const raw = String(value ?? '').trim().replace(/\s+/g, ' ');
+                            const normalized = normalizeDashboardDuplicateKey(raw);
+                            return ALL_THANAS.find(station => normalizeDashboardDuplicateKey(station) === normalized) || '';
+                        };
                         const seenKeys = new Set((casesData || []).map(c =>
                             normalizeDashboardDuplicateKey(c.thana) + '|' + normalizeDashboardDuplicateKey(c._import_source_case_no || c.case_no || c.crimeNo)
                         ));
                         const accepted = [];
                         const duplicateRows = [];
+                        const invalidStationRows = [];
+                        const missingCaseNoRows = [];
                         json.forEach((item, idx) => {
-                            const importThana = loggedInThana !== 'ALL' ? loggedInThana : (item.thana || 'कोतवाली नगर');
-                            const sourceCaseNo = String(item.case_no || item.crime_no || item.crimeNo || item['मु0अ0सं0'] || item['मुकदमा संख्या'] || '').trim();
-                            // Reject duplicate source pairs before assigning a new station-wise number.
+                            // Station users are restricted to their own station; Admin imports use the station column.
+                            const sheetStation = readImportValue(item, ['thana', 'थाना', 'थाना नाम', 'police_station', 'Police Station']);
+                            const resolvedSheetStation = resolveImportStation(sheetStation);
+                            const importThana = resolvedSheetStation;
+                            if (!importThana || !ALL_THANAS.includes(importThana) || (loggedInThana !== 'ALL' && importThana !== loggedInThana)) {
+                                const caseForError = readImportValue(item, ['case_no', 'crime_no', 'crimeNo', 'मु0अ0सं0', 'मुकदमा संख्या', 'मुकदमा सं0']) || '-';
+                                invalidStationRows.push(`Excel पंक्ति ${idx + 2}: थाना “${String(sheetStation || 'खाली').trim()}”, मुकदमा संख्या ${caseForError}`);
+                                return;
+                            }
+                            const sourceCaseNo = String(readImportValue(item, ['case_no', 'crime_no', 'crimeNo', 'मु0अ0सं0', 'मुकदमा संख्या', 'मुकदमा सं0']) || '').trim();
                             if (sourceCaseNo) {
                                 const sourceKey = normalizeDashboardDuplicateKey(importThana) + '|' + normalizeDashboardDuplicateKey(sourceCaseNo);
                                 if (seenKeys.has(sourceKey)) {
@@ -3030,41 +3082,44 @@
                                     return;
                                 }
                                 seenKeys.add(sourceKey);
+                            } else {
+                                missingCaseNoRows.push(`Excel पंक्ति ${idx + 2} (${importThana})`);
                             }
                             const stationKey = normalizeDashboardDuplicateKey(importThana);
                             if (importNextByStation[stationKey] === undefined) {
                                 importNextByStation[stationKey] = Number(nextCrimeNumberForStation(importThana).split('/')[0]);
                             }
+                            // Preserve the portal's existing automatic station-wise serial numbering.
                             const importedCaseNo = String(importNextByStation[stationKey]++).padStart(3, '0') + '/2026';
                             accepted.push({
                                 id: item.id ? String(item.id) : (Date.now() + idx),
-                                janpad: item.janpad || 'हमीरपुर',
-                                circle: item.circle || '-',
+                                janpad: item.janpad || item['जनपद'] || 'हमीरपुर',
+                                circle: item.circle || item['सर्किल'] || '-',
                                 thana: importThana,
-                                crime_title: item.crime_title || 'अन्य',
+                                crime_title: item.crime_title || item['अपराध शीर्षक'] || 'अन्य',
                                 case_no: importedCaseNo,
                                 _import_source_case_no: sourceCaseNo,
-                                section: item.section || '-',
-                                evt_date: item.evt_date || '-',
-                                info_date: item.info_date || '-',
-                                incident_place: item.incident_place || '-',
-                                complainant: item.complainant || '-',
-                                defendant: item.defendant || '-',
-                                brief_desc: item.brief_desc || '-',
-                                io_name: item.io_name || '-',
-                                status: item.status || 'विवेचनाधीन',
-                                cs_no: item.cs_no || '-',
-                                cs_date: item.cs_date || '',
+                                section: item.section || item['धारा'] || '-',
+                                evt_date: item.evt_date || item['घटना दिनांक'] || '-',
+                                info_date: item.info_date || item['सूचना दिनांक'] || '-',
+                                incident_place: item.incident_place || item['घटनास्थल'] || '-',
+                                complainant: item.complainant || item['वादी'] || '-',
+                                defendant: item.defendant || item['अभियुक्त'] || '-',
+                                brief_desc: item.brief_desc || item['संक्षिप्त विवरण'] || '-',
+                                io_name: item.io_name || item['विवेचक'] || '-',
+                                status: item.status || item['स्थिति'] || 'विवेचनाधीन',
+                                cs_no: item.cs_no || item['चार्जशीट संख्या'] || '-',
+                                cs_date: item.cs_date || item['चार्जशीट दिनांक'] || '',
                                 named: Number(item.named) || 0,
                                 revealed: Number(item.revealed) || 0,
                                 arrested: Number(item.arrested) || 0,
                                 notice: Number(item.notice) || 0,
                                 court: Number(item.court) || 0,
                                 wrong: getWrongCount(item),
-                                fcr_head: item.fcr_head || 'नहीं',
-                                remarks: item.remarks || '-',
-                                category: item.category || 'अन्य',
-                                sentence: item.sentence || '07 वर्ष से कम',
+                                fcr_head: item.fcr_head || item['FCR'] || 'नहीं',
+                                remarks: item.remarks || item['टिप्पणी'] || '-',
+                                category: item.category || item['श्रेणी'] || 'अन्य',
+                                sentence: item.sentence || item['सजा'] || '07 वर्ष से कम',
                                 victim_name: item.victim_name || '-',
                                 victim_gender: item.victim_gender || '-',
                                 victim_age: item.victim_age || '-',
@@ -3079,11 +3134,16 @@
                         casesData = casesData.concat(accepted);
                         localStorage.setItem('rsp_hamirpur_cases', JSON.stringify(casesData));
                         saveDataToFirebase();
-                        let msg = `${accepted.length} रिकॉर्ड सफलतापूर्वक इम्पोर्ट हुए।`;
+                        let msg = `Excel में ${json.length} रिकॉर्ड मिले।\n${accepted.length} रिकॉर्ड सफलतापूर्वक इम्पोर्ट हुए।`;
                         if (duplicateRows.length) msg += `\n\nडुप्लीकेट होने के कारण ${duplicateRows.length} रिकॉर्ड नहीं जुड़े (थाना / मुकदमा संख्या):\n` + duplicateRows.join('\n');
+                        if (invalidStationRows.length) msg += `\n\nथाना नाम पहचान में न आने के कारण ${invalidStationRows.length} रिकॉर्ड नहीं जुड़े:\n` + invalidStationRows.join('\n');
+                        if (missingCaseNoRows.length) msg += `\n\nमुकदमा संख्या खाली थी; ऐसे ${missingCaseNoRows.length} रिकॉर्ड को क्रम संख्या दी गई:\n` + missingCaseNoRows.join('\n');
                         alert(msg);
                         applyFilters();
+                        if (!document.getElementById('wrongStationRecordsPanel')?.classList.contains('hidden')) renderWrongStationRecords();
                         if (typeof syncCasesToExtraInvestigation === 'function') syncCasesToExtraInvestigation();
+                    } else {
+                        alert('Excel शीट में इम्पोर्ट करने योग्य रिकॉर्ड नहीं मिले।');
                     }
                 } catch (err) { alert('त्रुटि: ' + err.message); }
                 e.target.value = '';
