@@ -744,6 +744,9 @@
                         
                         <div class="filter-grid" style="margin-bottom: 1rem;">
                             <div class="input-group">
+                                <label>वर्ष</label><select id="fcrYearFilter" onchange="renderFcrTable()" class="input-control"><option value="2026">वर्ष 2026</option></select>
+                            </div>
+                            <div class="input-group">
                                 <label>थाना</label>
                                 <select id="fcrThanaFilter" onchange="renderFcrTable()" class="input-control"><option value="ALL">सभी थाने</option></select>
                             </div>
@@ -839,6 +842,9 @@
 
                         <div class="filter-grid" style="margin-bottom: 1rem;">
                             <div class="input-group">
+                                <label>वर्ष</label><select id="catYearFilter" onchange="renderCategoryTable()" class="input-control"><option value="2026">वर्ष 2026</option></select>
+                            </div>
+                            <div class="input-group">
                                 <label>थाना</label>
                                 <select id="catThanaFilter" onchange="renderCategoryTable()" class="input-control"><option value="ALL">सभी थाने</option></select>
                             </div>
@@ -931,6 +937,7 @@
                             </div>
                         </div>
                         <div class="filter-grid" style="margin-bottom: 1rem;">
+                            <div class="input-group"><label>वर्ष</label><select id="pocsoYear" onchange="renderGenericTab('pocso')" class="input-control"><option value="2026">वर्ष 2026</option></select></div>
                             <div class="input-group"><label>थाना</label><select id="pocsoThana" onchange="renderGenericTab('pocso')" class="input-control"><option value="ALL">सभी</option></select></div>
                             <div class="input-group"><label>अपराध शीर्षक</label><select id="pocsoCrime" onchange="renderGenericTab('pocso')" class="input-control"></select></div>
                             <div class="input-group"><label>F.C.R.</label><select id="pocsoFcr" onchange="renderGenericTab('pocso')" class="input-control"><option value="ALL">सभी</option><option value="हाँ">हाँ</option><option value="नहीं">नहीं</option></select></div>
@@ -1000,6 +1007,7 @@
                             </div>
                         </div>
                         <div class="filter-grid" style="margin-bottom: 1rem;">
+                            <div class="input-group"><label>वर्ष</label><select id="scstYear" onchange="renderGenericTab('scst')" class="input-control"><option value="2026">वर्ष 2026</option></select></div>
                             <div class="input-group"><label>थाना</label><select id="scstThana" onchange="renderGenericTab('scst')" class="input-control"><option value="ALL">सभी</option></select></div>
                             <div class="input-group"><label>अपराध शीर्षक</label><select id="scstCrime" onchange="renderGenericTab('scst')" class="input-control"></select></div>
                             <div class="input-group"><label>F.C.R.</label><select id="scstFcr" onchange="renderGenericTab('scst')" class="input-control"><option value="ALL">सभी</option><option value="हाँ">हाँ</option><option value="नहीं">नहीं</option></select></div>
@@ -1069,6 +1077,7 @@
                             </div>
                         </div>
                         <div class="filter-grid" style="margin-bottom: 1rem;">
+                            <div class="input-group"><label>वर्ष</label><select id="itYear" onchange="renderGenericTab('it')" class="input-control"><option value="2026">वर्ष 2026</option></select></div>
                             <div class="input-group"><label>थाना</label><select id="itThana" onchange="renderGenericTab('it')" class="input-control"><option value="ALL">सभी</option></select></div>
                             <div class="input-group"><label>F.C.R.</label><select id="itFcr" onchange="renderGenericTab('it')" class="input-control"><option value="ALL">सभी</option><option value="हाँ">हाँ</option><option value="नहीं">नहीं</option></select></div>
                             <div class="input-group"><label>विवेचना की स्थिति</label><select id="itStatus" onchange="renderGenericTab('it')" class="input-control"><option value="ALL">सभी</option><option value="विवेचनाधीन">विवेचनाधीन</option><option value="आरोप पत्र प्रेषित">आरोप पत्र</option><option value="अंतिम रिपोर्ट">अंतिम रिपोर्ट</option></select></div>
@@ -1137,6 +1146,7 @@
                             </div>
                         </div>
                         <div class="filter-grid" style="margin-bottom: 1rem;">
+                            <div class="input-group"><label>वर्ष</label><select id="womenYear" onchange="renderGenericTab('women')" class="input-control"><option value="2026">वर्ष 2026</option></select></div>
                             <div class="input-group"><label>थाना</label><select id="womenThana" onchange="renderGenericTab('women')" class="input-control"><option value="ALL">सभी</option></select></div>
                             <div class="input-group"><label>अपराध शीर्षक</label><select id="womenCrime" onchange="renderGenericTab('women')" class="input-control"></select></div>
                             <div class="input-group"><label>F.C.R.</label><select id="womenFcr" onchange="renderGenericTab('women')" class="input-control"><option value="ALL">सभी</option><option value="हाँ">हाँ</option><option value="नहीं">नहीं</option></select></div>
@@ -1207,6 +1217,7 @@
                         </div>
 
                         <div class="filter-grid" style="margin-bottom: 1rem;">
+                            <div class="input-group"><label>वर्ष</label><select id="snYearFilter" onchange="renderSixtyNinetyTable()" class="input-control"><option value="2026">वर्ष 2026</option><option value="2025">वर्ष 2025</option><option value="2024">वर्ष 2024</option><option value="2023">वर्ष 2023</option><option value="2022">वर्ष 2022</option></select></div>
                             <div class="input-group">
                                 <label>थाना</label>
                                 <select id="snThanaFilter" onchange="renderSixtyNinetyTable()" class="input-control">
@@ -1219,10 +1230,15 @@
                                     <option value="ALL">सभी (60 एवं 90 दिवस)</option>
                                     <option value="60">60 दिवस (45 दिन से अधिक)</option>
                                     <option value="90">90 दिवस (75 दिन से अधिक)</option>
+                                    <option value="0">0 DAYS / IPC-ACT</option>
                                 </select>
                             </div>
                         </div>
 
+                        <div class="section-subheading">📊 60/90 DDI REPORT — थानावार संख्यात्मक सारांश (संख्या पर क्लिक करें)</div>
+                        <div class="table-container" style="margin-bottom:1rem;">
+                            <table id="snNumericSummary"><thead><tr><th>क्र0सं0</th><th>थाना</th><th>2022</th><th>2023</th><th>2024</th><th>2025</th><th>2026</th><th>कुल योग</th><th>60 दिन से कम (&lt;45)</th><th>45-60</th><th>60 से अधिक</th><th>90 दिन से कम (&lt;75)</th><th>75-90</th><th>90 से अधिक</th><th>अन्य एक्ट/भा0द0सं0</th></tr></thead><tbody id="snNumericSummaryBody"></tbody></table>
+                        </div>
                         <div class="table-container">
                             <table>
                                 <thead>
@@ -1244,6 +1260,7 @@
                                         <th class="wrap-col w-io">विवेचक का नाम</th>
                                         <th>निर्धारित अवधि</th>
                                         <th>लम्बित अवधि (दिन)</th>
+                                        <th>Status</th>
                                     </tr>
                                 </thead>
                                 <tbody id="sixtyNinetyTableBody"></tbody>
@@ -2401,8 +2418,12 @@
             const stationSerials = Object.create(null);
             data.forEach((item, index) => {
                 const stationKeyForSerial = normalizeDashboardDuplicateKey(item.thana || '');
-                stationSerials[stationKeyForSerial] = (stationSerials[stationKeyForSerial] || 0) + 1;
-                const stationSerialNumber = stationSerials[stationKeyForSerial];
+                const recordYearForSerial = Number(getDashboardRecordYear(item) || 0);
+                let stationSerialNumber = '';
+                if (recordYearForSerial >= 2026) {
+                    stationSerials[stationKeyForSerial] = (stationSerials[stationKeyForSerial] || 0) + 1;
+                    stationSerialNumber = stationSerials[stationKeyForSerial];
+                }
                 let evaluatedCategory = item.category;
                 let evaluatedSentence = item.sentence;
                 if (!evaluatedCategory || !evaluatedSentence) {
@@ -2544,6 +2565,17 @@
 
         let currentFcrSummaryList = [];
 
+        function populateReportYearFilter(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const current = String(new Date().getFullYear());
+            const previous = el.value || current;
+            const years = new Set((casesData || []).map(getDashboardRecordYear).filter(y => /^20\d{2}$/.test(String(y))));
+            years.add(current);
+            el.innerHTML = [...years].sort((a,b)=>Number(b)-Number(a)).map(y => `<option value="${y}">वर्ष ${y}</option>`).join('');
+            el.value = years.has(previous) ? previous : current;
+        }
+
         function renderFcrTable(filterCrime = 'ALL', filterStatus = 'ALL', filterWrong = false) {
             const tbody = document.getElementById('fcrTableBody');
             const dBody = document.getElementById('fcrDetailTableBody');
@@ -2556,8 +2588,11 @@
             const fcrYesNoVal = document.getElementById('fcrYesNoFilter') ? document.getElementById('fcrYesNoFilter').value : 'ALL';
             const fcrFrom = document.getElementById('fcrFromDate') ? document.getElementById('fcrFromDate').value : '';
             const fcrTo = document.getElementById('fcrToDate') ? document.getElementById('fcrToDate').value : '';
+            populateReportYearFilter('fcrYearFilter');
+            const reportYear = document.getElementById('fcrYearFilter')?.value || String(new Date().getFullYear());
 
             let filteredCases = casesData.filter(item => {
+                if (getDashboardRecordYear(item) !== reportYear) return false;
                 if (loggedInThana !== 'ALL' && item.thana !== loggedInThana) return false;
                 if (loggedInThana === 'ALL' && thanaFilterVal !== 'ALL' && item.thana !== thanaFilterVal) return false;
                 if (crimeFilter !== 'ALL' && item.crime_title !== crimeFilter) return false;
@@ -2718,8 +2753,11 @@
             const statusFilter = filterStatus !== 'ALL' ? filterStatus : document.getElementById('catStatusFilter').value;
             const fromDate = document.getElementById('catFromDate') ? document.getElementById('catFromDate').value : '';
             const toDate = document.getElementById('catToDate') ? document.getElementById('catToDate').value : '';
+            populateReportYearFilter('catYearFilter');
+            const reportYear = document.getElementById('catYearFilter')?.value || String(new Date().getFullYear());
 
             let filteredCases = casesData.filter(item => {
+                if (getDashboardRecordYear(item) !== reportYear) return false;
                 if (loggedInThana !== 'ALL' && item.thana !== loggedInThana) return false;
                 if (loggedInThana === 'ALL' && thanaFilterVal !== 'ALL' && item.thana !== thanaFilterVal) return false;
                 if (catFilter !== 'ALL' && item.category !== catFilter) return false;
@@ -2874,8 +2912,11 @@
             const statusVal = filterStatus !== 'ALL' ? filterStatus : (document.getElementById(statusId) ? document.getElementById(statusId).value : 'ALL');
             const fromDate = document.getElementById(fromId) ? document.getElementById(fromId).value : '';
             const toDate = document.getElementById(toId) ? document.getElementById(toId).value : '';
+            populateReportYearFilter(type + 'Year');
+            const reportYear = document.getElementById(type + 'Year')?.value || String(new Date().getFullYear());
 
             let filtered = casesData.filter(item => {
+                if (getDashboardRecordYear(item) !== reportYear) return false;
                 if (loggedInThana !== 'ALL' && item.thana !== loggedInThana) return false;
                 if (loggedInThana === 'ALL' && thanaVal !== 'ALL' && item.thana !== thanaVal) return false;
                 if (crimeVal !== 'ALL' && item.crime_title !== crimeVal) return false;
@@ -3016,63 +3057,80 @@
             }
         }
 
+        function selectSnSummary(station, year, limit) {
+            const thana = document.getElementById('snThanaFilter');
+            const yr = document.getElementById('snYearFilter');
+            const lf = document.getElementById('snLimitFilter');
+            if (thana) thana.value = station || 'ALL';
+            if (yr && year) yr.value = String(year);
+            if (lf) lf.value = limit || 'ALL';
+            renderSixtyNinetyTable();
+        }
+
         function renderSixtyNinetyTable() {
             const tbody = document.getElementById('sixtyNinetyTableBody');
+            const summaryBody = document.getElementById('snNumericSummaryBody');
             tbody.innerHTML = '';
+            if (summaryBody) summaryBody.innerHTML = '';
             const thanaFilter = document.getElementById('snThanaFilter').value;
             const limitFilter = document.getElementById('snLimitFilter').value;
+            const yearFilter = document.getElementById('snYearFilter')?.value || String(new Date().getFullYear());
+            const summaryCases = casesData.filter(item => item.status === 'विवेचनाधीन' &&
+                (loggedInThana === 'ALL' || item.thana === loggedInThana) &&
+                (thanaFilter === 'ALL' || item.thana === thanaFilter));
+            const allPending = summaryCases.filter(item => getDashboardRecordYear(item) === yearFilter);
 
-            let filteredList = casesData.filter(item => {
-                if (item.status !== 'विवेचनाधीन') return false;
-                if (loggedInThana !== 'ALL' && item.thana !== loggedInThana) return false;
-                if (thanaFilter !== 'ALL' && item.thana !== thanaFilter) return false;
-
-                let days = calculateDurationDays(item.info_date, item.status, item.cs_date);
-                let limit = getPrescribedLimit(item.section);
-                
-                if (limitFilter === '60' && (limit !== 60 || days <= 45)) return false;
-                if (limitFilter === '90' && (limit !== 90 || days <= 75)) return false;
-
-                if (limitFilter === 'ALL') {
-                    if (limit === 90 && days > 75) return true;
-                    if (limit === 60 && days > 45) return true;
-                    return false;
-                }
-                return true;
+            const stationRows = {};
+            summaryCases.forEach(item => {
+                const station = item.thana || 'अन्य';
+                if (!stationRows[station]) stationRows[station] = {years:{}, lt60:0, b60:0, gt60:0, lt90:0, b90:0, gt90:0, other:0, total:0};
+                const r = stationRows[station];
+                const y = getDashboardRecordYear(item); r.years[y]=(r.years[y]||0)+1; r.total++;
+                const days = calculateDurationDays(item.info_date, item.status, item.cs_date);
+                const limit = getPrescribedLimit(item.section);
+                if (limit === 0) r.other++;
+                else if (limit === 60) { if(days < 45) r.lt60++; else if(days <= 60) r.b60++; else r.gt60++; }
+                else if (limit === 90) { if(days < 75) r.lt90++; else if(days <= 90) r.b90++; else r.gt90++; }
             });
-
-            if (filteredList.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="17" style="text-align: center; padding: 1.8rem; color: #64748b;">मापदंड के अनुसार कोई लम्बित विवेचना उपलब्ध नहीं है।</td></tr>';
-                return;
+            if (summaryBody) {
+                let n=1, grand={years:{},lt60:0,b60:0,gt60:0,lt90:0,b90:0,gt90:0,other:0,total:0};
+                ALL_THANAS.filter(t=>stationRows[t]).forEach(station=>{
+                    const r=stationRows[station];
+                    [2022,2023,2024,2025,2026].forEach(y=>grand.years[y]=(grand.years[y]||0)+(r.years[y]||0));
+                    ['lt60','b60','gt60','lt90','b90','gt90','other','total'].forEach(k=>grand[k]+=r[k]);
+                    const vals=[2022,2023,2024,2025,2026].map(y=>r.years[y]||0);
+                    const tr=document.createElement('tr');
+                    tr.innerHTML=`<td>${n++}</td><td>${station}</td>${vals.map((v,i)=>`<td><button class="cell-link" onclick="selectSnSummary('${station}',${2022+i},'ALL')">${v}</button></td>`).join('')}<td><button class="cell-link total-link" onclick="selectSnSummary('${station}',${yearFilter},'ALL')">${r.total}</button></td><td><button class="cell-link" onclick="selectSnSummary('${station}',${yearFilter},'60')">${r.lt60}</button></td><td><button class="cell-link" onclick="selectSnSummary('${station}',${yearFilter},'60')">${r.b60}</button></td><td><button class="cell-link" onclick="selectSnSummary('${station}',${yearFilter},'60')">${r.gt60}</button></td><td><button class="cell-link" onclick="selectSnSummary('${station}',${yearFilter},'90')">${r.lt90}</button></td><td><button class="cell-link" onclick="selectSnSummary('${station}',${yearFilter},'90')">${r.b90}</button></td><td><button class="cell-link" onclick="selectSnSummary('${station}',${yearFilter},'90')">${r.gt90}</button></td><td><button class="cell-link" onclick="selectSnSummary('${station}',${yearFilter},'0')">${r.other}</button></td>`;
+                    summaryBody.appendChild(tr);
+                });
+                const total=document.createElement('tr'); total.className='total-row';
+                total.innerHTML=`<td colspan="2">जनपद योग</td>${[2022,2023,2024,2025,2026].map(y=>`<td>${grand.years[y]||0}</td>`).join('')}<td>${grand.total}</td><td>${grand.lt60}</td><td>${grand.b60}</td><td>${grand.gt60}</td><td>${grand.lt90}</td><td>${grand.b90}</td><td>${grand.gt90}</td><td>${grand.other}</td>`;
+                summaryBody.appendChild(total);
             }
 
-            filteredList.forEach((item, index) => {
-                let days = calculateDurationDays(item.info_date, item.status, item.cs_date);
-                let limit = getPrescribedLimit(item.section);
-                let yoga = (Number(item.named) || 0) + (Number(item.revealed) || 0);
-                let disp = (Number(item.arrested) || 0) + (Number(item.notice) || 0) + (Number(item.court) || 0) + (getWrongCount(item));
-                let rem = Math.max(0, yoga - disp);
-
-                let tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td>${item.thana || '-'}</td>
-                    <td style="font-weight: bold; color: #2563eb;">${item.case_no || '-'}</td>
-                    <td>${item.info_date || '-'}</td>
-                    <td>${item.section || '-'}</td>
-                    <td>${item.named || 0}</td>
-                    <td>${item.revealed || 0}</td>
-                    <td style="font-weight: bold;">${yoga}</td>
-                    <td>${item.arrested || 0}</td>
-                    <td>${item.court || 0}</td>
-                    <td>${item.notice || 0}</td>
-                    <td>${item.wrong || 0}</td>
-                    <td>0</td>
-                    <td style="font-weight: bold; color: #dc2626;">${rem}</td>
-                    <td class="wrap-col w-io">${item.io_name || '-'}</td>
-                    <td style="font-weight: 700; color: #0284c7;">${limit} दिन</td>
-                    <td style="font-weight: 800; color: #e11d48; background: #fff1f2;">${days} दिन</td>
-                `;
+            let filteredList = allPending.filter(item => {
+                const days=calculateDurationDays(item.info_date,item.status,item.cs_date), limit=getPrescribedLimit(item.section);
+                if (limitFilter === '0') return limit === 0;
+                if (limitFilter === '60') return limit === 60 && days > 45;
+                if (limitFilter === '90') return limit === 90 && days > 75;
+                return (limit===60 && days>45) || (limit===90 && days>75);
+            });
+            filteredList.sort((a,b)=>{
+                const la=getPrescribedLimit(a.section), lb=getPrescribedLimit(b.section);
+                const groupA=la===90?0:la===60?1:2, groupB=lb===90?0:lb===60?1:2;
+                return groupA-groupB || calculateDurationDays(b.info_date,b.status,b.cs_date)-calculateDurationDays(a.info_date,a.status,a.cs_date);
+            });
+            if (!filteredList.length) { tbody.innerHTML='<tr><td colspan="18" style="text-align:center;padding:1.8rem;color:#64748b;">मापदंड के अनुसार कोई लम्बित विवेचना उपलब्ध नहीं है।</td></tr>'; return; }
+            filteredList.forEach((item,index)=>{
+                const days=calculateDurationDays(item.info_date,item.status,item.cs_date), limit=getPrescribedLimit(item.section);
+                const yoga=(Number(item.named)||0)+(Number(item.revealed)||0);
+                const disp=(Number(item.arrested)||0)+(Number(item.notice)||0)+(Number(item.court)||0)+getWrongCount(item);
+                const rem=Math.max(0,yoga-disp);
+                const status=limit===0?'IPC/ACT':(limit===60?(days>60?'DELAYED':days>=45?'URGENT':''):(days>90?'DELAYED':days>=75?'URGENT':''));
+                const color=status==='DELAYED'?'#dc2626':status==='URGENT'?'#16a34a':'#334155';
+                const bg=status==='DELAYED'?'#fee2e2':status==='URGENT'?'#dcfce7':'#fff';
+                const tr=document.createElement('tr');
+                tr.innerHTML=`<td>${index+1}</td><td>${item.thana||'-'}</td><td style="font-weight:bold;color:#2563eb;">${item.case_no||'-'}</td><td>${item.info_date||'-'}</td><td>${item.section||'-'}</td><td>${item.named||0}</td><td>${item.revealed||0}</td><td style="font-weight:bold;">${yoga}</td><td>${item.arrested||0}</td><td>${item.court||0}</td><td>${item.notice||0}</td><td>${getWrongCount(item)}</td><td>0</td><td style="font-weight:bold;color:#dc2626;">${rem}</td><td class="wrap-col w-io">${item.io_name||'-'}</td><td style="font-weight:700;color:#0284c7;">${limit===0?'0 DAYS':limit+' दिन'}</td><td style="font-weight:800;">${days} दिन</td><td style="font-weight:900;color:${color};background:${bg};">${status||'-'}</td>`;
                 tbody.appendChild(tr);
             });
         }
