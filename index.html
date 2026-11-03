@@ -1217,7 +1217,7 @@
                         </div>
 
                         <div class="filter-grid" style="margin-bottom: 1rem;">
-                            <div class="input-group"><label>वर्ष</label><select id="snYearFilter" onchange="renderSixtyNinetyTable()" class="input-control"><option value="ALL">सभी वर्ष</option><option value="2026">वर्ष 2026</option><option value="2025">वर्ष 2025</option><option value="2024">वर्ष 2024</option><option value="2023">वर्ष 2023</option><option value="2022">वर्ष 2022</option></select></div>
+                            <div class="input-group"><label>वर्ष</label><select id="snYearFilter" data-multi-filter="1" onchange="renderSixtyNinetyTable()" class="input-control"><option value="ALL">सभी वर्ष</option><option value="2026">वर्ष 2026</option><option value="2025">वर्ष 2025</option><option value="2024">वर्ष 2024</option><option value="2023">वर्ष 2023</option><option value="2022">वर्ष 2022</option></select></div>
                             <div class="input-group">
                                 <label>थाना</label>
                                 <select id="snThanaFilter" onchange="renderSixtyNinetyTable()" class="input-control">
@@ -1226,11 +1226,11 @@
                             </div>
                             <div class="input-group">
                                 <label>निर्धारित अवधि</label>
-                                <select id="snLimitFilter" onchange="renderSixtyNinetyTable()" class="input-control">
-                                    <option value="ALL">सभी (60, 90 एवं 0 DAYS)</option>
+                                <select id="snLimitFilter" data-multi-filter="1" onchange="renderSixtyNinetyTable()" class="input-control">
+                                    <option value="ALL">सभी (60, 90 एवं IPC/ACT)</option>
                                     <option value="60">60 दिवस (45 दिन से अधिक)</option>
                                     <option value="90">90 दिवस (75 दिन से अधिक)</option>
-                                    <option value="0">0 DAYS / IPC-ACT</option>
+                                    <option value="0">0 DAYS / IPC-ACT (सभी वर्ष)</option>
                                 </select>
                             </div>
                         </div>
@@ -2287,7 +2287,7 @@
             return !selected || selected.includes(String(value ?? ''));
         }
         function installDashboardMultiSelects() {
-            document.querySelectorAll('#tabDashboard select[data-multi-filter="1"]').forEach(select => {
+            document.querySelectorAll('#tabDashboard select[data-multi-filter="1"], #tabHistory select[data-multi-filter="1"]').forEach(select => {
                 let wrap = select.nextElementSibling;
                 if (!wrap || !wrap.classList.contains('dashboard-multi-filter')) {
                     wrap = document.createElement('div');
@@ -3062,23 +3062,43 @@
             const yr = document.getElementById('snYearFilter');
             const lf = document.getElementById('snLimitFilter');
             if (thana) thana.value = station || 'ALL';
-            if (yr && year) yr.value = String(year);
-            if (lf) lf.value = limit || 'ALL';
+            if (yr && year) { yr.dataset.multiValues = JSON.stringify([String(year)]); yr.value = String(year); }
+            if (lf) { lf.dataset.multiValues = JSON.stringify(limit && limit !== 'ALL' ? [String(limit)] : []); lf.value = limit || 'ALL'; }
+            installDashboardMultiSelects();
             renderSixtyNinetyTable();
         }
 
+        function initializeSixtyNinetyMultiFilters() {
+            const yearSelect = document.getElementById('snYearFilter');
+            const limitSelect = document.getElementById('snLimitFilter');
+            if (!yearSelect || !limitSelect || yearSelect.dataset.optionsReady === '1') return;
+            const currentYear = new Date().getFullYear();
+            const years = new Set((casesData || []).map(getDashboardRecordYear).filter(y => /^20\\d{2}$/.test(String(y))));
+            for (let y = 2022; y <= currentYear; y++) years.add(String(y));
+            const orderedYears = [...years].sort((a,b) => Number(b)-Number(a));
+            yearSelect.innerHTML = '<option value="ALL">सभी वर्ष</option>' + orderedYears.map(y => `<option value="${y}">वर्ष ${y}</option>`).join('');
+            limitSelect.innerHTML = '<option value="ALL">सभी निर्धारित अवधि</option><option value="60">60 दिवस (45 दिन से अधिक)</option><option value="90">90 दिवस (75 दिन से अधिक)</option><option value="0">0 DAYS / IPC-ACT (सभी वर्ष)</option>' +
+                orderedYears.slice().sort((a,b)=>Number(a)-Number(b)).map(y => `<option value="IPC_${y}">${y} IPC/ACT</option>`).join('');
+            yearSelect.value = String(currentYear);
+            if (![...yearSelect.options].some(o => o.value === String(currentYear))) yearSelect.value = 'ALL';
+            yearSelect.dataset.optionsReady = '1';
+            installDashboardMultiSelects();
+        }
+
         function renderSixtyNinetyTable() {
+            initializeSixtyNinetyMultiFilters();
             const tbody = document.getElementById('sixtyNinetyTableBody');
             const summaryBody = document.getElementById('snNumericSummaryBody');
             tbody.innerHTML = '';
             if (summaryBody) summaryBody.innerHTML = '';
             const thanaFilter = document.getElementById('snThanaFilter').value;
-            const limitFilter = document.getElementById('snLimitFilter').value;
-            const yearFilter = document.getElementById('snYearFilter')?.value || String(new Date().getFullYear());
+            const limitSelections = dashboardFilterValues('snLimitFilter');
+            const yearSelections = dashboardFilterValues('snYearFilter');
+            const yearFilter = yearSelections;
             const summaryCases = casesData.filter(item => item.status === 'विवेचनाधीन' &&
                 (loggedInThana === 'ALL' || item.thana === loggedInThana) &&
                 (thanaFilter === 'ALL' || item.thana === thanaFilter));
-            const allPending = yearFilter === 'ALL' ? summaryCases : summaryCases.filter(item => getDashboardRecordYear(item) === yearFilter);
+            const allPending = !yearFilter ? summaryCases : summaryCases.filter(item => yearFilter.includes(getDashboardRecordYear(item)));
 
             const stationRows = {};
             summaryCases.forEach(item => {
@@ -3110,9 +3130,18 @@
 
             let filteredList = allPending.filter(item => {
                 const days=calculateDurationDays(item.info_date,item.status,item.cs_date), limit=getPrescribedLimit(item.section);
-                if (limitFilter === '0') return limit === 0;
-                if (limitFilter === '60') return limit === 60 && days > 45;
-                if (limitFilter === '90') return limit === 90 && days > 75;
+                const recordYear = getDashboardRecordYear(item);
+                const selectedLimits = limitSelections || [];
+                if (selectedLimits.length) {
+                    const matches = selectedLimits.some(value => {
+                        if (value === '60') return limit === 60 && days > 45;
+                        if (value === '90') return limit === 90 && days > 75;
+                        if (value === '0') return limit === 0;
+                        if (String(value).startsWith('IPC_')) return limit === 0 && recordYear === String(value).slice(4);
+                        return false;
+                    });
+                    return matches;
+                }
                 return limit === 0 || (limit === 60 && days > 45) || (limit === 90 && days > 75);
             });
             const stationOrder = new Map(ALL_THANAS.map((name, index) => [name, index]));
