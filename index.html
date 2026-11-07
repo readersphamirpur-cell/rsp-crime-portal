@@ -38794,6 +38794,24 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
   box-sizing: border-box !important; white-space: normal !important; overflow-wrap: anywhere !important;
 }
 </style>
+
+<style id="rsp-desktop-special-summary-layout">
+/* Desktop-only alignment for the three special summary blocks.
+   Mobile layout is intentionally left unchanged. */
+@media (min-width: 901px) {
+  #specialCrimeSummaryBlocks {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    align-items: start !important;
+  }
+  #specialCrimeSummaryBlocks > .stat-card {
+    grid-column: auto !important;
+    width: 100%;
+    min-width: 0;
+    align-self: start;
+  }
+}
+</style>
+
 </head>
 <body>
 <!-- SSO LOGIN SECTION -->
