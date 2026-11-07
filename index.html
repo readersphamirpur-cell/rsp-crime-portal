@@ -9121,6 +9121,19 @@
   justify-content: center;
 }
 #tabDashboard .stats-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--rsp-dashboard-grid-min, 140px)), 1fr)); }
+/* Desktop only: let the three special summary cards continue in the same grid
+   immediately after the Recovered Property card; mobile layout stays unchanged. */
+@media (min-width: 761px) {
+  #tabDashboard #specialCrimeSummaryBlocks {
+    display: contents !important;
+  }
+  #tabDashboard #specialCrimeSummaryBlocks > .stat-card {
+    grid-column: span 2 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+}
 #tabDashboard .stat-card h4, #tabDashboard .stat-card p { white-space: normal; overflow-wrap: anywhere; }
 /* Compact only the three special-crime summary blocks; preserve their order, width and calculations. */
 #tabDashboard #specialCrimeSummaryBlocks {
@@ -38794,24 +38807,6 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
   box-sizing: border-box !important; white-space: normal !important; overflow-wrap: anywhere !important;
 }
 </style>
-
-<style id="rsp-desktop-special-summary-layout">
-/* Desktop-only alignment for the three special summary blocks.
-   Mobile layout is intentionally left unchanged. */
-@media (min-width: 901px) {
-  #specialCrimeSummaryBlocks {
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-    align-items: start !important;
-  }
-  #specialCrimeSummaryBlocks > .stat-card {
-    grid-column: auto !important;
-    width: 100%;
-    min-width: 0;
-    align-self: start;
-  }
-}
-</style>
-
 </head>
 <body>
 <!-- SSO LOGIN SECTION -->
