@@ -9122,6 +9122,25 @@
 }
 #tabDashboard .stats-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--rsp-dashboard-grid-min, 140px)), 1fr)); }
 #tabDashboard .stat-card h4, #tabDashboard .stat-card p { white-space: normal; overflow-wrap: anywhere; }
+/* Compact only the three special-crime summary blocks; preserve their order, width and calculations. */
+#tabDashboard #specialCrimeSummaryBlocks {
+  gap: 0.45rem !important;
+  margin-bottom: 0.7rem !important;
+}
+#tabDashboard #specialCrimeSummaryBlocks > .stat-card {
+  min-height: 0 !important;
+  padding: 0.45rem 0.5rem !important;
+  height: auto !important;
+}
+#tabDashboard #specialCrimeSummaryBlocks > .stat-card h4 {
+  font-size: 0.9rem !important;
+  line-height: 1.25 !important;
+  margin: 0 0 0.2rem !important;
+}
+#tabDashboard #specialCrimeSummaryBlocks > .stat-card > div {
+  font-size: 0.76rem !important;
+  line-height: 1.4 !important;
+}
 /* Dashboard block-by-block controls: set --rsp-block-N-width / min-width / max-width / min-height / font-size */
 #tabDashboard .stat-card:nth-child(1) {
   width: var(--rsp-block-1-width, 100%);
@@ -38924,6 +38943,22 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
 <input class="input-control" id="toDateFilter" onchange="applyFilters()" type="date"/><button class="date-clear-btn" onclick="clearDateFilter('toDateFilter', applyFilters)" type="button">Clear</button>
 </div>
 <div class="input-group">
+<label>CS/FR दिनांक से (From)</label>
+<input class="input-control" id="csFromDateFilter" onchange="applyFilters()" type="date"/><button class="date-clear-btn" onclick="clearDateFilter('csFromDateFilter', applyFilters)" type="button">Clear</button>
+</div>
+<div class="input-group">
+<label>CS/FR दिनांक तक (To)</label>
+<input class="input-control" id="csToDateFilter" onchange="applyFilters()" type="date"/><button class="date-clear-btn" onclick="clearDateFilter('csToDateFilter', applyFilters)" type="button">Clear</button>
+</div>
+<div class="input-group">
+<label>बरामदगी दिनांक से (From)</label>
+<input class="input-control" id="recoveryFromDateFilter" onchange="applyFilters()" type="date"/><button class="date-clear-btn" onclick="clearDateFilter('recoveryFromDateFilter', applyFilters)" type="button">Clear</button>
+</div>
+<div class="input-group">
+<label>बरामदगी दिनांक तक (To)</label>
+<input class="input-control" id="recoveryToDateFilter" onchange="applyFilters()" type="date"/><button class="date-clear-btn" onclick="clearDateFilter('recoveryToDateFilter', applyFilters)" type="button">Clear</button>
+</div>
+<div class="input-group">
 <label>F.C.R.</label>
 <select class="input-control" data-multi-filter="1" id="fcrFilter" onchange="applyFilters()">
 <option value="ALL">सभी</option>
@@ -38956,6 +38991,20 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
 <div class="stat-card c-red" onclick="filterDashboardByStat('pendingCases')" onkeydown="if(event.key==='Enter'||event.key===' ')filterDashboardByStat('pendingCases')" role="button" tabindex="0"><h4 style="color: #dc2626;">शेष विवेचना</h4><p id="stPendingCases" style="color: #dc2626;">0</p></div>
 <div class="stat-card c-rose" onclick="filterDashboardByStat('stolen')" onkeydown="if(event.key==='Enter'||event.key===' ')filterDashboardByStat('stolen')" role="button" tabindex="0"><h4 style="color: #e11d48;">गयी सम्पत्ति (रू)</h4><p id="stStolenProp" style="color: #e11d48;">0</p></div>
 <div class="stat-card c-emerald" onclick="filterDashboardByStat('recovered')" onkeydown="if(event.key==='Enter'||event.key===' ')filterDashboardByStat('recovered')" role="button" tabindex="0"><h4 style="color: #059669;">बरामद सम्पत्ति (रू)</h4><p id="stRecoveredProp" style="color: #059669;">0</p></div>
+</div>
+<div class="stats-grid" id="specialCrimeSummaryBlocks">
+<div class="stat-card c-cyan" role="button" tabindex="0" onclick="filterDashboardByStat('abduction')" onkeydown="if(event.key==='Enter'||event.key===' ')filterDashboardByStat('abduction')" style="grid-column:span 4; cursor:pointer;">
+<h4>अपहृत / बरामद / शेष (महिला-पुरुष)</h4>
+<div id="abductionSummaryStats" style="font-size:.82rem;line-height:1.7;font-weight:700;">गणना उपलब्ध नहीं</div>
+</div>
+<div class="stat-card c-red" role="button" tabindex="0" onclick="filterDashboardByStat('accident281')" onkeydown="if(event.key==='Enter'||event.key===' ')filterDashboardByStat('accident281')" style="grid-column:span 4; cursor:pointer;">
+<h4>281/106(1) BNS — मृतक एवं घायल</h4>
+<div id="accident281SummaryStats" style="font-size:.82rem;line-height:1.7;font-weight:700;">गणना उपलब्ध नहीं</div>
+</div>
+<div class="stat-card c-orange" role="button" tabindex="0" onclick="filterDashboardByStat('accident125')" onkeydown="if(event.key==='Enter'||event.key===' ')filterDashboardByStat('accident125')" style="grid-column:span 4; cursor:pointer;">
+<h4>125A/125B/281 — घायल</h4>
+<div id="accident125SummaryStats" style="font-size:.82rem;line-height:1.7;font-weight:700;">गणना उपलब्ध नहीं</div>
+</div>
 </div>
 <div class="dashboard-stat-filter-hint" id="dashboardStatFilterHint"></div>
 <!-- DATA TABLE CONTAINER -->
@@ -38997,6 +39046,7 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
 <th>पीड़ित का नाम</th>
 <th>लिंग (Male/Female)</th>
 <th>पीड़ित की उम्र</th>
+<th>बरामदगी दिनांक (केवल अन्य अपहरण)</th>
 <th>गयी सम्पत्ति (रू)</th>
 <th>बरामद सम्पत्ति (रू)</th>
 <th>घायल (पुरुष/महिला)</th>
@@ -39654,17 +39704,27 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
 <div><label style="font-size: 0.78rem; color: #64748b; font-weight: 700;">सजा (ऑटो)</label><select class="input-control" id="f_sentence" required=""><option value="07 वर्ष से कम">07 वर्ष से कम</option><option value="7 वर्ष से अधिक">7 वर्ष से अधिक</option></select></div>
 <div style="grid-column: span 3;"><label style="font-size: 0.78rem; color: #64748b; font-weight: 700;">रिमार्क्स</label><input class="input-control" id="f_remarks" placeholder="Remarks" type="text"/></div>
 <div class="hidden" id="victimFields" style="grid-column: span 3; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.8rem; background: #fdf2f8; padding: 0.8rem; border-radius: 6px; border: 1px solid #fbcfe8;">
-<div><label style="font-size: 0.78rem; color: #be185d; font-weight: 700;">पीड़ित का नाम</label><input class="input-control" id="f_victim_name" type="text"/></div>
-<div><label style="font-size: 0.78rem; color: #be185d; font-weight: 700;">पीड़ित की उम्र</label><input class="input-control" id="f_victim_age" type="text"/></div>
-<div class="hidden" id="victimGenderField"><label style="font-size: 0.78rem; color: #be185d; font-weight: 700;">लिंग (Male/Female) <span style="color:#dc2626">*</span></label><select class="input-control" id="f_victim_gender"><option value="">चुनें / Select</option><option value="Male">Male (पुरुष)</option><option value="Female">Female (महिला)</option></select></div>
+<div><label style="font-size: 0.78rem; color: #be185d; font-weight: 700;">पीड़ित/पीड़िता का नाम</label><input class="input-control" id="f_victim_name" type="text"/></div>
+<div><label style="font-size: 0.78rem; color: #be185d; font-weight: 700;">पीड़ित/पीड़िता की उम्र</label><input class="input-control" id="f_victim_age" type="text"/></div>
+<div id="victimGenderField"><label style="font-size: 0.78rem; color: #be185d; font-weight: 700;">लिंग (Male/Female) <span style="color:#dc2626">*</span></label><select class="input-control" id="f_victim_gender"><option value="">चुनें / Select</option><option value="Male">Male (पुरुष)</option><option value="Female">Female (महिला)</option></select></div>
+<div class="hidden" id="victimExtraRows" style="grid-column:span 3; display:grid; gap:.6rem;"></div>
+<button class="btn btn-blue hidden" id="addVictimBtn" onclick="addVictimRow()" type="button" style="grid-column:span 3;justify-content:center;">+ पीड़िता जोड़ें</button>
+<div class="hidden" id="recoveryDateField" style="grid-column:span 3;">
+<label style="font-size: 0.78rem; color: #be185d; font-weight: 700;">बरामदगी दिनांक (केवल अन्य अपहरण)</label>
+<input class="input-control" id="f_recovery_date" type="date"/>
+</div>
 </div>
 <div class="hidden" id="propertyFields" style="grid-column: span 3; display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; background: #ecfdf5; padding: 0.8rem; border-radius: 6px; border: 1px solid #a7f3d0;">
 <div><label style="font-size: 0.78rem; color: #047857; font-weight: 700;">गयी सम्पत्ति मूल्य (रू)</label><input class="input-control" id="f_stolen_property" min="0" type="number" value="0"/></div>
 <div><label style="font-size: 0.78rem; color: #047857; font-weight: 700;">बरामद सम्पत्ति मूल्य (रू)</label><input class="input-control" id="f_recovered_property" min="0" type="number" value="0"/></div>
 </div>
-<div class="hidden" id="accidentFields" style="grid-column: span 3; display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; background: #eef2ff; padding: 0.8rem; border-radius: 6px; border: 1px solid #c7d2fe;">
-<div><label style="font-size: 0.78rem; color: #4338ca; font-weight: 700;">घायल</label><input class="input-control" id="f_injured_detail" type="text"/></div>
-<div><label style="font-size: 0.78rem; color: #4338ca; font-weight: 700;">मृत्यु</label><input class="input-control" id="f_death_detail" type="text"/></div>
+<div class="hidden" id="accidentFields" style="grid-column: span 3; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.8rem; background: #eef2ff; padding: 0.8rem; border-radius: 6px; border: 1px solid #c7d2fe;">
+<div><label style="font-size: 0.78rem; color: #4338ca; font-weight: 700;">घायल (पुरुष/महिला विवरण)</label><input class="input-control" id="f_injured_detail" type="text"/></div>
+<div><label style="font-size: 0.78rem; color: #4338ca; font-weight: 700;">मृत्यु (पुरुष/महिला विवरण)</label><input class="input-control" id="f_death_detail" type="text"/></div>
+<div><label style="font-size: 0.78rem; color: #4338ca; font-weight: 700;">मृतक पुरुष संख्या</label><input class="input-control" id="f_death_male" type="number" min="0" value="0"/></div>
+<div><label style="font-size: 0.78rem; color: #4338ca; font-weight: 700;">मृतक महिला संख्या</label><input class="input-control" id="f_death_female" type="number" min="0" value="0"/></div>
+<div><label style="font-size: 0.78rem; color: #4338ca; font-weight: 700;">घायल पुरुष संख्या</label><input class="input-control" id="f_injured_male" type="number" min="0" value="0"/></div>
+<div><label style="font-size: 0.78rem; color: #4338ca; font-weight: 700;">घायल महिला संख्या</label><input class="input-control" id="f_injured_female" type="number" min="0" value="0"/></div>
 </div>
 <div class="hidden" id="recoveryFields" style="grid-column: span 3; background: #fffbeb; padding: 0.8rem; border-radius: 6px; border: 1px solid #fde68a;">
 <label style="font-size: 0.78rem; color: #b45309; font-weight: 700;">बरामदगी विवरण</label><input class="input-control" id="f_recovery_detail" type="text"/>
@@ -39719,7 +39779,7 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
         ];
 
         const EXACT_CRIME_LIST = [
-            "हत्या", "हत्या का प्रयास", "दहेज हत्या", "बलात्कार", "बलवा", "105 BNS", 
+            "हत्या", "हत्या का प्रयास", "दहेज हत्या", "बलात्कार", "69 BNS", "बलवा", "105 BNS", 
             "डकैती", "डकैती की योजना", "लूट", "नकबजनी", "वाहन चोरी", "पशु चोरी", "अन्य चोरी", 
             "316(2) BNS", "316(5) BNS", "318(2)/319(2) BNS", "अन्य अपहरण", "308 IPC/110 BNS", 
             "108 BNS/306 IPC", "296 BNS", "326 BNS", "132/121 BNS", "308 BNS", "साधारण मारपीट", 
@@ -39729,7 +39789,8 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
             "10 UP गुंडा एक्ट", "खनिज अधिनियम", "IT ACT", "विस्फोटक अधिनियम", "अन्य अधिनियम"
         ];
 
-        const VICTIM_CRIMES = ["हत्या", "दहेज हत्या", "बलात्कार", "अन्य अपहरण", "296 BNS", "शीलभंग", "पॉक्सो एक्ट"];
+        const VICTIM_CRIMES = ["हत्या", "दहेज हत्या", "बलात्कार", "69 BNS", "अन्य अपहरण", "296 BNS", "शीलभंग", "पॉक्सो एक्ट"];
+        const REQUIRED_VICTIM_CRIMES = ["105 BNS", "108 BNS/306 IPC", "अन्य अपहरण"];
         const PROPERTY_CRIMES = ["लूट", "डकैती", "वाहन चोरी", "अन्य चोरी", "नकबजनी", "पशु चोरी"];
         const ACCIDENT_CRIMES = ["281/106(1) BNS", "125A/125B/281 BNS"];
         const RECOVERY_CRIMES = ["60 आबकारी", "3/25 आर्म्स एक्ट", "NDPS ACT", "जुआ अधिनियम", "विस्फोटक अधिनियम"];
@@ -39815,13 +39876,49 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
             const selectedCrime = document.getElementById('f_crime_title').value;
             const sectionValue = (document.getElementById('f_section')?.value || '').replace(/\s/g, '').toUpperCase();
             const section1031 = /(?:^|[^0-9])103\(1\)(?:$|[^0-9])/.test(sectionValue);
-            document.getElementById('victimFields').classList.toggle('hidden', !(VICTIM_CRIMES.includes(selectedCrime) || section1031));
-            document.getElementById('victimGenderField').classList.toggle('hidden', !section1031);
-            document.getElementById('f_victim_gender').required = section1031;
-            if (!section1031) document.getElementById('f_victim_gender').value = '';
+            const showVictim = VICTIM_CRIMES.includes(selectedCrime) || REQUIRED_VICTIM_CRIMES.includes(selectedCrime) || section1031;
+            const requiredVictim = REQUIRED_VICTIM_CRIMES.includes(selectedCrime);
+            const isMultipleAbduction = selectedCrime === 'अन्य अपहरण';
+            document.getElementById('victimFields').classList.toggle('hidden', !showVictim);
+            document.getElementById('victimGenderField').classList.toggle('hidden', !(requiredVictim || section1031));
+            document.getElementById('f_victim_name').required = requiredVictim;
+            document.getElementById('f_victim_age').required = requiredVictim;
+            document.getElementById('f_victim_gender').required = requiredVictim || section1031;
+            if (!requiredVictim && !section1031) document.getElementById('f_victim_gender').value = '';
+            document.querySelectorAll('#victimExtraRows input, #victimExtraRows select').forEach(el => { el.required = isMultipleAbduction; });
+            document.getElementById('addVictimBtn').classList.toggle('hidden', !isMultipleAbduction);
+            document.getElementById('victimExtraRows').classList.toggle('hidden', !isMultipleAbduction);
+            document.getElementById('recoveryDateField').classList.toggle('hidden', !isMultipleAbduction);
+            document.getElementById('f_recovery_date').required = isMultipleAbduction && document.getElementById('f_status').value !== 'विवेचनाधीन';
             document.getElementById('propertyFields').classList.toggle('hidden', !PROPERTY_CRIMES.includes(selectedCrime));
             document.getElementById('accidentFields').classList.toggle('hidden', !ACCIDENT_CRIMES.includes(selectedCrime));
             document.getElementById('recoveryFields').classList.toggle('hidden', !RECOVERY_CRIMES.includes(selectedCrime));
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+        }
+
+        function addVictimRow(victim = {}) {
+            const host = document.getElementById('victimExtraRows');
+            const index = host.children.length + 2;
+            const row = document.createElement('div');
+            row.className = 'victim-extra-row';
+            row.style.cssText = 'display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.8rem;background:#fff;padding:.65rem;border:1px solid #fbcfe8;border-radius:5px;';
+            row.innerHTML = `<div><label style="font-size:.78rem;color:#be185d;font-weight:700;">पीड़िता ${index} का नाम</label><input class="input-control victim-extra-name" type="text" value="${escapeHtml(victim.name || '')}" required></div><div><label style="font-size:.78rem;color:#be185d;font-weight:700;">उम्र</label><input class="input-control victim-extra-age" type="text" value="${escapeHtml(victim.age || '')}" required></div><div><label style="font-size:.78rem;color:#be185d;font-weight:700;">लिंग</label><select class="input-control victim-extra-gender" required><option value="">चुनें</option><option value="Male" ${victim.gender === 'Male' ? 'selected' : ''}>पुरुष</option><option value="Female" ${victim.gender === 'Female' ? 'selected' : ''}>महिला</option></select><button class="btn btn-red" type="button" style="margin-top:.35rem;padding:.25rem .5rem;" onclick="this.closest('.victim-extra-row').remove()">हटाएँ</button></div>`;
+            host.appendChild(row);
+        }
+
+        function collectVictimList() {
+            const list = [];
+            const name = document.getElementById('f_victim_name').value.trim();
+            const age = document.getElementById('f_victim_age').value.trim();
+            const gender = document.getElementById('f_victim_gender').value;
+            if (name || age || gender) list.push({name, age, gender});
+            document.querySelectorAll('#victimExtraRows .victim-extra-row').forEach(row => {
+                list.push({name: row.querySelector('.victim-extra-name').value.trim(), age: row.querySelector('.victim-extra-age').value.trim(), gender: row.querySelector('.victim-extra-gender').value});
+            });
+            return list;
         }
 
         function extractSectionNumbers(sectionStr) {
@@ -40185,6 +40282,9 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
                     victim_name: '-',
                     victim_gender: '-',
                     victim_age: '-',
+                    victims: [],
+                    recovery_date: '',
+                    death_male: 0, death_female: 0, injured_male: 0, injured_female: 0,
                     stolen_property: 0,
                     recovered_property: 0,
                     injured_detail: '-',
@@ -40244,12 +40344,18 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
                 date.required = !isPending;
                 if (isPending) date.value = '';
             }
+            const recoveryDate = document.getElementById('f_recovery_date');
+            const crime = document.getElementById('f_crime_title')?.value || '';
+            if (recoveryDate) recoveryDate.required = crime === 'अन्य अपहरण' && !isPending;
         }
 
         function openAddModal() {
             document.getElementById('modalTitle').innerText = 'नया मुकदमा दर्ज करें';
             document.getElementById('editCaseId').value = '';
             document.getElementById('caseForm').reset();
+            document.getElementById('victimExtraRows').innerHTML = '';
+            document.getElementById('f_recovery_date').value = '';
+            ['f_death_male','f_death_female','f_injured_male','f_injured_female'].forEach(id => document.getElementById(id).value = 0);
             document.getElementById('f_janpad').value = 'हमीरपुर';
             document.getElementById('f_period').value = '0';
             populateThanaDropdown(loggedInThana !== 'ALL' ? loggedInThana : ALL_THANAS[0]);
@@ -40307,6 +40413,13 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
             document.getElementById('f_victim_name').value = item.victim_name || '';
             document.getElementById('f_victim_age').value = item.victim_age || '';
             document.getElementById('f_victim_gender').value = item.victim_gender || '';
+            document.getElementById('victimExtraRows').innerHTML = '';
+            (Array.isArray(item.victims) ? item.victims.slice(1) : []).forEach(v => addVictimRow(v));
+            document.getElementById('f_recovery_date').value = item.recovery_date || '';
+            document.getElementById('f_death_male').value = Number(item.death_male) || 0;
+            document.getElementById('f_death_female').value = Number(item.death_female) || 0;
+            document.getElementById('f_injured_male').value = Number(item.injured_male) || 0;
+            document.getElementById('f_injured_female').value = Number(item.injured_female) || 0;
             toggleSpecialFields();
             document.getElementById('f_stolen_property').value = item.stolen_property || 0;
             document.getElementById('f_recovered_property').value = item.recovered_property || 0;
@@ -40376,6 +40489,16 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
                 document.getElementById('f_cs_date').focus();
                 return;
             }
+            const victimList = collectVictimList();
+            if (REQUIRED_VICTIM_CRIMES.includes(selectedCrime)) {
+                const invalidVictim = victimList.length === 0 || victimList.some(v => !v.name || !v.age || !v.gender);
+                if (invalidVictim) { alert('इस अपराध शीर्षक में पीड़ित/पीड़िता का नाम, उम्र और लिंग भरना अनिवार्य है।'); document.getElementById('f_victim_name').focus(); return; }
+            }
+            const recoveryDate = document.getElementById('f_recovery_date').value;
+            if (selectedCrime === 'अन्य अपहरण' && selectedStatus !== 'विवेचनाधीन' && !recoveryDate) {
+                alert('अन्य अपहरण में आरोप पत्र / अंतिम रिपोर्ट प्रेषित करते समय बरामदगी दिनांक भरना अनिवार्य है।');
+                document.getElementById('f_recovery_date').focus(); return;
+            }
             const enteredThana = document.getElementById('f_thana').value;
             const caseNoInput = document.getElementById('f_case_no');
             let enteredCaseNo = caseNoInput.value.trim();
@@ -40421,9 +40544,15 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
                 remarks: document.getElementById('f_remarks').value.trim() || '-',
                 category: document.getElementById('f_category').value,
                 sentence: document.getElementById('f_sentence').value,
-                victim_name: (VICTIM_CRIMES.includes(selectedCrime) || /(?:^|[^0-9])103\(1\)(?:$|[^0-9])/.test((document.getElementById('f_section').value || '').replace(/\s/g, ''))) ? document.getElementById('f_victim_name').value : '-',
-                victim_gender: /(?:^|[^0-9])103\(1\)(?:$|[^0-9])/.test((document.getElementById('f_section').value || '').replace(/\s/g, '')) ? document.getElementById('f_victim_gender').value : (document.getElementById('f_victim_gender').value || '-'),
-                victim_age: VICTIM_CRIMES.includes(selectedCrime) ? document.getElementById('f_victim_age').value : '-',
+                victim_name: (VICTIM_CRIMES.includes(selectedCrime) || REQUIRED_VICTIM_CRIMES.includes(selectedCrime) || /(?:^|[^0-9])103\(1\)(?:$|[^0-9])/.test((document.getElementById('f_section').value || '').replace(/\s/g, ''))) ? document.getElementById('f_victim_name').value : '-',
+                victim_gender: (REQUIRED_VICTIM_CRIMES.includes(selectedCrime) || /(?:^|[^0-9])103\(1\)(?:$|[^0-9])/.test((document.getElementById('f_section').value || '').replace(/\s/g, ''))) ? document.getElementById('f_victim_gender').value : (document.getElementById('f_victim_gender').value || '-'),
+                victim_age: (VICTIM_CRIMES.includes(selectedCrime) || REQUIRED_VICTIM_CRIMES.includes(selectedCrime)) ? document.getElementById('f_victim_age').value : '-',
+                victims: selectedCrime === 'अन्य अपहरण' ? victimList : (REQUIRED_VICTIM_CRIMES.includes(selectedCrime) ? victimList.slice(0, 1) : (VICTIM_CRIMES.includes(selectedCrime) ? victimList.slice(0, 1) : [])),
+                recovery_date: selectedCrime === 'अन्य अपहरण' ? recoveryDate : '',
+                death_male: ACCIDENT_CRIMES.includes(selectedCrime) ? Number(document.getElementById('f_death_male').value) || 0 : 0,
+                death_female: ACCIDENT_CRIMES.includes(selectedCrime) ? Number(document.getElementById('f_death_female').value) || 0 : 0,
+                injured_male: ACCIDENT_CRIMES.includes(selectedCrime) ? Number(document.getElementById('f_injured_male').value) || 0 : 0,
+                injured_female: ACCIDENT_CRIMES.includes(selectedCrime) ? Number(document.getElementById('f_injured_female').value) || 0 : 0,
                 stolen_property: PROPERTY_CRIMES.includes(selectedCrime) ? Number(document.getElementById('f_stolen_property').value) : 0,
                 recovered_property: PROPERTY_CRIMES.includes(selectedCrime) ? Number(document.getElementById('f_recovered_property').value) : 0,
                 injured_detail: ACCIDENT_CRIMES.includes(selectedCrime) ? document.getElementById('f_injured_detail').value : '-',
@@ -40596,26 +40725,32 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
                     select.__multiWrap = wrap;
                 }
                 const menu = wrap.__menu;
-                const selected = dashboardFilterValues(select.id);
                 const options = [...select.options].filter(o => o.value !== 'ALL');
-                const allSelected = !selected || options.every(o => selected.includes(o.value));
-                wrap.__trigger.querySelector('span').textContent = allSelected ? 'सभी' : (selected.length === 1 ? options.find(o=>o.value===selected[0])?.textContent : `${selected.length} चुने गए`);
-                menu.innerHTML = '<div class="dashboard-multi-actions"><button type="button" data-action="all">Select All</button><button type="button" data-action="clear">Clear All</button></div>';
-                options.forEach(option => {
-                    const label = document.createElement('label'); label.className = 'dashboard-multi-option';
-                    const cb = document.createElement('input'); cb.type='checkbox'; cb.value=option.value;
-                    cb.checked = allSelected || selected.includes(option.value);
-                    const span = document.createElement('span'); span.textContent=option.textContent;
-                    cb.addEventListener('change', () => {
-                        const chosen = [...menu.querySelectorAll('input[type=checkbox]:checked')].map(x=>x.value);
-                        select.dataset.multiValues = JSON.stringify(chosen.length === options.length ? [] : chosen);
-                        select.value = chosen.length === options.length || !chosen.length ? 'ALL' : chosen[0];
-                        installDashboardMultiSelects(); select.dispatchEvent(new Event('change',{bubbles:true}));
+                const signature = options.map(o => o.value + '\u0000' + o.textContent).join('\u0001');
+                // Rebuild option nodes only when the actual option list changes.
+                if (menu.dataset.optionsSignature !== signature) {
+                    menu.innerHTML = '<div class="dashboard-multi-actions"><button type="button" data-action="all">Select All</button><button type="button" data-action="clear">Clear All</button></div>';
+                    options.forEach(option => {
+                        const label = document.createElement('label'); label.className = 'dashboard-multi-option';
+                        const cb = document.createElement('input'); cb.type='checkbox'; cb.value=option.value;
+                        const span = document.createElement('span'); span.textContent=option.textContent;
+                        cb.addEventListener('change', () => {
+                            const chosen = [...menu.querySelectorAll('input[type=checkbox]:checked')].map(x=>x.value);
+                            select.dataset.multiValues = JSON.stringify(chosen.length === options.length ? [] : chosen);
+                            select.value = chosen.length === options.length || !chosen.length ? 'ALL' : chosen[0];
+                            installDashboardMultiSelects(); select.dispatchEvent(new Event('change',{bubbles:true}));
+                        });
+                        label.append(cb,span); menu.appendChild(label);
                     });
-                    label.append(cb,span); menu.appendChild(label);
-                });
-                menu.querySelector('[data-action="all"]').onclick = () => { select.dataset.multiValues='[]'; select.value='ALL'; installDashboardMultiSelects(); select.dispatchEvent(new Event('change',{bubbles:true})); };
-                menu.querySelector('[data-action="clear"]').onclick = () => { select.dataset.multiValues='[]'; select.value='ALL'; installDashboardMultiSelects(); select.dispatchEvent(new Event('change',{bubbles:true})); };
+                    menu.querySelector('[data-action="all"]').onclick = () => { select.dataset.multiValues='[]'; select.value='ALL'; installDashboardMultiSelects(); select.dispatchEvent(new Event('change',{bubbles:true})); };
+                    menu.querySelector('[data-action="clear"]').onclick = () => { select.dataset.multiValues='[]'; select.value='ALL'; installDashboardMultiSelects(); select.dispatchEvent(new Event('change',{bubbles:true})); };
+                    menu.dataset.optionsSignature = signature;
+                }
+                const selected = dashboardFilterValues(select.id);
+                const allSelected = !selected || options.every(o => selected.includes(o.value));
+                const labelText = allSelected ? 'सभी' : (selected.length === 1 ? (options.find(o=>o.value===selected[0])?.textContent || '1 चुने गए') : `${selected.length} चुने गए`);
+                wrap.__trigger.querySelector('span').textContent = labelText;
+                menu.querySelectorAll('input[type="checkbox"]').forEach(cb => { cb.checked = allSelected || !!(selected && selected.includes(cb.value)); });
             });
         }
 
@@ -40650,6 +40785,10 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
             const toDate = document.getElementById('toDateFilter').value;
             const fcrVal = dashboardFilterValues('fcrFilter');
             const yearVal = document.getElementById('dashboardYearFilter') ? document.getElementById('dashboardYearFilter').value : String(new Date().getFullYear());
+            const csFrom = document.getElementById('csFromDateFilter')?.value || '';
+            const csTo = document.getElementById('csToDateFilter')?.value || '';
+            const recoveryFrom = document.getElementById('recoveryFromDateFilter')?.value || '';
+            const recoveryTo = document.getElementById('recoveryToDateFilter')?.value || '';
 
             currentlyFilteredCases = casesData.filter(item => {
                 if (yearVal !== 'ALL' && getDashboardRecordYear(item) !== yearVal) return false;
@@ -40663,6 +40802,10 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
                 if (limitVal && !limitVal.includes(String(getPrescribedLimit(item.section)))) return false;
                 if (fromDate && item.info_date < fromDate) return false;
                 if (toDate && item.info_date > toDate) return false;
+                if (csFrom && (!item.cs_date || item.cs_date < csFrom)) return false;
+                if (csTo && (!item.cs_date || item.cs_date > csTo)) return false;
+                if (recoveryFrom && (!item.recovery_date || item.recovery_date < recoveryFrom)) return false;
+                if (recoveryTo && (!item.recovery_date || item.recovery_date > recoveryTo)) return false;
                 const accTotal = (Number(item.named) || 0) + (Number(item.revealed) || 0);
                 const accDisposed = (Number(item.arrested) || 0) + (Number(item.notice) || 0) + (Number(item.court) || 0) + (getWrongCount(item));
                 if (dashboardStatFilter === 'accused' && accTotal <= 0) return false;
@@ -40676,6 +40819,9 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
                 if (dashboardStatFilter === 'pendingCases' && item.status !== 'विवेचनाधीन') return false;
                 if (dashboardStatFilter === 'stolen' && Number(item.stolen_property || 0) <= 0) return false;
                 if (dashboardStatFilter === 'recovered' && Number(item.recovered_property || 0) <= 0) return false;
+                if (dashboardStatFilter === 'abduction' && item.crime_title !== 'अन्य अपहरण') return false;
+                if (dashboardStatFilter === 'accident281' && item.crime_title !== '281/106(1) BNS') return false;
+                if (dashboardStatFilter === 'accident125' && item.crime_title !== '125A/125B/281 BNS') return false;
                 if (search) {
                     let match = (item.case_no && item.case_no.toLowerCase().includes(search)) || 
                                 (item.complainant && item.complainant.toLowerCase().includes(search)) ||
@@ -40700,7 +40846,7 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
             const tbody = document.getElementById('caseTableBody');
             tbody.innerHTML = '';
             if (data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="41" style="text-align: center; padding: 1.8rem; color: #64748b;">कोई रिकॉर्ड उपलब्ध नहीं है।</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="42" style="text-align: center; padding: 1.8rem; color: #64748b;">कोई रिकॉर्ड उपलब्ध नहीं है।</td></tr>';
                 return;
             }
             const stationSerials = Object.create(null);
@@ -40743,7 +40889,7 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
                 let durationText = item.status === 'विवेचनाधीन' ? `${durationDays} दिन (लम्बित)` : `${durationDays} दिन (निस्तारित)`;
                 let prescribedLimit = getPrescribedLimit(item.section);
 
-                const isVictim = VICTIM_CRIMES.includes(item.crime_title) || /(?:^|[^0-9])103\(1\)(?:$|[^0-9])/.test(String(item.section || '').replace(/\s/g, ''));
+                const isVictim = VICTIM_CRIMES.includes(item.crime_title) || REQUIRED_VICTIM_CRIMES.includes(item.crime_title) || /(?:^|[^0-9])103\(1\)(?:$|[^0-9])/.test(String(item.section || '').replace(/\s/g, ''));
                 const isProperty = PROPERTY_CRIMES.includes(item.crime_title);
                 const isAccident = ACCIDENT_CRIMES.includes(item.crime_title);
                 const isRecovery = RECOVERY_CRIMES.includes(item.crime_title);
@@ -40788,9 +40934,10 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
                     <td class="w-dashboard-remarks">${item.remarks || '-'}</td>
                     <td style="font-weight: bold; color: #0284c7;">${evaluatedCategory}</td>
                     <td style="font-weight: bold; color: /अधिक/.test(String(evaluatedSentence || '')) ? '#dc2626' : (/कम/.test(String(evaluatedSentence || '')) ? '#16a34a' : '#b45309');">${evaluatedSentence}</td>
-                    <td>${isVictim ? (item.victim_name || '-') : 'N/A'}</td>
-                    <td>${item.victim_gender || 'N/A'}</td>
-                    <td>${isVictim ? (item.victim_age || '-') : 'N/A'}</td>
+                    <td>${isVictim ? (Array.isArray(item.victims) && item.victims.length > 1 ? item.victims.map(v => v.name || '-').join(', ') : (item.victim_name || '-')) : 'N/A'}</td>
+                    <td>${Array.isArray(item.victims) && item.victims.length > 1 ? item.victims.map(v => v.gender || '-').join(', ') : (item.victim_gender || 'N/A')}</td>
+                    <td>${isVictim ? (Array.isArray(item.victims) && item.victims.length > 1 ? item.victims.map(v => v.age || '-').join(', ') : (item.victim_age || '-')) : 'N/A'}</td>
+                    <td>${item.crime_title === 'अन्य अपहरण' ? (item.recovery_date || '-') : 'N/A'}</td>
                     <td>${isProperty ? (item.stolen_property || '0') : 'N/A'}</td>
                     <td>${isProperty ? (item.recovered_property || '0') : 'N/A'}</td>
                     <td>${isAccident ? (item.injured_detail || '-') : 'N/A'}</td>
@@ -40849,6 +40996,25 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
             document.getElementById('stPendingCases').innerText = totalPendingCases;
             document.getElementById('stStolenProp').innerText = totalStolenProp.toLocaleString('hi-IN');
             document.getElementById('stRecoveredProp').innerText = totalRecoveredProp.toLocaleString('hi-IN');
+
+            const abduction = data.filter(x => x.crime_title === 'अन्य अपहरण');
+            const victimsFor = item => Array.isArray(item.victims) && item.victims.length ? item.victims : ((item.victim_name && item.victim_name !== '-') ? [{name:item.victim_name, age:item.victim_age, gender:item.victim_gender}] : []);
+            let abFemale=0, abMale=0, recFemale=0, recMale=0;
+            abduction.forEach(item => victimsFor(item).forEach(v => {
+                const female = String(v.gender || '').toLowerCase() === 'female' || String(v.gender || '') === 'महिला';
+                if (female) { abFemale++; if (item.recovery_date) recFemale++; }
+                else if (String(v.gender || '').toLowerCase() === 'male' || String(v.gender || '') === 'पुरुष') { abMale++; if (item.recovery_date) recMale++; }
+            }));
+            const abEl = document.getElementById('abductionSummaryStats');
+            if (abEl) abEl.innerHTML = `विवरण | कुल | महिला | पुरुष<br>कुल अपहृत: ${abFemale+abMale} | ${abFemale} | ${abMale}<br>बरामद: ${recFemale+recMale} | ${recFemale} | ${recMale}<br>शेष: ${(abFemale-recFemale)+(abMale-recMale)} | ${abFemale-recFemale} | ${abMale-recMale}`;
+
+            const accident281 = data.filter(x => x.crime_title === '281/106(1) BNS');
+            const sumField = (arr, field) => arr.reduce((n,x)=>n+(Number(x[field])||0),0);
+            const a281 = document.getElementById('accident281SummaryStats');
+            if (a281) a281.innerHTML = `मृतक — पुरुष: ${sumField(accident281,'death_male')} | महिला: ${sumField(accident281,'death_female')}<br>घायल — पुरुष: ${sumField(accident281,'injured_male')} | महिला: ${sumField(accident281,'injured_female')}`;
+            const accident125 = data.filter(x => x.crime_title === '125A/125B/281 BNS');
+            const a125 = document.getElementById('accident125SummaryStats');
+            if (a125) a125.innerHTML = `घायल — पुरुष: ${sumField(accident125,'injured_male')} | महिला: ${sumField(accident125,'injured_female')}`;
         }
 
         let currentFcrSummaryList = [];
@@ -41223,7 +41389,7 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
                 if (type === 'pocso' && !checkPocsoMatch(item.section, item.crime_title)) return false;
                 if (type === 'scst' && !checkScstMatch(item.section, item.crime_title)) return false;
                 if (type === 'it' && !checkItMatch(item.section, item.crime_title)) return false;
-                if (type === 'women' && !(checkWomenMatch(item.section) || String(item.victim_gender || '').toLowerCase() === 'female' || String(item.victim_gender || '') === 'महिला')) return false;
+                if (type === 'women' && !(checkWomenMatch(item.section) || String(item.victim_gender || '').toLowerCase() === 'female' || String(item.victim_gender || '') === 'महिला' || (Array.isArray(item.victims) && item.victims.some(v => String(v.gender || '').toLowerCase() === 'female' || String(v.gender || '') === 'महिला')))) return false;
                 return true;
             });
 
@@ -41571,6 +41737,12 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
                                 victim_name: item.victim_name || '-',
                                 victim_gender: item.victim_gender || '-',
                                 victim_age: item.victim_age || '-',
+                                victims: Array.isArray(item.victims) ? item.victims : [],
+                                recovery_date: item.recovery_date || item['बरामदगी दिनांक'] || '',
+                                death_male: Number(item.death_male) || 0,
+                                death_female: Number(item.death_female) || 0,
+                                injured_male: Number(item.injured_male) || 0,
+                                injured_female: Number(item.injured_female) || 0,
                                 stolen_property: Number.isFinite(Number(item.stolen_property)) ? Number(item.stolen_property) : 0,
                                 recovered_property: Number.isFinite(Number(item.recovered_property)) ? Number(item.recovered_property) : 0,
                                 injured_detail: item.injured_detail || '-',
@@ -41601,7 +41773,7 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
         let currentFcrFortnightCases = [];
         let currentPartialCases = [];
         const MONTH_LABELS = {'01':'जनवरी','02':'फरवरी','03':'मार्च','04':'अप्रैल','05':'मई','06':'जून','07':'जुलाई','08':'अगस्त','09':'सितंबर','10':'अक्टूबर','11':'नवंबर','12':'दिसंबर'};
-        const CRIME_DETAIL_VICTIM = ['हत्या','दहेज हत्या','बलात्कार','अन्य अपहरण','296 BNS','शीलभंग','पॉक्सो एक्ट'];
+        const CRIME_DETAIL_VICTIM = ['हत्या','दहेज हत्या', 'बलात्कार', '69 BNS', 'अन्य अपहरण','296 BNS','शीलभंग','पॉक्सो एक्ट'];
         const CRIME_DETAIL_PROPERTY = ['लूट','डकैती','वाहन चोरी','अन्य चोरी','नकबजनी','पशु चोरी'];
         const CRIME_DETAIL_ACCIDENT = ['281/106(1) BNS','125A/125B/281 BNS'];
         const CRIME_DETAIL_RECOVERY = ['60 आबकारी','3/25 आर्म्स एक्ट','NDPS ACT','NDPS Act','जुआ अधिनियम','विस्फोटक अधिनियम'];
@@ -41703,7 +41875,7 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
         }
         function fcrConditionalHeaders(list) {
             const titles = [...new Set(list.map(x=>x.crime_title || 'अन्य'))];
-            const hasVictim = titles.some(t=>CRIME_DETAIL_VICTIM.includes(t) || /हत्या|दहेज|बलात्कार|अपहरण|शीलभंग|पॉक्सो|296 BNS/i.test(t));
+            const hasVictim = titles.some(t=>CRIME_DETAIL_VICTIM.includes(t) || /हत्या|दहेज|बलात्कार|69 BNS|अपहरण|शीलभंग|पॉक्सो|296 BNS/i.test(t));
             const hasProperty = titles.some(t=>CRIME_DETAIL_PROPERTY.includes(t));
             const hasAccident = titles.some(t=>CRIME_DETAIL_ACCIDENT.includes(t));
             const hasRecovery = titles.some(t=>CRIME_DETAIL_RECOVERY.includes(t) || /आबकारी|आर्म्स|NDPS|जुआ|विस्फोटक/i.test(t));
@@ -41951,9 +42123,18 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
                 const key = STATION_KEYS[station];
                 const ref = db.ref('casesByThana/' + key);
                 const listener = (snapshot) => {
+                    const initialLoadWasComplete = firebaseExpectedStations.length > 0 &&
+                        firebaseExpectedStations.every(name => firebaseInitialLoadedStations.has(name));
                     firebaseStationData[station] = caseArrayFromSnapshot(snapshot);
                     firebaseInitialLoadedStations.add(station);
-                    refreshCasesFromStationCache();
+                    const initialLoadIsComplete = firebaseExpectedStations.length > 0 &&
+                        firebaseExpectedStations.every(name => firebaseInitialLoadedStations.has(name));
+                    // During the first admin load, keep showing the local cache and render once
+                    // after every station has supplied its first snapshot. Later live updates
+                    // continue through the normal refresh path.
+                    if (initialLoadWasComplete || initialLoadIsComplete || !isAuthenticatedAdmin()) {
+                        refreshCasesFromStationCache();
+                    }
                 };
                 activeCaseListeners[key] = { ref, listener };
                 ref.on('value', listener, (error) => {
@@ -43995,8 +44176,11 @@ table:has(#categoryDetailTableBody) thead th { z-index: 8; }
       exact7.value = saved.exact7 || '#2563eb';
 
       var originals = new WeakMap();
-      function apply() {
-        table.querySelectorAll('th,td').forEach(function(cell) {
+      function applyCells(root) {
+        var cells = [];
+        if (root && root.matches && root.matches('th,td')) cells.push(root);
+        if (root && root.querySelectorAll) cells = cells.concat(Array.from(root.querySelectorAll('th,td')));
+        cells.forEach(function(cell) {
           if (!originals.has(cell)) originals.set(cell, {color:cell.style.color, backgroundColor:cell.style.backgroundColor, verticalAlign:cell.style.verticalAlign});
           var original = originals.get(cell);
           cell.style.color = textOn.checked ? textColor.value : original.color;
@@ -44005,6 +44189,8 @@ table:has(#categoryDetailTableBody) thead th { z-index: 8; }
           var value = (cell.textContent || '').trim().replace(/\s+/g,' ');
           if (value === 'ठीक 7 वर्ष' || value === '7 वर्ष') cell.style.color = exact7.value;
         });
+      }
+      function saveSettings() {
         try {
           localStorage.setItem(storageKey, JSON.stringify({
             textOn:textOn.checked, textColor:textColor.value,
@@ -44013,16 +44199,43 @@ table:has(#categoryDetailTableBody) thead th { z-index: 8; }
           }));
         } catch(e) {}
       }
+      function applyAndSave() { applyCells(table); saveSettings(); }
       [textOn,textColor,rowOn,rowColor,valign,exact7].forEach(function(control) {
-        control.addEventListener('change', apply);
+        control.addEventListener('change', applyAndSave);
       });
-      apply();
-      new MutationObserver(function(){ apply(); }).observe(table, {childList:true, subtree:true});
+      applyCells(table);
+      new MutationObserver(function(records) {
+        records.forEach(function(record) {
+          // Reapply settings when cell text is replaced or edited (including exact '7 वर्ष').
+          var target = record.target;
+          var targetElement = target && (target.nodeType === 1 ? target : target.parentElement);
+          var changedCell = targetElement && targetElement.closest ? targetElement.closest('th,td') : null;
+          if (changedCell && table.contains(changedCell)) applyCells(changedCell);
+          record.addedNodes.forEach(function(node) {
+            if (node.nodeType === 1) applyCells(node);
+            else if (node.nodeType === 3 && node.parentElement) {
+              var addedTextCell = node.parentElement.closest('th,td');
+              if (addedTextCell && table.contains(addedTextCell)) applyCells(addedTextCell);
+            }
+          });
+        });
+      }).observe(table, {childList:true, characterData:true, subtree:true});
     });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initRSPTableSettings);
   else initRSPTableSettings();
-  var observer = new MutationObserver(function(){ initRSPTableSettings(); });
+  var initQueued = false;
+  var observer = new MutationObserver(function(records){
+    var mayContainTables = records.some(function(record) {
+      return Array.from(record.addedNodes).some(function(node) {
+        return node.nodeType === 1 && (node.matches('table') || node.querySelector('table'));
+      });
+    });
+    if (mayContainTables && !initQueued) {
+      initQueued = true;
+      Promise.resolve().then(function(){ initQueued = false; initRSPTableSettings(); });
+    }
+  });
   observer.observe(document.documentElement, {childList:true, subtree:true});
 })();
 </script>
@@ -44094,5 +44307,29 @@ table[class*="rsp-independent-table-"]:not(.rsp-linkable-numeric) td *,
 #tabPartialInvestigation #piDetailBody td * {
   font-family: "Kokila", serif !important;
   font-size: 22px !important;
+}
+</style>
+
+
+<style id="rsp-special-summary-block-content-width-only">
+/* Only requested adjustment: keep all three special summary cards side by side,
+   with equal responsive widths like the dashboard statistic cards above. */
+#tabDashboard #specialCrimeSummaryBlocks {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  align-items: stretch !important;
+  gap: 0.65rem !important;
+}
+#tabDashboard #specialCrimeSummaryBlocks > .stat-card {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  align-self: stretch !important;
+  box-sizing: border-box !important;
+  grid-column: auto !important;
+}
+#tabDashboard #specialCrimeSummaryBlocks > .stat-card h4,
+#tabDashboard #specialCrimeSummaryBlocks > .stat-card > div {
+  overflow-wrap: anywhere !important;
 }
 </style>
