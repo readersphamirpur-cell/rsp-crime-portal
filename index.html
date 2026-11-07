@@ -9121,19 +9121,6 @@
   justify-content: center;
 }
 #tabDashboard .stats-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--rsp-dashboard-grid-min, 140px)), 1fr)); }
-/* Desktop only: let the three special summary cards continue in the same grid
-   immediately after the Recovered Property card; mobile layout stays unchanged. */
-@media (min-width: 761px) {
-  #tabDashboard #specialCrimeSummaryBlocks {
-    display: contents !important;
-  }
-  #tabDashboard #specialCrimeSummaryBlocks > .stat-card {
-    grid-column: span 2 !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: 100% !important;
-  }
-}
 #tabDashboard .stat-card h4, #tabDashboard .stat-card p { white-space: normal; overflow-wrap: anywhere; }
 /* Compact only the three special-crime summary blocks; preserve their order, width and calculations. */
 #tabDashboard #specialCrimeSummaryBlocks {
@@ -38991,7 +38978,7 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
 </div>
 </div>
 <!-- STATS CARDS -->
-<div class="stats-grid">
+<div class="stats-grid" id="dashboardStatsAndSpecialGrid">
 <div class="stat-card c-blue" onclick="filterDashboardByStat('all')" onkeydown="if(event.key==='Enter'||event.key===' ')filterDashboardByStat('all')" role="button" tabindex="0"><h4>कुल मुकदमे</h4><p id="stTotal">0</p></div>
 <div class="stat-card c-blue" onclick="filterDashboardByStat('accused')" onkeydown="if(event.key==='Enter'||event.key===' ')filterDashboardByStat('accused')" role="button" tabindex="0"><h4>अभियुक्त संख्या</h4><p id="stAccused">0</p></div>
 <div class="stat-card c-green" onclick="filterDashboardByStat('arrested')" onkeydown="if(event.key==='Enter'||event.key===' ')filterDashboardByStat('arrested')" role="button" tabindex="0"><h4>गिरफ्तार</h4><p id="stArrested" style="color: #16a34a;">0</p></div>
@@ -39004,7 +38991,6 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
 <div class="stat-card c-red" onclick="filterDashboardByStat('pendingCases')" onkeydown="if(event.key==='Enter'||event.key===' ')filterDashboardByStat('pendingCases')" role="button" tabindex="0"><h4 style="color: #dc2626;">शेष विवेचना</h4><p id="stPendingCases" style="color: #dc2626;">0</p></div>
 <div class="stat-card c-rose" onclick="filterDashboardByStat('stolen')" onkeydown="if(event.key==='Enter'||event.key===' ')filterDashboardByStat('stolen')" role="button" tabindex="0"><h4 style="color: #e11d48;">गयी सम्पत्ति (रू)</h4><p id="stStolenProp" style="color: #e11d48;">0</p></div>
 <div class="stat-card c-emerald" onclick="filterDashboardByStat('recovered')" onkeydown="if(event.key==='Enter'||event.key===' ')filterDashboardByStat('recovered')" role="button" tabindex="0"><h4 style="color: #059669;">बरामद सम्पत्ति (रू)</h4><p id="stRecoveredProp" style="color: #059669;">0</p></div>
-</div>
 <div class="stats-grid" id="specialCrimeSummaryBlocks">
 <div class="stat-card c-cyan" role="button" tabindex="0" onclick="filterDashboardByStat('abduction')" onkeydown="if(event.key==='Enter'||event.key===' ')filterDashboardByStat('abduction')" style="grid-column:span 4; cursor:pointer;">
 <h4>अपहृत / बरामद / शेष (महिला-पुरुष)</h4>
@@ -39017,6 +39003,7 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
 <div class="stat-card c-orange" role="button" tabindex="0" onclick="filterDashboardByStat('accident125')" onkeydown="if(event.key==='Enter'||event.key===' ')filterDashboardByStat('accident125')" style="grid-column:span 4; cursor:pointer;">
 <h4>125A/125B/281 — घायल</h4>
 <div id="accident125SummaryStats" style="font-size:.82rem;line-height:1.7;font-weight:700;">गणना उपलब्ध नहीं</div>
+</div>
 </div>
 </div>
 <div class="dashboard-stat-filter-hint" id="dashboardStatFilterHint"></div>
@@ -44072,6 +44059,36 @@ table[class*="rsp-independent-table-"] thead th {
 }
 /* Do not override sticky-thana / sticky-caseno widths or left offsets here. */
 </style>
+
+<style id="rsp-desktop-special-blocks-after-recovered-only">
+/* Desktop only: continue the dashboard grid immediately after बरामद सम्पत्ति. */
+/* Mobile: keep the three-block group as its own full-width row, as before. */
+@media (max-width: 900px) {
+  #tabDashboard #dashboardStatsAndSpecialGrid #specialCrimeSummaryBlocks {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+  }
+}
+@media (min-width: 901px) {
+  #tabDashboard #dashboardStatsAndSpecialGrid {
+    grid-template-columns: repeat(20, minmax(0, 1fr)) !important;
+    align-items: stretch;
+  }
+  #tabDashboard #dashboardStatsAndSpecialGrid > .stat-card {
+    grid-column: span 2 !important;
+    min-width: 0 !important;
+  }
+  #tabDashboard #dashboardStatsAndSpecialGrid #specialCrimeSummaryBlocks {
+    display: contents !important;
+  }
+  #tabDashboard #dashboardStatsAndSpecialGrid #specialCrimeSummaryBlocks > .stat-card {
+    grid-column: span 5 !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+}
+</style>
+
 </body>
 </html>
 <style id="rsp-final-preserve-original-sticky-and-wrap">
