@@ -40125,6 +40125,7 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
                 return;
             }
             try {
+                await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
                 const credential = await firebase.auth().signInWithEmailAndPassword(u, p);
                 const signedInEmail = (credential.user.email || '').toLowerCase();
                 const verifiedAccess = FIREBASE_LOGIN_ACCESS[signedInEmail];
@@ -42257,6 +42258,33 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
                 throw error;
             });
         };
+
+        // Restore the already authenticated Firebase user when this WebView opens again.
+        // This runs only for the initial auth-state result; manual login/logout flow stays unchanged.
+        let rspInitialAuthStateHandled = false;
+        firebase.auth().onAuthStateChanged(function(user) {
+            if (rspInitialAuthStateHandled) return;
+            rspInitialAuthStateHandled = true;
+            if (!user) return;
+
+            const restoredEmail = (user.email || '').toLowerCase();
+            const restoredAccess = FIREBASE_LOGIN_ACCESS[restoredEmail];
+
+            if (!restoredAccess) {
+                firebase.auth().signOut().catch(function(error) {
+                    console.error('Unauthorized restored Firebase session:', error);
+                });
+                return;
+            }
+
+            loggedInThana = restoredAccess.role === 'admin' ? 'ALL' : restoredAccess.thana;
+            startDashboard(
+                restoredAccess.role === 'admin'
+                    ? 'Admin (सभी थाने)'
+                    : `थाना: ${restoredAccess.thana}`
+            );
+            startFirebaseDataSync();
+        });
     </script>
 <script>
     // Admin-only list: only non-canonical Thana values are shown.
