@@ -40849,9 +40849,11 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
                 if (dashboardStatFilter === 'accident281' && item.crime_title !== '281/106(1) BNS') return false;
                 if (dashboardStatFilter === 'accident125' && item.crime_title !== '125A/125B/281 BNS') return false;
                 if (search) {
-                    let match = (item.case_no && item.case_no.toLowerCase().includes(search)) || 
-                                (item.complainant && item.complainant.toLowerCase().includes(search)) ||
-                                (item.section && item.section.toLowerCase().includes(search));
+                    let match = (item.case_no && String(item.case_no).toLowerCase().includes(search)) || 
+                                (item.complainant && String(item.complainant).toLowerCase().includes(search)) ||
+                                (item.section && String(item.section).toLowerCase().includes(search)) ||
+                                (item.defendant && String(item.defendant).toLowerCase().includes(search)) ||
+                                (item.remarks && String(item.remarks).toLowerCase().includes(search));
                     if (!match) return false;
                 }
                 return true;
@@ -41841,6 +41843,19 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
                 yearEl.value = years.includes(old) ? old : (years.includes('2026') ? '2026' : 'ALL');
             }
         }
+        // FCR पाक्षिक में SC/ST की पहचान केवल Section से होगी।
+        // यह helper केवल FCR पाक्षिक के display/grouping पर लागू है; मूल रिकॉर्ड नहीं बदलता।
+        function getFcrFortnightCrimeTitle(item) {
+            const section = String(item?.section || '').toUpperCase();
+            const normalizedSection = section.replace(/[\s.\/\\_-]+/g, '');
+            const hasScstInSection =
+                normalizedSection.includes('SCST') ||
+                normalizedSection.includes('एससीएसटी') ||
+                normalizedSection.includes('अनुसूचितजाति') ||
+                normalizedSection.includes('अनुसूचितजनजाति');
+            return hasScstInSection ? 'SC/ST ACT' : (item?.crime_title || 'अन्य');
+        }
+
         function fcrFortnightFilter() {
             const thana = document.getElementById('ffThana')?.value || 'ALL';
             const crime = document.getElementById('ffCrime')?.value || 'ALL';
@@ -41853,7 +41868,7 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
             return (casesData || []).filter(item => {
                 if (loggedInThana !== 'ALL' && item.thana !== loggedInThana) return false;
                 if (thana !== 'ALL' && item.thana !== thana) return false;
-                if (crime !== 'ALL' && item.crime_title !== crime) return false;
+                if (crime !== 'ALL' && getFcrFortnightCrimeTitle(item) !== crime) return false;
                 const d = String(item.info_date || '');
                 if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) return false;
                 if (year !== 'ALL' && d.slice(0,4) !== year) return false;
@@ -41863,7 +41878,7 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
                 if (to && d > to) return false;
                 if (fcr !== 'ALL' && String(item.fcr_head || 'नहीं') !== fcr) return false;
                 return true;
-            });
+            }).map(item => ({ ...item, _fcrFortnightCrimeTitle: getFcrFortnightCrimeTitle(item) }));
         }
         function renderFcrFortnightly(selectedCrime = null, selectedThana = null) {
             if (!document.getElementById('ffSummaryBody')) return;
@@ -41874,7 +41889,7 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
             const configuredCrimeOrder = (typeof EXACT_CRIME_LIST !== 'undefined' && Array.isArray(EXACT_CRIME_LIST)) ? EXACT_CRIME_LIST : [];
             configuredCrimeOrder.forEach(crime => groupMap.set(crime, {crime, items:[], total:0, cs:0, fr:0, pending:0, named:0, revealed:0, yoga:0, arrested:0, court:0, notice:0, wrong:0, rem:0, fcr:0, nonFcr:0}));
             data.forEach(item => {
-                const crime = item.crime_title || 'अन्य';
+                const crime = item._fcrFortnightCrimeTitle || getFcrFortnightCrimeTitle(item);
                 if (!groupMap.has(crime)) groupMap.set(crime, {crime, items:[], total:0, cs:0, fr:0, pending:0, named:0, revealed:0, yoga:0, arrested:0, court:0, notice:0, wrong:0, rem:0, fcr:0, nonFcr:0});
                 const g = groupMap.get(crime), a=getAccusedStats(item); g.items.push(item); g.total++;
                 if (item.status === 'आरोप पत्र प्रेषित') g.cs++; else if (item.status === 'अंतिम रिपोर्ट') g.fr++; else g.pending++;
@@ -41900,7 +41915,7 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
             showFcrFortnightDetails(selectedCrime || 'ALL', selectedThana || 'ALL');
         }
         function fcrConditionalHeaders(list) {
-            const titles = [...new Set(list.map(x=>x.crime_title || 'अन्य'))];
+            const titles = [...new Set(list.map(x=>x._fcrFortnightCrimeTitle || getFcrFortnightCrimeTitle(x)))];
             const hasVictim = titles.some(t=>CRIME_DETAIL_VICTIM.includes(t) || /हत्या|दहेज|बलात्कार|69 BNS|अपहरण|शीलभंग|पॉक्सो|296 BNS/i.test(t));
             const hasProperty = titles.some(t=>CRIME_DETAIL_PROPERTY.includes(t));
             const hasAccident = titles.some(t=>CRIME_DETAIL_ACCIDENT.includes(t));
@@ -41916,16 +41931,16 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
         function showFcrFortnightDetails(crime, thana) {
             const crimeOrder = (typeof EXACT_CRIME_LIST !== 'undefined' && Array.isArray(EXACT_CRIME_LIST)) ? EXACT_CRIME_LIST : [];
             const crimeRank = name => { const idx = crimeOrder.indexOf(name); return idx < 0 ? Number.MAX_SAFE_INTEGER : idx; };
-            const list=currentFcrFortnightCases.filter(x=>(crime==='ALL'||(x.crime_title||'अन्य')===crime)&&(thana==='ALL'||(x.thana||'-')===thana)).sort((a,b)=>crimeRank(a.crime_title||'अन्य')-crimeRank(b.crime_title||'अन्य') || ((crimeRank(a.crime_title||'अन्य')===Number.MAX_SAFE_INTEGER && crimeRank(b.crime_title||'अन्य')===Number.MAX_SAFE_INTEGER) ? String(a.crime_title||'अन्य').localeCompare(String(b.crime_title||'अन्य'),'hi') : 0));
+            const list=currentFcrFortnightCases.filter(x=>(crime==='ALL'||(x._fcrFortnightCrimeTitle || getFcrFortnightCrimeTitle(x))===crime)&&(thana==='ALL'||(x.thana||'-')===thana)).sort((a,b)=>crimeRank(a._fcrFortnightCrimeTitle || getFcrFortnightCrimeTitle(a))-crimeRank(b._fcrFortnightCrimeTitle || getFcrFortnightCrimeTitle(b)) || ((crimeRank(a._fcrFortnightCrimeTitle || getFcrFortnightCrimeTitle(a))===Number.MAX_SAFE_INTEGER && crimeRank(b._fcrFortnightCrimeTitle || getFcrFortnightCrimeTitle(b))===Number.MAX_SAFE_INTEGER) ? String(a._fcrFortnightCrimeTitle || getFcrFortnightCrimeTitle(a)).localeCompare(String(b._fcrFortnightCrimeTitle || getFcrFortnightCrimeTitle(b)),'hi') : 0));
             const meta=fcrConditionalHeaders(list), head=document.getElementById('ffDetailHead'), body=document.getElementById('ffDetailBody');
             head.innerHTML='<tr>'+meta.headers.map(h=>`<th>${newReportEsc(h)}</th>`).join('')+'</tr>'; body.innerHTML='';
-            const presentTitles = [...new Set(list.map(x => x.crime_title || 'अन्य'))];
+            const presentTitles = [...new Set(list.map(x => x._fcrFortnightCrimeTitle || getFcrFortnightCrimeTitle(x)))];
             const orderedTitles = crime === 'ALL'
                 ? crimeOrder.concat(presentTitles.filter(t => !crimeOrder.includes(t)).sort((a,b)=>a.localeCompare(b,'hi')))
                 : [crime];
             let rowIndex = 0;
             orderedTitles.forEach(crimeName => {
-                const groupRows = list.filter(x => (x.crime_title || 'अन्य') === crimeName);
+                const groupRows = list.filter(x => (x._fcrFortnightCrimeTitle || getFcrFortnightCrimeTitle(x)) === crimeName);
                 const groupRow=document.createElement('tr');
                 groupRow.className='crime-group-row';
                 groupRow.innerHTML=`<td colspan="${meta.headers.length}">${newReportEsc(crimeName)}</td>`;
