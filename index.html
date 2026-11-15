@@ -41662,9 +41662,9 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
                 const color=status==='DELAYED'?'#dc2626':status==='URGENT'?'#16a34a':'#334155';
                 const bg=status==='DELAYED'?'#fee2e2':status==='URGENT'?'#dcfce7':'#fff';
                 const tr=document.createElement('tr');
-                tr.style.background = bg;
+                if (status === 'DELAYED') tr.classList.add('sn-status-delayed');
+                else if (status === 'URGENT') tr.classList.add('sn-status-urgent');
                 tr.innerHTML=`<td>${index+1}</td><td>${item.thana||'-'}</td><td style="font-weight:bold;color:#2563eb;">${item.case_no||'-'}</td><td>${item.info_date||'-'}</td><td>${item.section||'-'}</td><td>${item.named||0}</td><td>${item.revealed||0}</td><td style="font-weight:bold;">${yoga}</td><td>${item.arrested||0}</td><td>${item.court||0}</td><td>${item.notice||0}</td><td>${getWrongCount(item)}</td><td>0</td><td style="font-weight:bold;color:#dc2626;">${rem}</td><td class="wrap-col w-io">${item.io_name||'-'}</td><td style="font-weight:700;color:#0284c7;">${limit===0?'0 DAYS':limit+' दिन'}</td><td style="font-weight:800;">${days} दिन</td><td style="font-weight:900;color:${color};">${status||'-'}</td>`;
-                Array.from(tr.cells).forEach(cell => { cell.style.backgroundColor = bg; });
                 tbody.appendChild(tr);
             });
         }
@@ -44164,6 +44164,83 @@ table[class*="rsp-independent-table-"] thead th {
     grid-column: span 5 !important;
     min-width: 0 !important;
     width: 100% !important;
+  }
+}
+</style>
+
+
+<style id="rsp-60-90-requested-color-design">
+/* केवल #tabHistory की 60/90 Numerical Summary Table */
+#tabHistory #snNumericSummary {
+  border: 2px solid #222;
+  border-collapse: collapse;
+}
+#tabHistory #snNumericSummary thead th {
+  background: #f8dfcf !important;
+  color: #b91c1c !important;
+  border: 1px solid #222 !important;
+  vertical-align: middle;
+}
+#tabHistory #snNumericSummary thead th:nth-child(8) { background:#fff200 !important; }
+#tabHistory #snNumericSummary thead th:nth-child(10),
+#tabHistory #snNumericSummary thead th:nth-child(13) { background:#91f59a !important; }
+#tabHistory #snNumericSummary thead th:nth-child(11),
+#tabHistory #snNumericSummary thead th:nth-child(14) { background:#f8dfd5 !important; }
+#tabHistory #snNumericSummary tbody td {
+  border: 1px solid #222 !important;
+  vertical-align: middle !important;
+  background:#ffdf70 !important;
+  color:#111 !important;
+}
+#tabHistory #snNumericSummary tbody td:nth-child(8),
+#tabHistory #snNumericSummary tbody td:nth-child(9),
+#tabHistory #snNumericSummary tbody td:nth-child(12),
+#tabHistory #snNumericSummary tbody td:nth-child(15) { background:#ffdf70 !important; }
+#tabHistory #snNumericSummary tbody td:nth-child(10),
+#tabHistory #snNumericSummary tbody td:nth-child(13) { background:#91f59a !important; }
+#tabHistory #snNumericSummary tbody td:nth-child(11),
+#tabHistory #snNumericSummary tbody td:nth-child(14) { background:#f8dfd5 !important; }
+#tabHistory #snNumericSummary tbody tr.total-row td {
+  background:#fff200 !important;
+  color:#c51d1d !important;
+  font-weight:900 !important;
+}
+#tabHistory #snNumericSummary tbody tr.total-row td:nth-child(8) {
+  background:#9fc5e8 !important;
+  color:#172b9a !important;
+}
+
+/* 60/90 detailed records: DELAYED red gradient, URGENT green gradient.
+   No status class is applied to IPC/ACT rows, so their existing appearance remains. */
+#tabHistory .rsp-independent-table-15 tbody tr.sn-status-delayed > td {
+  background:linear-gradient(110deg,#8198bd 0%,#ed111b 48%,#8198bd 100%) !important;
+  color:#fff23b !important;
+  font-weight:800 !important;
+  border:1px solid #1765a8 !important;
+  -webkit-print-color-adjust:exact !important;
+  print-color-adjust:exact !important;
+}
+#tabHistory .rsp-independent-table-15 tbody tr.sn-status-urgent > td {
+  background:linear-gradient(110deg,#7e9cba 0%,#19c653 48%,#7e9cba 100%) !important;
+  color:#ffffff !important;
+  text-shadow:0 1px 2px #003b16 !important;
+  font-weight:900 !important;
+  border:1px solid #1765a8 !important;
+  -webkit-print-color-adjust:exact !important;
+  print-color-adjust:exact !important;
+}
+@media print {
+  #tabHistory #snNumericSummary,
+  #tabHistory #snNumericSummary *,
+  #tabHistory .rsp-independent-table-15 tbody tr.sn-status-delayed > td,
+  #tabHistory .rsp-independent-table-15 tbody tr.sn-status-urgent > td {
+    -webkit-print-color-adjust:exact !important;
+    print-color-adjust:exact !important;
+  }
+  #tabHistory #snNumericSummary thead th,
+  #tabHistory #snNumericSummary tbody td,
+  #tabHistory #snNumericSummary tbody tr.total-row td {
+    border:1px solid #222 !important;
   }
 }
 </style>
