@@ -38819,6 +38819,18 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
   font-size: 14px !important; line-height: 1.48 !important;
 }
 </style>
+
+
+<style id="rsp-60-90-optional-io-print">
+/* 60/90 report: विवेचक का कॉलम केवल विकल्प चुनने पर Print/PDF में दिखे। */
+@media print {
+  #tabHistory .sn-print-option { display:none !important; }
+  body:not(.sn-print-show-io) #tabHistory .rsp-independent-table-15 thead th:nth-child(15),
+  body:not(.sn-print-show-io) #tabHistory .rsp-independent-table-15 tbody td:nth-child(15) {
+    display:none !important;
+  }
+}
+</style>
 </head>
 <body>
 <!-- SSO LOGIN SECTION -->
@@ -39579,7 +39591,8 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
 <span>📜 60/90 दिवस की लम्बित विवेचना का विवरण</span>
 <div style="display:flex; gap:0.5rem;">
 <button class="btn btn-green" onclick="exportSixtyNinetyToExcel()">📊 EXPORT</button>
-<button class="btn btn-purple" onclick="window.print()">🖨️ PDF</button>
+<label class="sn-print-option" style="display:inline-flex;align-items:center;gap:5px;font-weight:700;color:#123d70;cursor:pointer;"><input type="checkbox" id="snPrintIoToggle"/> विवेचक का नाम दिखाएँ</label>
+<button class="btn btn-purple" onclick="printSixtyNinetyPDF()">🖨️ PDF</button>
 </div>
 </div>
 <div class="filter-grid" style="margin-bottom: 1rem;">
@@ -41674,6 +41687,18 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
             let wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Pending_60_90_Days");
             XLSX.writeFile(wb, "60_90_Days_Pending_Filtered.xlsx");
+        }
+
+        function printSixtyNinetyPDF() {
+            const showIo = !!document.getElementById('snPrintIoToggle')?.checked;
+            document.body.classList.toggle('sn-print-show-io', showIo);
+            const cleanup = () => {
+                document.body.classList.remove('sn-print-show-io');
+                window.removeEventListener('afterprint', cleanup);
+            };
+            window.addEventListener('afterprint', cleanup);
+            window.print();
+            setTimeout(cleanup, 3000);
         }
 
         function toggleSelectAll(source) {
