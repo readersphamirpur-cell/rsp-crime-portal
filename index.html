@@ -40113,6 +40113,7 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
    <div class="input-group"><label>विवेचना की स्थिति</label><select class="input-control" id="woStatus"><option value="ALL">सभी</option><option>विवेचनाधीन</option><option>आरोप पत्र प्रेषित</option><option>अंतिम रिपोर्ट</option></select></div>
    <div class="input-group"><label>दिनांक सूचना से</label><input class="input-control" type="date" id="woFrom"></div><div class="input-group"><label>दिनांक सूचना तक</label><input class="input-control" type="date" id="woTo"></div>
    <div class="input-group"><label>प्रकार</label><select class="input-control" id="woType"><option value="ALL">ALL</option><option value="WORK">WORK OUT</option><option value="UNWORK">UNWORK OUT</option></select></div>
+   <div class="input-group"><label>FCR (हाँ/नहीं)</label><select class="input-control" id="woFcr"><option value="ALL">सभी</option><option value="हाँ">हाँ (YES)</option><option value="नहीं">नहीं (NO)</option></select></div>
   </div>
   <div class="section-subheading">अपराध शीर्षक चुनें</div>
   <div class="dashboard-multi-filter" id="woCrimeMultiFilter" style="max-width:520px;margin-bottom:1rem">
@@ -44860,7 +44861,7 @@ function toggleWorkOutCrimeMenu(){const w=document.getElementById('woCrimeMultiF
 function setWorkOutCrimeChecks(checked){document.querySelectorAll('#woCrimeOptions .wo-crime').forEach(e=>e.checked=checked);updateWorkOutCrimeSummary();}
 function updateWorkOutCrimeSummary(){const chosen=[...document.querySelectorAll('#woCrimeOptions .wo-crime:checked')];const all=document.querySelectorAll('#woCrimeOptions .wo-crime').length;const label=document.getElementById('woCrimeSummaryLabel');if(label)label.textContent=chosen.length===all?'सभी अपराध शीर्षक':chosen.length?`${chosen.length} अपराध शीर्षक चयनित`:'कोई शीर्षक चयनित नहीं';}
 
-function workOutFilter(){const year=document.getElementById('woYear').value,th=document.getElementById('woThana').value,status=document.getElementById('woStatus').value,from=document.getElementById('woFrom').value,to=document.getElementById('woTo').value,type=document.getElementById('woType').value,selected=[...document.querySelectorAll('.wo-crime:checked')].map(e=>e.value);return (casesData||[]).filter(x=>{const d=String(x.info_date||'');if(loggedInThana!=='ALL'&&x.thana!==loggedInThana)return false;if(th!=='ALL'&&x.thana!==th)return false;if(year!=='ALL'&&!d.startsWith(year+'-'))return false;if(from&&d<from||to&&d>to)return false;if(status!=='ALL'&&x.status!==status)return false;if(!selected.includes(x.crime_title))return false;const total=getAccusedStats(x).total;if(type==='WORK'&&total<=0)return false;if(type==='UNWORK'&&total!==0)return false;return true;});}
+function workOutFilter(){const year=document.getElementById('woYear').value,th=document.getElementById('woThana').value,status=document.getElementById('woStatus').value,from=document.getElementById('woFrom').value,to=document.getElementById('woTo').value,type=document.getElementById('woType').value,fcr=document.getElementById('woFcr')?.value||'ALL',selected=[...document.querySelectorAll('.wo-crime:checked')].map(e=>e.value);return (casesData||[]).filter(x=>{const d=String(x.info_date||'');if(loggedInThana!=='ALL'&&x.thana!==loggedInThana)return false;if(th!=='ALL'&&x.thana!==th)return false;if(year!=='ALL'&&!d.startsWith(year+'-'))return false;if(from&&d<from||to&&d>to)return false;if(status!=='ALL'&&x.status!==status)return false;if(!selected.includes(x.crime_title))return false;const fcrValue=String(x.fcr_head??x.fcr??'नहीं').trim();const isFcrYes=['हाँ','हां','YES','Yes','yes','true','1'].includes(fcrValue);if(fcr==='हाँ'&&!isFcrYes)return false;if(fcr==='नहीं'&&isFcrYes)return false;const total=getAccusedStats(x).total;if(type==='WORK'&&total<=0)return false;if(type==='UNWORK'&&total!==0)return false;return true;});}
 function renderWorkOutReport(){
  if(!document.getElementById('woDetails'))return;currentWorkOutCases=workOutFilter();
  const presentCrimes=new Set(currentWorkOutCases.map(x=>x.crime_title||'अन्य'));const crimes=[...(EXACT_CRIME_LIST||[]).filter(c=>presentCrimes.has(c)),...[...presentCrimes].filter(c=>!(EXACT_CRIME_LIST||[]).includes(c))];
@@ -44890,6 +44891,15 @@ document.addEventListener('click',function(ev){
 
 </script>
 
+
+<style id="rsp-workout-fcr-filter-and-crime-menu-fix">
+/* WORK OUT / UNWORK OUT only: keep the crime-title menu above the report tables. */
+#tabWorkOut .scope-card { overflow: visible !important; }
+#tabWorkOut #woCrimeMultiFilter { position: relative !important; z-index: 1000 !important; }
+#tabWorkOut #woCrimeMultiFilter.open { z-index: 1002 !important; }
+#tabWorkOut #woCrimeChecks { position: absolute !important; z-index: 1003 !important; top: calc(100% + 3px) !important; left: 0 !important; right: auto !important; }
+#tabWorkOut .table-container { position: relative; z-index: 1; }
+</style>
 </body>
 
 <style id="rsp-two-tabs-image-reference-final">
