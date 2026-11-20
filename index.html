@@ -41112,15 +41112,44 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
         }
 
         function calculateDurationDays(infoDateStr, status, csDateStr) {
-            if (!infoDateStr) return 0;
-            let startDate = new Date(infoDateStr);
-            let endDate = new Date();
+            // Compare calendar dates, not elapsed 24-hour periods.
+            // This avoids UTC/local-time offsets causing the same duration
+            // to appear on two consecutive report days.
+            const toCalendarDay = (value) => {
+                if (value === null || value === undefined || String(value).trim() === '') return null;
+                const str = String(value).trim();
+                let y, m, d;
+                let match = str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+                if (match) {
+                    y = Number(match[1]); m = Number(match[2]); d = Number(match[3]);
+                } else {
+                    // Imported dates are commonly DD/MM/YYYY or DD.MM.YYYY.
+                    match = str.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{4})$/);
+                    if (match) {
+                        d = Number(match[1]); m = Number(match[2]); y = Number(match[3]);
+                    } else {
+                        const parsed = new Date(str);
+                        if (Number.isNaN(parsed.getTime())) return null;
+                        y = parsed.getFullYear(); m = parsed.getMonth() + 1; d = parsed.getDate();
+                    }
+                }
+                const check = new Date(Date.UTC(y, m - 1, d));
+                if (check.getUTCFullYear() !== y || check.getUTCMonth() !== m - 1 || check.getUTCDate() !== d) return null;
+                return Math.floor(Date.UTC(y, m - 1, d) / 86400000);
+            };
+
+            const startDay = toCalendarDay(infoDateStr);
+            if (startDay === null) return 0;
+
+            let endDay;
             if ((status === 'आरोप पत्र प्रेषित' || status === 'अंतिम रिपोर्ट') && csDateStr) {
-                endDate = new Date(csDateStr);
+                endDay = toCalendarDay(csDateStr);
+            } else {
+                const today = new Date();
+                endDay = Math.floor(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()) / 86400000);
             }
-            let diffTime = endDate - startDate;
-            let diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-            return diffDays >= 0 ? diffDays : 0;
+            if (endDay === null) return 0;
+            return Math.max(0, endDay - startDay);
         }
 
         function getPrescribedLimit(sectionStr) {
