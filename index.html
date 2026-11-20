@@ -20,6 +20,7 @@
         }
 
         .hidden { display: none !important; }
+        body.viewer-mode #actionHeader, body.viewer-mode #selectAllHeader, body.viewer-mode #bulkDeleteBtn, body.viewer-mode #wrongStationRecordsBtn { display:none !important; }
         .flex { display: flex; }
         .flex-col { flex-direction: column; }
 
@@ -40579,6 +40580,7 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
         // UID/email identities are not passwords; password verification is performed by Firebase Auth.
         const FIREBASE_LOGIN_ACCESS = {
             'readersphamirpur@gmail.com': { role: 'admin', thana: 'ALL' },
+            'rsp.office@gmail.com': { role: 'viewer', thana: 'ALL' },
             'readersphamirpur+kotwali@gmail.com': { role: 'station', thana: 'कोतवाली नगर' },
             'readersphamirpur+kurara@gmail.com': { role: 'station', thana: 'कुरारा' },
             'readersphamirpur+lalpura@gmail.com': { role: 'station', thana: 'ललपुरा' },
@@ -40610,7 +40612,7 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
             }
             const access = FIREBASE_LOGIN_ACCESS[u];
             if (!access) {
-                alert('यह Firebase Email ID पोर्टल के अधिकृत 16 Users में नहीं है।');
+                alert('यह Firebase Email ID पोर्टल के अधिकृत Users में नहीं है।');
                 generateCaptcha();
                 return;
             }
@@ -40623,8 +40625,8 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
                     await firebase.auth().signOut();
                     throw new Error('इस Firebase खाते के लिए पोर्टल अनुमति उपलब्ध नहीं है।');
                 }
-                loggedInThana = verifiedAccess.role === 'admin' ? 'ALL' : verifiedAccess.thana;
-                startDashboard(verifiedAccess.role === 'admin' ? 'Admin (सभी थाने)' : `थाना: ${verifiedAccess.thana}`);
+                loggedInThana = verifiedAccess.thana === 'ALL' ? 'ALL' : verifiedAccess.thana;
+                startDashboard(verifiedAccess.role === 'admin' ? 'Admin (सभी थाने)' : verifiedAccess.role === 'viewer' ? 'Viewer (केवल देखें)' : `थाना: ${verifiedAccess.thana}`);
                 startFirebaseDataSync();
             } catch (err) {
                 console.error('Firebase login failed:', err);
@@ -40659,11 +40661,17 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
                     if(el) { el.innerHTML = '<option value="ALL">सभी थाने</option>'; ALL_THANAS.forEach(t => el.appendChild(new Option(t, t))); el.disabled = false; }
                 });
 
-                userMgmtBtn.style.display = 'inline-flex';
-                actionHeader.style.display = '';
-                selectAllHeader.style.display = '';
-                bulkDeleteBtn.classList.remove('hidden');
+                const viewerMode = FIREBASE_LOGIN_ACCESS[(firebase.auth().currentUser?.email || '').toLowerCase()]?.role === 'viewer';
+                userMgmtBtn.style.display = viewerMode ? 'none' : 'inline-flex';
+                actionHeader.style.display = viewerMode ? 'none' : '';
+                selectAllHeader.style.display = viewerMode ? 'none' : '';
+                bulkDeleteBtn.classList.toggle('hidden', viewerMode);
+                document.body.classList.toggle('viewer-mode', viewerMode);
+                ['excelFileInput','partialExcelInput'].forEach(id => { const el=document.getElementById(id); if(el) { const label=el.closest('label'); if(label) label.style.display=viewerMode?'none':''; } });
+                const addBtn = document.querySelector('button[onclick="openAddModal()"]'); if(addBtn) addBtn.style.display = viewerMode ? 'none' : '';
+                const wrongBtn = document.getElementById('wrongStationRecordsBtn'); if(wrongBtn) wrongBtn.style.display = viewerMode ? 'none' : '';
             } else {
+                document.body.classList.remove('viewer-mode');
                 tf.innerHTML = `<option value="${loggedInThana}">${loggedInThana}</option>`;
                 tf.disabled = true;
                 ['fcrThanaFilter', 'catThanaFilter', 'pocsoThana', 'scstThana', 'itThana', 'womenThana'].forEach(id => {
@@ -40885,6 +40893,7 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
         }
 
         function openAddModal() {
+            if (isAuthenticatedViewer()) { alert('Viewer लॉगिन में नया रिकॉर्ड जोड़ने की अनुमति नहीं है।'); return; }
             document.getElementById('modalTitle').innerText = 'नया मुकदमा दर्ज करें';
             document.getElementById('editCaseId').value = '';
             document.getElementById('caseForm').reset();
@@ -40907,6 +40916,7 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
         }
 
         function editCase(id) {
+            if (isAuthenticatedViewer()) { alert('Viewer लॉगिन में रिकॉर्ड संशोधित करने की अनुमति नहीं है।'); return; }
             const item = casesData.find(c => String(c.id) === String(id) || Number(c.id) === Number(id));
             if (!item) return;
 
@@ -41000,6 +41010,7 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
 
         function saveCaseData(e) {
             e.preventDefault();
+            if (isAuthenticatedViewer()) { alert('Viewer लॉगिन में डेटा सेव करने की अनुमति नहीं है।'); return; }
             let named = Number(document.getElementById('f_named').value) || 0;
             let revealed = Number(document.getElementById('f_revealed').value) || 0;
             let totalAccused = named + revealed;
@@ -41461,13 +41472,14 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
                 const isRecovery = RECOVERY_CRIMES.includes(item.crime_title);
 
                 let tr = document.createElement('tr');
-                let checkboxTD = loggedInThana === 'ALL' ? `<td style="text-align:center;"><input type="checkbox" class="rowCheckbox" value="${item.id}"></td>` : '';
-                let actionTD = `<td style="text-align: center; display: flex; gap: 4px; justify-content: center;">` +
-                    `<button onclick="editCase('${item.id}')" class="btn btn-blue" style="padding: 0.2rem 0.45rem; font-size: 0.72rem;">Edit</button>`;
-                if (loggedInThana === 'ALL') {
+                const viewerMode = FIREBASE_LOGIN_ACCESS[(firebase.auth().currentUser?.email || '').toLowerCase()]?.role === 'viewer';
+                let checkboxTD = loggedInThana === 'ALL' && !viewerMode ? `<td style="text-align:center;"><input type="checkbox" class="rowCheckbox" value="${item.id}"></td>` : '';
+                let actionTD = viewerMode ? '' : (`<td style="text-align: center; display: flex; gap: 4px; justify-content: center;">` +
+                    `<button onclick="editCase('${item.id}')" class="btn btn-blue" style="padding: 0.2rem 0.45rem; font-size: 0.72rem;">Edit</button>`);
+                if (!viewerMode && loggedInThana === 'ALL') {
                     actionTD += `<button onclick="deleteCase('${item.id}')" class="btn btn-red" style="padding: 0.2rem 0.45rem; font-size: 0.72rem;">Delete</button>`;
                 }
-                actionTD += `</td>`;
+                if (!viewerMode) actionTD += `</td>`;
 
                 tr.innerHTML = `
                     ${checkboxTD}
@@ -42220,6 +42232,7 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
         }
 
         function deleteCase(id) {
+            if (isAuthenticatedViewer()) { alert('Viewer लॉगिन में रिकॉर्ड डिलीट करने की अनुमति नहीं है।'); return; }
             if (confirm('क्या आप वाकई इस मुकदमे के रिकॉर्ड को डिलीट करना चाहते हैं?')) {
                 casesData = casesData.filter(c => String(c.id) !== String(id) && Number(c.id) !== Number(id));
                 localStorage.setItem('rsp_hamirpur_cases', JSON.stringify(casesData));
@@ -42229,6 +42242,7 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
         }
 
         function deleteSelectedCases() {
+            if (isAuthenticatedViewer()) { alert('Viewer लॉगिन में रिकॉर्ड डिलीट करने की अनुमति नहीं है।'); return; }
             const checkboxes = document.querySelectorAll('.rowCheckbox:checked');
             if (checkboxes.length === 0) { alert('कृपया डिलीट करने के लिए कम से कम एक रिकॉर्ड चुनें!'); return; }
             if (confirm(`क्या आप चुने गए ${checkboxes.length} मुकदमों के रिकॉर्ड्स को डिलीट करना चाहते हैं?`)) {
@@ -42241,6 +42255,7 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
         }
 
         function importFromExcel(e) {
+            if (isAuthenticatedViewer()) { alert('Viewer लॉगिन में Excel Import की अनुमति नहीं है।'); e.target.value=''; return; }
             const file = e.target.files[0];
             if (!file) return;
             const reader = new FileReader();
@@ -42560,6 +42575,7 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
             const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([headers,...rows]),'Partial Investigation');XLSX.writeFile(wb,'Partial_Investigation_2026.xlsx');
         }
         function importPartialLegacyExcel(event) {
+            if (typeof isAuthenticatedViewer === 'function' && isAuthenticatedViewer()) { alert('Viewer लॉगिन में Excel Import की अनुमति नहीं है।'); event.target.value=''; return; }
             const file=event.target.files&&event.target.files[0];if(!file)return;
             const reader=new FileReader();reader.onload=function(e){try{
                 const wb=XLSX.read(new Uint8Array(e.target.result),{type:'array'});const sheet=wb.Sheets[wb.SheetNames[0]];const rows=XLSX.utils.sheet_to_json(sheet,{defval:''});
@@ -42630,6 +42646,11 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
             return !!(user && (user.email || '').toLowerCase() === ADMIN_EMAIL);
         }
 
+        function isAuthenticatedViewer() {
+            const user = firebase.auth().currentUser;
+            return !!(user && (user.email || '').toLowerCase() === 'rsp.office@gmail.com');
+        }
+
         function getAuthenticatedStation() {
             const user = firebase.auth().currentUser;
             if (!user) return null;
@@ -42651,7 +42672,7 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
             try {
                 const cached = JSON.parse(localStorage.getItem('rsp_hamirpur_cases') || '[]');
                 if (!Array.isArray(cached)) return [];
-                if (isAuthenticatedAdmin()) return cached;
+                if (isAuthenticatedAdmin() || isAuthenticatedViewer()) return cached;
                 const station = getAuthenticatedStation();
                 return station ? cached.filter(item => item && item.thana === station) : [];
             } catch (error) {
@@ -42661,7 +42682,7 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
         }
 
         function refreshCasesFromStationCache() {
-            if (isAuthenticatedAdmin()) {
+            if (isAuthenticatedAdmin() || isAuthenticatedViewer()) {
                 const allInitialSnapshotsArrived = firebaseExpectedStations.length > 0 &&
                     firebaseExpectedStations.every(station => firebaseInitialLoadedStations.has(station));
                 if (allInitialSnapshotsArrived) {
@@ -42699,12 +42720,12 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
             if (typeof applyFilters === 'function') applyFilters();
             if (typeof syncCasesToExtraInvestigation === 'function') syncCasesToExtraInvestigation();
 
-            const stationsToRead = isAuthenticatedAdmin()
+            const stationsToRead = (isAuthenticatedAdmin() || isAuthenticatedViewer())
                 ? Object.keys(STATION_ACCESS)
                 : [getAuthenticatedStation()].filter(Boolean);
             firebaseExpectedStations = stationsToRead.slice();
 
-            if (!isAuthenticatedAdmin() && stationsToRead.length !== 1) {
+            if (!isAuthenticatedAdmin() && !isAuthenticatedViewer() && stationsToRead.length !== 1) {
                 alert('इस Firebase खाते के लिए थाना अनुमति नहीं मिली।');
                 firebase.auth().signOut();
                 return;
@@ -42723,7 +42744,7 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
                     // During the first admin load, keep showing the local cache and render once
                     // after every station has supplied its first snapshot. Later live updates
                     // continue through the normal refresh path.
-                    if (initialLoadWasComplete || initialLoadIsComplete || !isAuthenticatedAdmin()) {
+                    if (initialLoadWasComplete || initialLoadIsComplete || (!isAuthenticatedAdmin() && !isAuthenticatedViewer())) {
                         refreshCasesFromStationCache();
                     }
                 };
@@ -42771,6 +42792,10 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
 
         window.saveDataToFirebase = function() {
             const user = firebase.auth().currentUser;
+            if (isAuthenticatedViewer()) {
+                alert('Viewer लॉगिन में Firebase पर डेटा लिखने की अनुमति नहीं है।');
+                return Promise.reject(new Error('Viewer is read-only'));
+            }
             if (!user) {
                 alert('Firebase Write के लिए Login आवश्यक है।');
                 return Promise.reject(new Error('Authentication required'));
@@ -42842,11 +42867,9 @@ table:has(#fcrDetailTableBody) td:nth-child(4) {
                 return;
             }
 
-            loggedInThana = restoredAccess.role === 'admin' ? 'ALL' : restoredAccess.thana;
+            loggedInThana = restoredAccess.thana === 'ALL' ? 'ALL' : restoredAccess.thana;
             startDashboard(
-                restoredAccess.role === 'admin'
-                    ? 'Admin (सभी थाने)'
-                    : `थाना: ${restoredAccess.thana}`
+                restoredAccess.role === 'admin' ? 'Admin (सभी थाने)' : restoredAccess.role === 'viewer' ? 'Viewer (केवल देखें)' : `थाना: ${restoredAccess.thana}`
             );
             startFirebaseDataSync();
         });
